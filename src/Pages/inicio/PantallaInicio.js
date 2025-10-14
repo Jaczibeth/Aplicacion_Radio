@@ -5,11 +5,11 @@ import { Title, Searchbar, Avatar, IconButton } from "react-native-paper";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold } from "@expo-google-fonts/poppins";
 
 // Componentes
-import BarraPestanas from "../../Componentes/BarraPestanas";
-import ListaNoticias from "../../Componentes/ListaNoticias";
-// Datos
-import { noticias } from "../../Data/noticias";
+import BarraPestanas from "../../componentes/BarraPestanas";
+import ListaNoticias from "../../componentes/ListaNoticias";
 
+// Datos
+import { noticias } from "../../datos/noticias";
 
 // Configuración
 import { NOMBRE_APP, PESTANAS, MENSAJES } from "../../configuracion/constantes";
