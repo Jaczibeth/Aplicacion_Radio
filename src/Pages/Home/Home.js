@@ -217,11 +217,11 @@ export default function Home({ navigation }) {
   );
 }
 const estilos = StyleSheet.create({
-  contenedor: { flex: 1, backgroundColor: "#fff", paddingTop: Platform.OS === "android" ? 35 : 0, },
+  contenedor: { flex: 1, backgroundColor: "#cdf2f6ff", paddingTop: Platform.OS === "android" ? 35 : 0, },
   encabezado: { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 15, paddingVertical: 10, },
   parrafoBienvenida: { fontFamily: "Poppins_400Regular", color: "#666", },
   tituloApp: { fontFamily: "Poppins_600SemiBold", },
-  buscador: { marginHorizontal: 15, borderRadius: 10, marginBottom: 10, backgroundColor: "#f0f0f0", },
+  buscador: { marginHorizontal: 15, borderRadius: 10, marginBottom: 10, backgroundColor: "#f6e7e7ff", },
   tituloReciente: { marginHorizontal: 15, marginBottom: 5, },
   tituloLoMasReciente: { fontFamily: "Poppins_600SemiBold", fontSize: 22, },
   listaCarrusel: { paddingBottom: 15, },
@@ -237,7 +237,7 @@ const estilos = StyleSheet.create({
   },
   categoriasScroll: { marginBottom: 10, },
   botonCategoria: (activo) => ({
-    backgroundColor: activo ? "#c9d6dbff" : "#eee",
+    backgroundColor: activo ? "#c3dbe5ff" : "#eee",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
