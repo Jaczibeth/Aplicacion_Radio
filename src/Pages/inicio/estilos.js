@@ -85,6 +85,3 @@ export const estilos = StyleSheet.create({
     }),
   },
 });
-
-
-
