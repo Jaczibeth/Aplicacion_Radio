@@ -5,7 +5,10 @@ import { estilos } from "./estilos";
 
 /**
  * PANTALLA DE CARGA (SPLASH)
+<<<<<<< HEAD
  * Se muestra al iniciar la aplicación
+=======
+>>>>>>> 8271e3094fb30905c56ed696bfaeb7daf644f112
  */
 export default function PantallaCarga({ navigation }) {
   const progreso = useRef(new Animated.Value(0)).current;
@@ -23,8 +26,12 @@ export default function PantallaCarga({ navigation }) {
       navigation.replace("Inicio");
     });
 
+<<<<<<< HEAD
     // Fallback: en caso de que por alguna razón el callback no se ejecute,
     // forzamos la navegación después del tiempo de splash + 500ms
+=======
+    // Navegación después del tiempo de splash + 500ms
+>>>>>>> 8271e3094fb30905c56ed696bfaeb7daf644f112
     timeoutRef.current = setTimeout(() => {
       navigation.replace("Inicio");
     }, DURACION_ANIMACION.SPLASH + 500);
@@ -45,7 +52,11 @@ export default function PantallaCarga({ navigation }) {
       ])
     ).start();
 
+<<<<<<< HEAD
     // Cleanup: cancelar timeout y detener animaciones
+=======
+    // Detener animaciones
+>>>>>>> 8271e3094fb30905c56ed696bfaeb7daf644f112
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -55,7 +66,11 @@ export default function PantallaCarga({ navigation }) {
     };
   }, [navigation, progreso, escala]);
 
+<<<<<<< HEAD
   // Calcular el ancho de la barra
+=======
+  // Ancho de la barra
+>>>>>>> 8271e3094fb30905c56ed696bfaeb7daf644f112
   const anchoBarra = progreso.interpolate({
     inputRange: [0, 1],
     outputRange: ["0%", "100%"],
@@ -84,6 +99,9 @@ export default function PantallaCarga({ navigation }) {
     </View>
   );
 }
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> 8271e3094fb30905c56ed696bfaeb7daf644f112

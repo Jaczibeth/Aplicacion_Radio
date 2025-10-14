@@ -46,7 +46,11 @@ export const estilos = StyleSheet.create({
     backgroundColor: colores.principal,
     borderRadius: bordesRedondeados.pequeno,
   },
+<<<<<<< HEAD
 });
 
 
 
+=======
+});
+>>>>>>> 8271e3094fb30905c56ed696bfaeb7daf644f112
