@@ -1,18 +1,26 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Splash from "./src/Pages/Splash/Splash";
-import Home from "./src/Pages/Home/Home";
+import { Provider as PaperProvider } from "react-native-paper";
+import { StatusBar } from "expo-status-bar";
 
-const Stack = createNativeStackNavigator();
+// Navegación
+import NavegadorPrincipal from "./src/navegacion/NavegadorPrincipal";
 
+// Configuración
+import { temaPrincipal } from "./src/configuracion/colores";
+
+
+/**
+ * APLICACIÓN PRINCIPAL
+ * La Tlaxiaqueña - App de Noticias
+ */
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash" component={Splash} />
-        <Stack.Screen name="Home" component={Home} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+    <PaperProvider theme={temaPrincipal}>
+      <NavigationContainer>
+        <StatusBar style="dark" />
+        <NavegadorPrincipal />
+      </NavigationContainer>
+    </PaperProvider>
+  );
 }
