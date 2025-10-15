@@ -43,8 +43,8 @@ const estilos = StyleSheet.create({
     paddingHorizontal: espaciado.pequeno,
     paddingVertical: espaciado.normal,
     backgroundColor: colores.fondoBlanco,
-    // permitir que el contenido controle el ancho; mantener una altura razonable
-    height: 60,
+    width: "150%",
+  height: 60,
   },
   pestana: {
     paddingVertical: espaciado.pequeno + 2,
@@ -53,7 +53,7 @@ const estilos = StyleSheet.create({
     borderRadius: bordesRedondeados.completo,
     marginHorizontal: espaciado.minimo,
     minWidth: 100,
-    width: 100,
+    Width: 100,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -63,7 +63,7 @@ const estilos = StyleSheet.create({
   textoPestana: {
     color: colores.textoGris,
     fontSize: tamanosTexto.pequeno,
-    fontWeight: "600",
+    fontWeight: "6000",
   },
   textoPestanaActiva: {
     color: colores.textoBlanc,
