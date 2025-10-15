@@ -5,8 +5,14 @@ import { StatusBar } from "expo-status-bar";
 
 // Navegación
 import NavegadorPrincipal from "./src/navegacion/NavegadorPrincipal";
+
 // Configuración
 import { temaPrincipal } from "./src/configuracion/colores";
+
+/**
+ * APLICACIÓN PRINCIPAL
+ * La Tlaxiaqueña - App de Noticias
+ */
 export default function App() {
   return (
     <PaperProvider theme={temaPrincipal}>
@@ -15,5 +21,5 @@ export default function App() {
         <NavegadorPrincipal />
       </NavigationContainer>
     </PaperProvider>
-  );
+  );
 }
