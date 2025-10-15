@@ -1,7 +1,7 @@
 import React from "react";
 import { View, FlatList, StyleSheet, Text } from "react-native";
 import TarjetaNoticia from "./TarjetaNoticia";
-import { colores, tamanosTexto, espaciado } from "../configuracion/colores";
+import { espaciado, colores, tamanosTexto } from "../configuracion/colores";
 
 /**
  * LISTA DE NOTICIAS
