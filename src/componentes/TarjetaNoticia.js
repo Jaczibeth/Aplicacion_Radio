@@ -7,10 +7,17 @@ export default function TarjetaNoticia({
   noticia,
   estaGuardada,
   alCambiarGuardado,
-  navigation // <-- Necesario para navegar
+  alVerDetalle, // callback preferido para ver detalle (ListaNoticias lo pasa)
+  navigation, // fallback: si se pasa navigation
 }) {
   const irADetalle = () => {
-    navigation.navigate("DetalleNoticia", { noticia });
+    if (typeof alVerDetalle === "function") {
+      alVerDetalle();
+      return;
+    }
+    if (navigation && typeof navigation.navigate === "function") {
+      navigation.navigate("DetalleNoticia", { noticia });
+    }
   };
 
   return (
