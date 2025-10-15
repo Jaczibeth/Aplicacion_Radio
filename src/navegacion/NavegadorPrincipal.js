@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 // Pantallas
 import PantallaCarga from "../Pages/carga/PantallaCarga";
-import PantallaInicio from "../Pages/inicio/PantallaInicio";
+import PantallaInicio from "../Pages/Inicio/PantallaInicio";
 
 const Pila = createNativeStackNavigator();
 
