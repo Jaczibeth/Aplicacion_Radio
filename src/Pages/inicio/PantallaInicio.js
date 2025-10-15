@@ -1,19 +1,58 @@
-import React, { useState } from "react";
-import { View, ScrollView, Text } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, ScrollView, Text, Animated } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Title, Searchbar, Avatar, IconButton } from "react-native-paper";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold } from "@expo-google-fonts/poppins";
 
 // Componentes
-import BarraPestanas from "../../componentes/BarraPestanas";
-import ListaNoticias from "../../componentes/ListaNoticias";
-
+import BarraPestanas from "../../Componentes/BarraPestanas";
+import ListaNoticias from "../../Componentes/ListaNoticias";
 // Datos
-import { noticias } from "../../datos/noticias";
+import { noticias } from "../../Data/noticias";
 
 // Configuración
 import { NOMBRE_APP, PESTANAS, MENSAJES } from "../../configuracion/constantes";
 import { estilos } from "./estilos";
+
+/**
+ * Componente TextoPulsante para animar con efecto de pulso el texto
+ */
+function TextoPulsante({ children, style }) {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const cicloAnimacion = Animated.loop(
+      Animated.sequence([
+        Animated.timing(scaleAnim, {
+          toValue: 1.05,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scaleAnim, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    cicloAnimacion.start();
+
+    return () => cicloAnimacion.stop();
+  }, [scaleAnim]);
+
+  return (
+    <Animated.Text
+      style={[
+        style,
+        {
+          transform: [{ scale: scaleAnim }],
+        },
+      ]}
+    >
+      {children}
+    </Animated.Text>
+  );
+}
 
 /**
  * PANTALLA DE INICIO
@@ -68,7 +107,9 @@ export default function PantallaInicio({ navigation }) {
                 noticias={favoritos}
                 estaGuardada={estaEnFavoritos}
                 alCambiarGuardado={cambiarFavorito}
-                alVerDetalle={(noticia) => navigation.navigate("DetalleNoticia", { noticia })}
+                alVerDetalle={(noticia) =>
+                  navigation.navigate("DetalleNoticia", { noticia })
+                }
               />
             )}
           </View>
@@ -77,22 +118,30 @@ export default function PantallaInicio({ navigation }) {
       case PESTANAS.DESTACADAS:
         return (
           <View>
-            <Text style={estilos.tituloSeccion}>Noticias Destacadas</Text>
+            <TextoPulsante style={estilos.tituloSeccion}>
+              Noticias Destacadas
+            </TextoPulsante>
             <ListaNoticias
               noticias={noticiasFiltradas}
               estaGuardada={estaEnFavoritos}
               alCambiarGuardado={cambiarFavorito}
-              alVerDetalle={(noticia) => navigation.navigate("DetalleNoticia", { noticia })}
+              alVerDetalle={(noticia) =>
+                navigation.navigate("DetalleNoticia", { noticia })
+              }
             />
 
-            <Text style={estilos.tituloSeccion}>Recientes</Text>
-            <ListaNoticias
-              noticias={noticias.slice(0, 3)}
-              estaGuardada={estaEnFavoritos}
-              alCambiarGuardado={cambiarFavorito}
-              alVerDetalle={(noticia) => navigation.navigate("DetalleNoticia", { noticia })}
-            />
-          </View>
+             <TextoPulsante style={estilos.tituloSeccion}>
+        Recientes
+      </TextoPulsante>
+      <ListaNoticias
+        noticias={noticias.slice(0, 3)}
+        estaGuardada={estaEnFavoritos}
+        alCambiarGuardado={cambiarFavorito}
+        alVerDetalle={(noticia) =>
+          navigation.navigate("DetalleNoticia", { noticia })
+        }
+      />
+    </View>
         );
 
       default:
@@ -143,27 +192,24 @@ export default function PantallaInicio({ navigation }) {
           icon="home"
           size={26}
           iconColor={pestanaActiva === PESTANAS.DESTACADAS ? "#0059ff" : "#888"}
-          onPress={() => setPestanaActiva(PESTANAS.DESTACADAS)}
-        />
+          onPress={() => setPestanaActiva(PESTANAS.DESTACADAS)} />
         <IconButton
           icon="compass-outline"
           size={26}
           iconColor={pestanaActiva === PESTANAS.DESCUBRIR ? "#0059ff" : "#888"}
-          onPress={() => setPestanaActiva(PESTANAS.DESCUBRIR)}
-        />
+          onPress={() => setPestanaActiva(PESTANAS.DESCUBRIR)}/>
         <IconButton
           icon="bookmark"
           size={26}
           iconColor={pestanaActiva === PESTANAS.MARCADORES ? "#0059ff" : "#888"}
-          onPress={() => setPestanaActiva(PESTANAS.MARCADORES)}
-        />
-        <IconButton
-          icon="cog-outline"
-          size={26}
-          iconColor="#888"
-          onPress={() => console.log("Configuración")}
-        />
+          onPress={() => setPestanaActiva(PESTANAS.MARCADORES)}/>
+      <IconButton
+  icon="cog-outline"
+  size={26}
+  iconColor="#888"
+  onPress={() => navigation.navigate("Pantallaconfiguracion")}/>
+
       </View>
     </SafeAreaView>
-  );
+  );
 }

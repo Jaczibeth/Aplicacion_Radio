@@ -5,6 +5,7 @@ import { estilos } from "./estilos";
 
 /**
  * PANTALLA DE CARGA (SPLASH)
+ * Se muestra al iniciar la aplicación
  */
 export default function PantallaCarga({ navigation }) {
   const progreso = useRef(new Animated.Value(0)).current;
@@ -22,7 +23,8 @@ export default function PantallaCarga({ navigation }) {
       navigation.replace("Inicio");
     });
 
-    // Navegación después del tiempo de splash + 500ms
+    // Fallback: en caso de que por alguna razón el callback no se ejecute,
+    // forzamos la navegación después del tiempo de splash + 500ms
     timeoutRef.current = setTimeout(() => {
       navigation.replace("Inicio");
     }, DURACION_ANIMACION.SPLASH + 500);
@@ -43,7 +45,7 @@ export default function PantallaCarga({ navigation }) {
       ])
     ).start();
 
-    // Detener animaciones
+    // Cleanup: cancelar timeout y detener animaciones
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -53,7 +55,7 @@ export default function PantallaCarga({ navigation }) {
     };
   }, [navigation, progreso, escala]);
 
-  // Ancho de la barra
+  // Calcular el ancho de la barra
   const anchoBarra = progreso.interpolate({
     inputRange: [0, 1],
     outputRange: ["0%", "100%"],
@@ -75,9 +77,7 @@ export default function PantallaCarga({ navigation }) {
 
       {/* Barra de progreso */}
       <View style={estilos.contenedorBarra}>
-        <Animated.View
-          style={[estilos.barraCarga, { width: anchoBarra }]}
-        />
+        <Animated.View style={[estilos.barraCarga, { width: anchoBarra }]} />
       </View>
     </View>
   );
