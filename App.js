@@ -1,20 +1,25 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { Provider as PaperProvider } from "react-native-paper";
+import { StatusBar } from "expo-status-bar";
 
+// Navegación
+import NavegadorPrincipal from "./src/navegacion/NavegadorPrincipal";
+
+// Configuración
+import { temaPrincipal } from "./src/configuracion/colores";
+
+/**
+ * APLICACIÓN PRINCIPAL
+ * La Tlaxiaqueña - App de Noticias
+ */
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <PaperProvider theme={temaPrincipal}>
+      <NavigationContainer>
+        <StatusBar style="dark" />
+        <NavegadorPrincipal />
+      </NavigationContainer>
+    </PaperProvider>
+  );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
