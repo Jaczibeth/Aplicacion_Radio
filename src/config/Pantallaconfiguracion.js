@@ -57,18 +57,7 @@ export default function PantallaConfiguracion({ navigation }) {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Animated.View style={{ opacity: fadeAnim }}>
-          {/* Sección de notificaciones */}
-          <Text style={styles.sectionTitle}>Notificaciones</Text>
-          <View style={styles.option}>
-            <Text style={styles.optionText}>Recibir alertas</Text>
-            <Switch
-              value={notificaciones}
-              onValueChange={toggleNotificaciones}
-              thumbColor={notificaciones ? "#144784" : "#B3B3B3"} 
-              trackColor={{ false: "#B3B3B3", true: "#144784" }}  
-            />
-          </View>
-
+         
           {/* Sección de calificación */}
           <Text style={styles.sectionTitle}>Califica nuestra App</Text>
           <View style={styles.option}>
