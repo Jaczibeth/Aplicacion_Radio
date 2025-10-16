@@ -1,4 +1,3 @@
-// datos/noticias.js
 
 export const noticias = [
   {
