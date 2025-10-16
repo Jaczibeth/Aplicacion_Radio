@@ -6,6 +6,7 @@ import { useFonts, Poppins_400Regular, Poppins_600SemiBold } from "@expo-google-
 // Componentes
 import BarraPestanas from "../../Componentes/BarraPestanas";
 import ListaNoticias from "../../Componentes/ListaNoticias";
+import DescubrirScreen from "../Descubrir/DescubrirScreen";
 // Datos
 import { noticias } from "../../Data/noticias";
 
@@ -103,7 +104,13 @@ export default function PantallaInicio({ navigation }) {
         alVerDetalle={(noticia) =>
           navigation.navigate("DetalleNoticia", { noticia }) }/>
     </View> );
-      default:return <Text style={estilos.textoVacio}>Sección en desarrollo...</Text>;
+      case PESTANAS.DESCUBRIR:
+        return (
+          <View style={{ flex: 1 }}>
+            <DescubrirScreen />
+          </View>
+        );
+      default:return <Text style={estilos.textoVacio}>Sección en desarrollo...      </Text>;
     }
   };
   return (
@@ -133,7 +140,7 @@ export default function PantallaInicio({ navigation }) {
       {/* NAVEGACIÓN INFERIOR */}
       <View style={estilos.barraNavegacion}>
         <IconButton icon="home"size={26}iconColor={pestanaActiva === PESTANAS.DESTACADAS ? "#144784" : "#888"} onPress={() => setPestanaActiva(PESTANAS.DESTACADAS)} />
-        <IconButton icon="compass" size={26} iconColor={pestanaActiva === PESTANAS.DESCUBRIR ? "#144784" : "#888"}  onPress={() => setPestanaActiva(PESTANAS.DESCUBRIR)}/>
+        <IconButton icon="compass" size={26} iconColor={pestanaActiva === PESTANAS. DESCUBRIR ? "#144784" : "#888"}  onPress={() => setPestanaActiva(PESTANAS.DESCUBRIR)}/>
         <IconButton  icon="bookmark"  size={26}  iconColor={pestanaActiva === PESTANAS.MARCADORES ? "#144784" : "#888"}onPress={() => setPestanaActiva(PESTANAS.MARCADORES)}/>
       <IconButton icon="cog"  size={26}  iconColor="#144784"  onPress={() => navigation.navigate("Configuracion")}/>
       </View>
