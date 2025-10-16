@@ -3,10 +3,10 @@ import { Text, TouchableOpacity, FlatList, StyleSheet } from "react-native";
 import { LISTA_PESTANAS } from "../configuracion/constantes";
 import { colores, tamanosTexto, espaciado, bordesRedondeados } from "../configuracion/colores";
 
-/**
- * BARRA DE PESTAÑAS
- * Pestañas horizontales deslizables para navegar entre secciones
- */
+
+//  BARRA DE PESTAÑAS
+// Pestañas horizontales deslizables para navegar entre secciones
+ 
 export default function BarraPestanas({ pestanaActiva, alCambiarPestana }) {
   return (
     <FlatList
@@ -20,23 +20,12 @@ export default function BarraPestanas({ pestanaActiva, alCambiarPestana }) {
           style={[
             estilos.pestana,
             pestanaActiva === item && estilos.pestanaActiva,
-          ]}
-          onPress={() => alCambiarPestana(item)}
-          activeOpacity={0.7}
-        >
-          <Text
-            style={[
-              estilos.textoPestana,
-              pestanaActiva === item && estilos.textoPestanaActiva,
-            ]}
-          >
+          ]}  onPress={() => alCambiarPestana(item)}  activeOpacity={0.7}>
+          <Text style={[   estilos.textoPestana,   pestanaActiva === item && estilos.textoPestanaActiva, ]} >
             {item}
           </Text>
         </TouchableOpacity>
-      )}
-    />
-  );
-}
+      )} />);}
 
 const estilos = StyleSheet.create({
   contenedor: {
@@ -63,13 +52,10 @@ const estilos = StyleSheet.create({
   textoPestana: {
     color: colores.textoGris,
     fontSize: tamanosTexto.pequeno,
-    fontWeight: "6000",
+    fontWeight: "605522",
   },
   textoPestanaActiva: {
     color: colores.textoBlanc,
     fontWeight: "700",
   },
 });
-
-
-
