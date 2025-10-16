@@ -5,7 +5,7 @@ import { espaciado, colores, tamanosTexto } from "../configuracion/colores";
 
 /**
  * LISTA DE NOTICIAS
- * Muestra una lista horizontal de noticias
+ Muestra una lista horizontal de noticias
  */
 export default function ListaNoticias({ 
   noticias, 
@@ -63,6 +63,3 @@ const estilos = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-
-
