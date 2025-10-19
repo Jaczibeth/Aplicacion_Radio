@@ -1,87 +1,62 @@
-import { StyleSheet, Platform } from "react-native";
-import { colores, tamanosTexto, espaciado, bordesRedondeados } from "../../configuracion/colores";
-import { ALTURA_NAVBAR } from "../../configuracion/constantes";
+import { StyleSheet } from "react-native";
 
-export const estilos = StyleSheet.create({
+const estilos = StyleSheet.create({
   contenedor: {
     flex: 1,
-    backgroundColor: colores.fondoGrisClaro,
+    backgroundColor: "#f5f5f5", 
   },
-  
-  // ENCABEZADO
   encabezado: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: espaciado.mediano,
-    paddingVertical: espaciado.normal,
-    backgroundColor: colores.fondoBlanco,
-    borderBottomWidth: 1,
-    borderBottomColor: colores.bordeClaro,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
   },
   contenedorTitulo: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,
   },
   tituloApp: {
-    fontSize: tamanosTexto.grande,
-    fontWeight: "700",
-    color: colores.textoOscuro,
-    marginLeft: espaciado.normal,
-    letterSpacing: 0.5,
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 22,
+    marginLeft: 10,
+    color: "#144784",
   },
-  
-  // BUSCADOR
   buscador: {
-    margin: espaciado.mediano,
-    borderRadius: bordesRedondeados.mediano,
-    backgroundColor: colores.fondoBlanco,
+    borderRadius: 50,
+    marginHorizontal: 10,
+    marginBottom: 10,
+    backfaceVisibility: "hidden",
   },
-  
-  // CONTENIDO
   contenido: {
     flex: 1,
-    marginBottom: ALTURA_NAVBAR,
   },
   tituloSeccion: {
-    fontSize: tamanosTexto.grande,
-    fontWeight: "700",
-    color: colores.textoOscuro,
-    marginTop: espaciado.grande,
-    marginBottom: espaciado.normal,
-    marginHorizontal: espaciado.mediano,
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 18,
+    marginTop: 15,
+    color: "#144784",
+    marginLeft: 15, // Alinear con el resto del contenido
   },
   textoVacio: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 14,
     textAlign: "center",
-    fontSize: tamanosTexto.mediano,
-    color: colores.textoGris,
-    marginTop: espaciado.enorme,
-    paddingHorizontal: espaciado.mediano,
+    marginTop: 20,
+    color: "#0a0a0aff",
   },
-  
-  // BARRA DE NAVEGACIÓN INFERIOR
-  barraNavegacion: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    height: ALTURA_NAVBAR,
-    backgroundColor: colores.fondoBlanco,
+  tituloImagenCarrusel: {
     position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderTopWidth: 1,
-    borderTopColor: colores.bordeClaro,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    bottom: 25,
+    left: 15,
+    right: 15,
+    color: "#fff",
+    fontSize: 18,
+    fontFamily: "Poppins_600SemiBold",
+    textShadowColor: "rgba(0,0,0,0.6)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
 });
+
+export default estilos;

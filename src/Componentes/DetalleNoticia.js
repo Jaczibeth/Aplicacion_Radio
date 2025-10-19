@@ -1,124 +1,155 @@
 import React from "react";
-import { View, Text, ScrollView, Image, StyleSheet, TouchableOpacity, Modal } from "react-native";
-import { colores, espaciado, tamanosTexto, bordesRedondeados } from "../configuracion/colores";
+import {View, Text, ScrollView,Image, StyleSheet, Modal, TouchableOpacity} from "react-native";
 import { IconButton } from "react-native-paper";
+
+const coloresPorCategoria = {
+  Deportes: "#f39c12",
+  Política: "#e74c3c",
+  Tecnologia: "#3498db",
+  Salud: "#27ae60",
+  Cultura: "#8e44ad",
+  Clima: "#3498db",
+  Educación: "#2980b9",
+  Economía: "#27ae60",
+  Otro: "#95a5a6",
+};
 
 export default function DetalleNoticia({ noticia, visible, onCerrar }) {
   if (!noticia) return null;
 
+  const colorCategoria =
+    coloresPorCategoria[noticia.categoria] || coloresPorCategoria["Otro"];
+
   return (
-    <Modal visible={visible} animationType="slide">
-      <View style={estilos.header}>
-        <Text style={estilos.headerTitulo}>Noticia</Text>
-        <IconButton icon="close" size={28} color={colores.textoOscuro} onPress={onCerrar} />
-      </View>
+    <Modal visible={visible} animationType="slide" transparent>
+      <View style={estilos.overlay}>
+        <View style={estilos.modal}>
+          {/* Cerrar botón */}
+          <TouchableOpacity onPress={onCerrar} style={estilos.botonCerrar}>
+            <IconButton icon="close" color="#fff" size={28} />
+          </TouchableOpacity>
 
-      <ScrollView style={estilos.contenedor}>
-        <Image source={{ uri: noticia.imagen }} style={estilos.imagen} />
-
-        <View style={estilos.seccion}>
-          {noticia.categoria && (
-            <View style={estilos.etiquetaCategoria}>
-              <Text style={estilos.textoCategoria}>{noticia.categoria}</Text>
-            </View>
+          {/* Imagen de la noticia */}
+          {noticia.imagen && (
+            <Image source={{ uri: noticia.imagen }} style={estilos.imagen} />
           )}
 
-          <Text style={estilos.titulo}>{noticia.titulo}</Text>
-          <Text style={estilos.fuenteTiempo}>{noticia.fuente} • {noticia.tiempo}</Text>
-        </View>
+          {/* Contenido principal */}
+          <ScrollView
+            style={estilos.contenido}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Categoría */}
+            {noticia.categoria && (
+              <View
+                style={[estilos.etiquetaCategoria, { backgroundColor: colorCategoria }]}
+              >
+                <Text style={estilos.textoCategoria}>{noticia.categoria}</Text>
+              </View>
+            )}
 
-        <View style={estilos.seccion}>
-          <Text style={estilos.descripcion}>{noticia.descripcion || "Sin descripción disponible."}</Text>
-        </View>
+            {/* Título */}
+            <Text style={estilos.titulo}>{noticia.titulo}</Text>
 
-        {noticia["descripcion Completa"] && (
-          <View style={estilos.seccion}>
-            <Text style={estilos.subtitulo}>Detalles</Text>
-            <Text style={estilos.detalle}>{noticia["descripcion Completa"]}</Text>
-          </View>
-        )}
-      </ScrollView>
+            {/* Fuente y tiempo de lectura */}
+            <Text style={estilos.fuenteTiempo}>
+              {noticia.fuente} • {noticia.tiempo}
+            </Text>
+
+            {/* Descripción corta */}
+            <Text style={estilos.descripcion}>
+              {noticia.descripcion}
+            </Text>
+
+            {/* Descripción completa */}
+            {noticia.descripcionCompleta && (
+              <>
+                <Text style={estilos.subtitulo}>Detalles</Text>
+                <Text style={estilos.detalle}>
+                  {noticia.descripcionCompleta}
+                </Text>
+              </>
+            )}
+          </ScrollView>
+        </View>
+      </View>
     </Modal>
   );
 }
 
 const estilos = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: espaciado.normal,
-    paddingVertical: espaciado.pequeno,
-    backgroundColor: colores.fondoTarjeta,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-  },
-  headerTitulo: {
-    fontSize: tamanosTexto.mediano,
-    fontWeight: "700",
-    color: colores.textoOscuro,
-  },
-  contenedor: {
+  overlay: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
-    paddingHorizontal: espaciado.normal,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modal: {
+    width: "90%",
+    height: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    overflow: "hidden",
+  },
+  botonCerrar: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    zIndex: 10,
+    backgroundColor: "#89878729",
+    borderRadius: 20,
   },
   imagen: {
     width: "100%",
-    height: 250,
-    borderRadius: bordesRedondeados.mediano,
-    marginVertical: espaciado.mediano,
-    resizeMode: "cover",
+    height: 250, 
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
   },
-  seccion: {
-    marginBottom: espaciado.mediano,
-    backgroundColor: "#fff",
-    borderRadius: bordesRedondeados.pequeno,
-    padding: espaciado.normal,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  contenido: {
+    padding: 16,
   },
   etiquetaCategoria: {
-    backgroundColor: colores.principal,
     alignSelf: "flex-start",
-    paddingHorizontal: espaciado.pequeno,
-    paddingVertical: espaciado.minimo,
-    borderRadius: bordesRedondeados.pequeno,
-    marginBottom: espaciado.minimo,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 12,
   },
   textoCategoria: {
-    fontSize: tamanosTexto.muyPequeno,
     color: "#fff",
-    fontWeight: "600",
+    fontWeight: "bold",
+    fontSize: 14,
   },
   titulo: {
-    fontSize: tamanosTexto.grande,
+    fontSize: 28,
     fontWeight: "700",
-    color: colores.textoOscuro,
-    marginBottom: espaciado.minimo,
+    color: "#222",
+    marginBottom: 8,
+    textAlign: "center",  
   },
   fuenteTiempo: {
-    color: colores.textoGris,
-    fontSize: tamanosTexto.pequeno,
-    marginBottom: espaciado.minimo,
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 12,
+    textAlign: "center",  
   },
   descripcion: {
-    fontSize: tamanosTexto.normal,
-    color: colores.textoGris,
-    lineHeight: 22,
+    fontSize: 16,
+    lineHeight: 24,
+    color: "#333",
+    marginBottom: 20,
+    textAlign: "justify",  
   },
   subtitulo: {
-    fontSize: tamanosTexto.mediano,
+    fontSize: 18,
     fontWeight: "600",
-    color: colores.textoOscuro,
-    marginBottom: espaciado.minimo,
+    marginBottom: 8,
+    color: "#111",
   },
   detalle: {
-    fontSize: tamanosTexto.normal,
-    color: colores.textoOscuro,
+    fontSize: 16,
+    color: "#444",
     lineHeight: 24,
+    textAlign: "justify",
   },
 });

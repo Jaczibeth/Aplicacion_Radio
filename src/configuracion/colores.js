@@ -127,8 +127,7 @@ export const temaPrincipal = {
       level5: "#E3E3E3",
     },
   },
-  // Fonts configuration removed - usando fuentes por defecto de Paper
-  // Las fuentes personalizadas se aplican directamente en los componentes
+
 };
 
 export default {
@@ -137,6 +136,20 @@ export default {
   espaciado,
   bordesRedondeados,
   temaPrincipal,
+};
+
+// Colores asignados por categoría de noticia (consistencia centralizada)
+export const coloresCategorias = {
+  Politica: "#cd220fff",
+  Deportes: "#f39c12",
+  Tecnologia: "#3498db",
+  Salud: "#27ae60",
+  Cultura: "#401155ff",
+  Clima: "#00aaff",
+  Educacion: "#7abae6ff",
+  Economia: "#e67e22",
+  Entretenimiento: "#9b59b6",
+  Otro: "#95a5a6",
 };
 
 

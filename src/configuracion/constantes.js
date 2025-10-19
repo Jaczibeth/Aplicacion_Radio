@@ -1,26 +1,22 @@
-// CONSTANTES DE LA APLICACIÓN
+// Nombre de la aplicación
 
-export const NOMBRE_APP = "LA TLAXIAQUEÑA";
-export const NOMBRE_APP_CORTO = "La Tlaxiaqueña";
-
-// Pestañas de navegación
+export const NOMBRE_APP = "NT's El Reloj";
+export const NOMBRE_APP_CORTO = "NT's El Reloj  ";
+// Definición de pestañas
 export const PESTANAS = {
-  MARCADORES: "Marcadores",
-  DESTACADAS: "Noticias destacadas",
-  DESCUBRIR: "Descubrir",
-  RECOMENDADAS: "Recomendadas",
-  CERCA: "Cerca de mí",
+  DESTACADAS: 'Destacadas',
+  MARCADORES: 'Marcadores', 
+  DESCUBRIR: 'Descubrir',
 };
+
 
 // Lista de pestañas
 export const LISTA_PESTANAS = [
   PESTANAS.MARCADORES,
   PESTANAS.DESTACADAS,
   PESTANAS.DESCUBRIR,
-  PESTANAS.RECOMENDADAS,
-  PESTANAS.CERCA,
-];
 
+];
 // Categorías de noticias
 export const CATEGORIAS = {
   POLITICA: "Política",
@@ -41,20 +37,16 @@ export const DURACION_ANIMACION = {
   LARGA: 1000,
   SPLASH: 4000,
 };
-
 // Dimensiones
-export const ALTURA_TARJETA = 320;
-export const ALTURA_NAVBAR = 65;
-export const ALTURA_HEADER = 60;
+export const ALTURA_TARJETA = 220;
+export const ALTURA_NAVBAR = 25;
+export const ALTURA_HEADER = 600;
 
 // Mensajes
 export const MENSAJES = {
-  SIN_FAVORITOS: "No hay favoritos todavía",
   SIN_NOTICIAS: "No hay noticias disponibles",
   CARGANDO: "Cargando...",
   ERROR_CARGAR: "Error al cargar las noticias",
+  SIN_FAVORITOS: 'No tienes favoritos aún.',
   BUSCAR_PLACEHOLDER: "¿Qué deseas buscar hoy?",
 };
-
-
-

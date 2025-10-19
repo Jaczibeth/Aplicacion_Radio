@@ -1,5 +1,3 @@
-// datos/noticias.js
-
 export const noticias = [
   {
     id: 1,
@@ -60,5 +58,67 @@ export const noticias = [
     categoria: "Economía",
     fuente: "Revista Agave",
     tiempo: "Hace 4 horas",
+  },
+
+  // Nuevas Noticias
+  {
+    id: 7,
+    titulo: "Científicos descubren una nueva especie de rana en Chiapas",
+    descripcion: "Una nueva especie de rana ha sido descubierta en la selva de Chiapas, destacándose por sus colores vibrantes.",
+    descripcionCompleta: "Investigadores han documentado una nueva especie de rana en la selva de Chiapas. Su colorido patrón y tamaño pequeño la hacen única en el ecosistema local, lo que la convierte en un hallazgo clave para la biodiversidad de la región.",
+    imagen: "https://www.infobae.com/resizer/v2/VKPQ4IVAKJH4JNNURRJ26KEPM4.jpg?auth=820838bd0f450d26119a3c13b02476aff4524371d873be8113dc653bc9fcde8e&smart=true&width=992&height=558&quality=85",
+    categoria: "Ciencia",
+    fuente: "Revista Nature",
+    tiempo: "Hace 5 horas",
+  },
+  {
+    id: 8,
+    titulo: "Nuevo centro de investigación en Oaxaca impulsará el ecoturismo",
+    descripcion: "Un nuevo centro de investigación se abrirá en Oaxaca, dedicado al estudio y preservación de los ecosistemas locales.",
+    descripcionCompleta: "Con el objetivo de impulsar el ecoturismo y la conservación del medio ambiente, se inaugurará un centro de investigación en Oaxaca, que contará con programas educativos sobre sostenibilidad.",
+    imagen: "https://www.portalambiental.com.mx/sites/default/files/styles/full_content/public/media/image/2022/12/oaxaca.jpeg?itok=AnbayCAV",
+    categoria: "Turismo",
+    fuente: "Gobierno de Oaxaca",
+    tiempo: "Hace 12 horas",
+  },
+  {
+    id: 9,
+    titulo: "La UNAM lanza nueva iniciativa para reducir la huella de carbono",
+    descripcion: "La Universidad Nacional Autónoma de México lanza un proyecto para reducir las emisiones de carbono en sus instalaciones.",
+    descripcionCompleta: "La UNAM ha presentado una nueva iniciativa para reducir las emisiones de carbono en sus instalaciones, con el fin de contribuir a la lucha contra el cambio climático. Este programa incluye el uso de energías renovables y la mejora de la eficiencia energética.",
+    imagen: "https://centralnoticiasmx.com/wp-content/uploads/2024/12/9601.jpg",
+    categoria: "Medio Ambiente",
+    fuente: "UNAM",
+    tiempo: "Hace 6 horas",
+  },
+  {
+    id: 10,
+    titulo: "Oaxaca se prepara para la llegada de turistas extranjeros",
+    descripcion: "El gobierno de Oaxaca trabaja en nuevas estrategias para atraer a más turistas internacionales al estado.",
+    descripcionCompleta: "El gobierno estatal ha lanzado nuevas estrategias para promocionar Oaxaca como destino turístico internacional. Entre ellas, se incluyen mejoras en infraestructura y la creación de paquetes turísticos exclusivos.",
+    imagen: "https://img.europapress.es/fotoweb/fotonoticia_20240130085957_1200.jpg",
+    categoria: "Turismo",
+    fuente: "Secretaría de Turismo de Oaxaca",
+    tiempo: "Hace 8 horas",
+  },
+  {
+    id: 11,
+    titulo: "Nuevo sistema de transporte público se estrena en Ciudad de México",
+    descripcion: "La Ciudad de México lanza un nuevo sistema de transporte público que promete mejorar la movilidad.",
+    descripcionCompleta: "El nuevo sistema de transporte público de la Ciudad de México incluye nuevas rutas, autobuses más modernos y un sistema de pago digital para mejorar la experiencia del usuario.",
+    imagen: "https://imagenes.eleconomista.com.mx/files/image_1200_600/uploads/2022/01/02/66e47dbac8111.jpeg",
+    categoria: "Ciudad",
+    fuente: "Gobierno de la Ciudad de México",
+    tiempo: "Hace 1 día",
+  },
+  {
+    id: 12,
+    titulo: "La industria del café mexicano recibe reconocimiento internacional",
+    descripcion: "Los productores de café en México han recibido premios por la calidad de sus granos en una competencia internacional.",
+    descripcionCompleta: "Productores de café mexicanos han sido galardonados en la competencia Specialty Coffee Association. Este reconocimiento refleja el trabajo de los agricultores para promover el café mexicano en mercados internacionales.",
+    imagen: "https://cafepromor.com/cdn/shop/articles/el-cafe-en-mexico-una-historia-de-independencia-y-sabor-559190.jpg?v=1726691634&width=1100",
+    categoria: "Agricultura",
+    fuente: "Revista Café y Cultura",
+    tiempo: "Hace 7 horas",
   },
 ];

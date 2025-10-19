@@ -3,15 +3,11 @@ import { View, FlatList, StyleSheet, Text } from "react-native";
 import TarjetaNoticia from "./TarjetaNoticia";
 import { colores, tamanosTexto, espaciado } from "../configuracion/colores";
 
-/**
- * LISTA DE NOTICIAS
- * Muestra una lista horizontal de noticias
- */
-export default function ListaNoticias({ 
-  noticias, 
-  estaGuardada, 
-  alCambiarGuardado, 
-  alVerDetalle 
+export default function ListaNoticiasVertical({
+  noticias,
+  estaGuardada,
+  alCambiarGuardado,
+  alVerDetalle
 }) {
   if (!noticias || noticias.length === 0) {
     return (
@@ -25,11 +21,8 @@ export default function ListaNoticias({
     <FlatList
       data={noticias}
       keyExtractor={(item) => item.id.toString()}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={estilos.contenedor}
       renderItem={({ item }) => (
-        <View style={estilos.contenedorTarjeta}>
+        <View style={estilos.contenedorItem}>
           <TarjetaNoticia
             noticia={item}
             estaGuardada={estaGuardada(item)}
@@ -38,18 +31,15 @@ export default function ListaNoticias({
           />
         </View>
       )}
+      contentContainerStyle={{ paddingBottom: 20 }}
+      showsVerticalScrollIndicator={false}
     />
   );
 }
 
 const estilos = StyleSheet.create({
-  contenedor: {
-    paddingHorizontal: espaciado.normal,
-    paddingVertical: espaciado.pequeno,
-  },
-  contenedorTarjeta: {
-    width: 320,
-    marginRight: espaciado.mediano,
+  contenedorItem: {
+    marginBottom: espaciado.pequeno,
   },
   contenedorVacio: {
     flex: 1,
@@ -63,6 +53,3 @@ const estilos = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-
-

@@ -1,17 +1,26 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { View } from "react-native";
 
-// Pantallas
 import PantallaCarga from "../Pages/carga/PantallaCarga";
-import PantallaInicio from "../Pages/Inicio/PantallaInicio";
+import PantallaInicio from "../Pages/inicio/PantallaInicio";
+import Pantallaconfiguracion from "../configuracion/Pantallaconfiguracion";
+import NavegacionInferior from "../Componentes/NavegacionInferior";
+import DescubrirScreen from "../Pages/Descubrir/DescubrirScreen";
+import DetalleNoticiaScreen from "../Pages/inicio/DetalleNoticiaScreen";
+
 
 const Pila = createNativeStackNavigator();
 
-/**
- * NAVEGADOR PRINCIPAL
- * Maneja la navegación entre pantallas
- */
 export default function NavegadorPrincipal() {
+
+  const PantallasConNavegacion = ({ Component, ...props }) => (
+    <View style={{ flex: 1 }}>
+      <Component {...props} />
+      <NavegacionInferior navigation={props.navigation} />
+    </View>
+  );
+
   return (
     <Pila.Navigator
       initialRouteName="Carga"
@@ -21,7 +30,14 @@ export default function NavegadorPrincipal() {
       }}
     >
       <Pila.Screen name="Carga" component={PantallaCarga} />
-      <Pila.Screen name="Inicio" component={PantallaInicio} />
+      <Pila.Screen name="Inicio">
+        {(props) => <PantallasConNavegacion Component={PantallaInicio} {...props} />}
+      </Pila.Screen>
+      <Pila.Screen name="Descubrir">
+        {(props) => <PantallasConNavegacion Component={DescubrirScreen} {...props} />}
+      </Pila.Screen>
+      <Pila.Screen name="DetalleNoticia" component={DetalleNoticiaScreen} />
+      <Pila.Screen name="Configuracion" component={Pantallaconfiguracion} />
     </Pila.Navigator>
   );
 }
