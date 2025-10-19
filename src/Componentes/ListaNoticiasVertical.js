@@ -3,11 +3,11 @@ import { View, FlatList, StyleSheet, Text } from "react-native";
 import TarjetaNoticia from "./TarjetaNoticia";
 import { espaciado, colores, tamanosTexto } from "../configuracion/colores";
 
-export default function ListaNoticias({ 
-  noticias, 
-  estaGuardada, 
-  alCambiarGuardado, 
-  alVerDetalle 
+export default function ListaNoticiasVertical({
+  noticias,
+  estaGuardada,
+  alCambiarGuardado,
+  alVerDetalle
 }) {
   if (!noticias || noticias.length === 0) {
     return (
@@ -20,12 +20,9 @@ export default function ListaNoticias({
   return (
     <FlatList
       data={noticias}
-      keyExtractor={(item) => item.id.toString()} // Clave única para cada noticia
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={estilos.contenedor}
+      keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
-        <View style={estilos.contenedorTarjeta} key={item.id}> 
+        <View style={estilos.contenedorItem}>
           <TarjetaNoticia
             noticia={item}
             estaGuardada={estaGuardada(item)}
@@ -34,18 +31,15 @@ export default function ListaNoticias({
           />
         </View>
       )}
+      contentContainerStyle={{ paddingBottom: 20 }}
+      showsVerticalScrollIndicator={false}
     />
   );
 }
 
 const estilos = StyleSheet.create({
-  contenedor: {
-    paddingHorizontal: espaciado.normal,
-    paddingVertical: espaciado.pequeno,
-  },
-  contenedorTarjeta: {
-    width: 320,
-    marginRight:135, 
+  contenedorItem: {
+    marginBottom: espaciado.pequeno,
   },
   contenedorVacio: {
     flex: 1,

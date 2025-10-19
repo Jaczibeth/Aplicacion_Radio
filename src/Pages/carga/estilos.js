@@ -1,49 +1,35 @@
 import { StyleSheet } from "react-native";
-import { colores, tamanosTexto, espaciado, bordesRedondeados } from "../../configuracion/colores";
 
 export const estilos = StyleSheet.create({
   contenedor: {
     flex: 1,
-    backgroundColor: colores.fondoBlanco,
+    backgroundColor: "#e7edf5ff", 
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: espaciado.enorme,
   },
-  contenedorLogo: {
+  logoContenedor: {
+    marginBottom: 40,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 5,
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
   },
   logo: {
-    width: 400,
-    height: 400,
+    width: 600, // Logo más grande
+    height: 600,
     resizeMode: "contain",
   },
-  nombreApp: {
-    fontSize: tamanosTexto.tituloGrande,
-    fontWeight: "800",
-    color: colores.rojoPrimario,
-    marginTop: espaciado.grande,
-    letterSpacing: 1.5,
+  contenedorPuntos: {
+    flexDirection: "row",
+    gap: 14,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  subtitulo: {
-    fontSize: tamanosTexto.mediano,
-    color: colores.textoGris,
-    marginTop: espaciado.pequeno,
-  },
-  contenedorBarra: {
-    width: "100%",
-    height: 8,
-    backgroundColor: colores.bordeClaro,
-    borderRadius: bordesRedondeados.pequeno,
-    overflow: "hidden",
-    marginTop: espaciado.enorme,
-  },
-  barraCarga: {
-    height: "100%",
-    backgroundColor: colores.principal,
-    borderRadius: bordesRedondeados.pequeno,
+  punto: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    backgroundColor: "#FF0000", // Rojo brillante de tu paleta
+    opacity: 0.3,
   },
 });

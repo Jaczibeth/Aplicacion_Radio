@@ -1,79 +1,129 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image, FlatList,} from "react-native";
+import { Avatar, Title } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const estaciones = [
-  { id: 1, nombre: "Latina Bandit" },
-  { id: 2, nombre: "80s ALIVE" },
-  { id: 3, nombre: "Radio Pig" },
-  { id: 4, nombre: "Smooth Jazz" },
-  { id: 5, nombre: "Chillout Vibes" },
-  { id: 6, nombre: "Classic Rock" },
-  { id: 7, nombre: "2 Love Radio" },
-  { id: 8, nombre: "Dance Machine" },
-  { id: 9, nombre: "Top 90’s" },
-  { id: 10, nombre: "Beam FM" },
-  { id: 11, nombre: "Soft Rock" },
-  { id: 12, nombre: "101 Smooth" },
-  { id: 13, nombre: "Classical Mix" },
-  { id: 14, nombre: "80s Pop" },
-  { id: 15, nombre: "Hip Hop" },
-];
+import { noticias } from "../../Data/noticias";
+import { NOMBRE_APP } from "../../configuracion/constantes";
 
-export default function DescubrirScreen() {
+export default function DescubrirScreen({ navigation }) {
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.grid}>
-        {estaciones.map((item) => (
-          <TouchableOpacity key={item.id} style={styles.card}>
-            <View style={styles.iconPlaceholder}>
-              <Text style={styles.iconText}>📻</Text>
-            </View>
-            <Text style={styles.cardText}>{item.nombre}</Text>
-          </TouchableOpacity>
-        ))}
+    <SafeAreaView style={styles.container}>
+      {/* Encabezado */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <Avatar.Image
+            size={45}
+          source={require("../../assets/Logos/nt-el-reloj.gif")}
+
+          />
+          <Title style={styles.title}>{NOMBRE_APP}</Title>
+        </View>
       </View>
-    </ScrollView>
+
+      <Text style={styles.subTitle}>Explora más noticias</Text>
+
+      {/* Contenedor scroll y banner */}
+      <View style={styles.contentWrapper}> 
+        <FlatList
+          data={noticias}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={2}
+          renderItem={({ item }) => (
+             <TouchableOpacity
+               style={styles.card}
+               onPress={() => navigation?.navigate?.("DetalleNoticia", { noticia: item })}
+             >
+               <Image source={{ uri: item.imagen }} style={styles.cardImage} />
+               <Text style={styles.cardTitle} numberOfLines={2}>{item.titulo}</Text>
+               <Text style={styles.cardCategory}>{item.categoria}</Text>
+             </TouchableOpacity>
+          )}
+          columnWrapperStyle={styles.grid}
+        />
+        {/* Banner inferior */}
+        <View style={styles.bannerInferior}>
+          <Text style={styles.bannerTexto}>¡No te pierdas nuestras noticias exclusivas!</Text>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    padding: 10,
+    backgroundColor: "#f5f5f5",
+    paddingHorizontal: 15,
   },
-  grid: {
+  header: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 22,
+    marginLeft: 10,
+    color: "#144784",
+    fontFamily: "Poppins_600SemiBold",
+  },
+  subTitle: {
+    fontSize: 18,
+    fontFamily: "Poppins_600SemiBold",
+    marginTop: 10,
+    marginBottom: 15,
+    color: "#144784",
+    marginLeft: 5,
+  },
+  contentWrapper: {
+    flex: 1,
     justifyContent: "space-between",
   },
+  grid: {
+    justifyContent: "space-between",
+    paddingBottom: 15,
+  },
   card: {
-    width: "30%",
-    backgroundColor: "#f5f5f5",
+    width: "48%", 
+    backgroundColor: "#f8f8f8",
     borderRadius: 10,
     marginBottom: 15,
-    alignItems: "center",
-    paddingVertical: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    overflow: "hidden",
+    elevation: 3,
   },
-  iconPlaceholder: {
-    backgroundColor: "#e0e0e0",
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
+  cardImage: {
+    width: "100%",
+    height: 100,
+  },
+  cardTitle: {
+    fontSize: 13,
+    fontFamily: "Poppins_400Regular",
+    paddingHorizontal: 8,
+    marginTop: 5,
+    color: "#333",
+  },
+  cardCategory: {
+    fontSize: 11,
+    fontFamily: "Poppins_400Regular",
+    paddingHorizontal: 8,
     marginBottom: 8,
+    color: "#888",
   },
-  iconText: {
-    fontSize: 22,
+  bannerInferior: {
+    backgroundColor: "#144784",
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    marginTop: 10,
+    alignItems: "center",
   },
-  cardText: {
-    textAlign: "center",
+  bannerTexto: {
+    color: "#fff",
     fontWeight: "600",
-    fontSize: 12,
+    fontSize: 14,
   },
 });
