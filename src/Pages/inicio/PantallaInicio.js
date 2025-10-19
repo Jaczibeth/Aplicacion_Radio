@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import {View,Text,FlatList, Image,TouchableOpacity,Dimensions} from "react-native";
+import { View, Text, FlatList, Image, TouchableOpacity, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Title, Searchbar, Avatar} from "react-native-paper";
+import { Title, Searchbar, Avatar } from "react-native-paper";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold } from "@expo-google-fonts/poppins";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -94,10 +94,8 @@ export default function PantallaInicio({ navigation }) {
     </TouchableOpacity>
   );
 
- 
   const renderizarCabecera = () => (
     <>
-  ¡
       <View style={estilos.encabezado}>
         <View style={estilos.contenedorTitulo}>
           <Avatar.Image
@@ -116,7 +114,6 @@ export default function PantallaInicio({ navigation }) {
         elevation={1}
       />
 
-    
       <BarraPestanas
         pestanaActiva={pestanaActiva}
         alCambiarPestana={(nuevaPestana) => {
@@ -154,7 +151,6 @@ export default function PantallaInicio({ navigation }) {
 
   return (
     <SafeAreaView style={estilos.contenedor}>
-
       <FlatList
         data={pestanaActiva === PESTANAS.MARCADORES ? favoritos : noticiasFiltradas}
         keyExtractor={(item) => item.id.toString()}

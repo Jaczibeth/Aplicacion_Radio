@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { PESTANAS } from "../configuracion/constantes"
+import { PESTANAS } from "../configuracion/constantes";
+
 export default function BarraPestanas({ pestanaActiva, alCambiarPestana }) {
   return (
     <View style={styles.contenedor}>
@@ -10,10 +11,17 @@ export default function BarraPestanas({ pestanaActiva, alCambiarPestana }) {
           <TouchableOpacity
             key={pestana}
             style={[styles.pestana, activo && styles.pestanaActiva]}
-            onPress={() => alCambiarPestana(pestana)}  
+            onPress={() => alCambiarPestana(pestana)}
           >
             <Text style={[styles.texto, activo && styles.textoActivo]}>
-              {pestana.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+              {pestana
+                .split(" ")
+                .map(
+                  (word) =>
+                    word.charAt(0).toUpperCase() +
+                    word.slice(1).toLowerCase()
+                )
+                .join(" ")}
             </Text>
           </TouchableOpacity>
         );
@@ -35,7 +43,7 @@ const styles = StyleSheet.create({
     borderBottomColor: "transparent",
   },
   pestanaActiva: {
-    borderBottomColor: "#144784",  
+    borderBottomColor: "#144784",
   },
   texto: {
     fontSize: 16,
@@ -43,6 +51,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   textoActivo: {
-    color: "#144784", 
+    color: "#144784",
   },
 });
