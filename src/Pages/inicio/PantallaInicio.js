@@ -144,7 +144,7 @@ export default function PantallaInicio({ navigation }) {
       )}
 
       {pestanaActiva === PESTANAS.MARCADORES && (
-        <Text style={estilos.tituloSeccion}>Mis Favoritos</Text>
+        <Text style={estilos.tituloSeccion}>Guardados</Text>
       )}
     </>
   );
