@@ -1,15 +1,14 @@
 // CONSTANTES DE LA APLICACIÓN
 
-export const NOMBRE_APP = "LA TLAXIAQUEÑA";
-export const NOMBRE_APP_CORTO = "La Tlaxiaqueña";
+export const NOMBRE_APP = "NT's El Reloj";
+export const NOMBRE_APP_CORTO = "NT's El Reloj  ";
 
 // Pestañas de navegación
 export const PESTANAS = {
   MARCADORES: "Marcadores",
   DESTACADAS: "Noticias destacadas",
   DESCUBRIR: "Descubrir",
-  RECOMENDADAS: "Recomendadas",
-  CERCA: "Cerca de mí",
+ 
 };
 
 // Lista de pestañas
@@ -55,6 +54,3 @@ export const MENSAJES = {
   ERROR_CARGAR: "Error al cargar las noticias",
   BUSCAR_PLACEHOLDER: "¿Qué deseas buscar hoy?",
 };
-
-
-

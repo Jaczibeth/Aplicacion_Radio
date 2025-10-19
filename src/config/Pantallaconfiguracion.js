@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
   sendButton: {
-    backgroundColor: "#FF0000",  // Rojo brillante para llamar la atención
+    backgroundColor: "#a8a8a5ff",  // Rojo brillante para llamar la atención
     padding: 12,
     marginTop: 16,
     borderRadius: 50,
