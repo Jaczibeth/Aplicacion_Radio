@@ -1,44 +1,55 @@
-import React, { useEffect, useRef, useState } from "react";
-import { View, StyleSheet, TouchableOpacity,Animated,Text, Share,Image, Modal, Button,ScrollView,} from "react-native";
-import { Card, Title, Paragraph, IconButton } from "react-native-paper";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import {View,StyleSheet,Animated, Text,Share,Image, TouchableOpacity,Dimensions,TextInput,Button} from "react-native";
+import {  Title, Paragraph, IconButton } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {colores,tamanosTexto,espaciado,} from "../configuracion/colores";
+import { colores, tamanosTexto, espaciado, coloresCategorias } from "../configuracion/colores";
 
-export default function TarjetaNoticia({
-  noticia,
-  estaGuardada,
-  alCambiarGuardado,
-}) {
+const { width } = Dimensions.get("window");
+const CARD_MARGIN = 10;
+const CARD_WIDTH = width * 0.99;
+
+const Accion = ({ icon, iconColor, contador, onPress, texto }) => (
+  <View style={estilos.accion}>
+    <IconButton icon={icon} iconColor={iconColor} size={20} onPress={onPress} />
+    <Text style={estilos.contador}>{contador}</Text>
+    <Text style={estilos.textoAccion}>{texto}</Text>
+  </View>
+);
+
+export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardado, alVerDetalle }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
+
   const [contadorLecturas, setContadorLecturas] = useState(0);
   const [contadorFavoritos, setContadorFavoritos] = useState(0);
   const [contadorComentarios, setContadorComentarios] = useState(0);
   const [contadorCompartidos, setContadorCompartidos] = useState(0);
-  const [mostrarDetalle, setMostrarDetalle] = useState(false);
+  const [comentarios, setComentarios] = useState([]);
+  const [nuevoComentario, setNuevoComentario] = useState("");
+  const [comentariosVisibles, setComentariosVisibles] = useState(false);
 
   const storageKey = `contadorNoticia_${noticia.id}`;
 
   useEffect(() => {
-    async function cargarContadores() {
+    const cargarDatos = async () => {
       try {
-        const data = await AsyncStorage.getItem(storageKey);
-        if (data) {
-          const parsed = JSON.parse(data);
+        const datosContadores = await AsyncStorage.getItem(storageKey);
+        if (datosContadores) {
+          const parsed = JSON.parse(datosContadores);
           setContadorLecturas(parsed.lecturas || 0);
           setContadorFavoritos(parsed.favoritos || 0);
           setContadorComentarios(parsed.comentarios || 0);
           setContadorCompartidos(parsed.compartidos || 0);
         }
       } catch (error) {
-        console.log("Error al cargar contadores:", error);
+        console.log("Error al cargar datos:", error);
       }
-    }
-    cargarContadores();
+    };
+    cargarDatos();
   }, [noticia]);
 
   useEffect(() => {
-    async function guardarContadores() {
+    const guardarContadores = async () => {
       try {
         const data = {
           lecturas: contadorLecturas,
@@ -50,14 +61,9 @@ export default function TarjetaNoticia({
       } catch (error) {
         console.log("Error al guardar contadores:", error);
       }
-    }
+    };
     guardarContadores();
-  }, [
-    contadorLecturas,
-    contadorFavoritos,
-    contadorComentarios,
-    contadorCompartidos,
-  ]);
+  }, [contadorLecturas, contadorFavoritos, contadorComentarios, contadorCompartidos]);
 
   useEffect(() => {
     fadeAnim.setValue(0);
@@ -76,19 +82,17 @@ export default function TarjetaNoticia({
     ]).start();
   }, [noticia]);
 
-  const irADetalle = () => {
+  const irADetalle = useCallback(() => {
+    if (alVerDetalle) alVerDetalle();
     setContadorLecturas((prev) => prev + 1);
-    setMostrarDetalle(true);
-  };
+  }, [alVerDetalle]);
 
-  const manejarFavorito = () => {
+  const manejarFavorito = useCallback(() => {
     if (!estaGuardada) setContadorFavoritos((prev) => prev + 1);
     alCambiarGuardado(noticia);
-  };
+  }, [estaGuardada, alCambiarGuardado, noticia]);
 
-  const manejarComentario = () => setContadorComentarios((prev) => prev + 1);
-
-  const manejarCompartir = async () => {
+  const manejarCompartir = useCallback(async () => {
     try {
       const resultado = await Share.share({
         title: noticia.titulo,
@@ -101,205 +105,100 @@ export default function TarjetaNoticia({
     } catch (error) {
       console.log("Error al compartir:", error);
     }
+  }, [noticia]);
+
+  const toggleComentariosVisibles = () => {
+    setComentariosVisibles((prev) => !prev);
+  };
+
+  const agregarComentario = () => {
+    if (nuevoComentario.trim() !== "") {
+      setComentarios((prev) => [
+        ...prev,
+        { texto: nuevoComentario, fecha: new Date().toLocaleString() },
+      ]);
+      setNuevoComentario("");
+      setContadorComentarios((prev) => prev + 1);
+    }
   };
 
   return (
-    <>
-      <Animated.View
-        style={[
-          estilos.cardAnimada,
-          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
-        ]}
-      >
-        <Card style={estilos.tarjeta} elevation={4}>
-          <TouchableOpacity onPress={irADetalle} activeOpacity={0.9}>
-            <Image source={{ uri: noticia.imagen }} style={estilos.imagen} />
-          </TouchableOpacity>
+    <Animated.View style={[estilos.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+      <TouchableOpacity activeOpacity={0.95} onPress={irADetalle}>
+        <View style={estilos.row}>
+          <View style={estilos.left}>
+            {noticia.categoria && (
+              <View style={[estilos.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
+                <Text style={estilos.textoCategoria}>{noticia.categoria}</Text>
+              </View>
+            )}
+            <Title style={estilos.titulo} numberOfLines={2}>{noticia.titulo}</Title>
+            <Paragraph style={estilos.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
 
-          <View style={estilos.cardContenido}>
-            <View style={estilos.areaContenido}>
-              <Text style={estilos.fuenteTiempo}>
-                {noticia.fuente} • {noticia.tiempo}
-              </Text>
-
-              {noticia.categoria && (
-                <View style={estilos.etiquetaCategoria}>
-                  <Text style={estilos.textoCategoria}>
-                    {noticia.categoria}
-                  </Text>
-                </View>
-              )}
-
-              <Title style={estilos.titulo} numberOfLines={2}>
-                {noticia.titulo}
-              </Title>
-              <Paragraph style={estilos.descripcion} numberOfLines={3}>
-                {noticia.descripcion || ""}
-              </Paragraph>
-            </View>
-
-       
             <View style={estilos.contenedorAcciones}>
-              <View style={estilos.accion}>
-                <IconButton
-                  icon="eye"
-                  iconColor={colores.principal}
-                  size={24}
-                  onPress={irADetalle} />
-                <Text style={estilos.contador}>{contadorLecturas}</Text>
-              </View>
-
-              <View style={estilos.accion}>
-                <IconButton
-                  icon="comment"
-                  iconColor={colores.azul}
-                  size={24}
-                  onPress={manejarComentario}
-                />
-                <Text style={estilos.contador}>{contadorComentarios}</Text>
-              </View>
-
-              <View style={estilos.accion}>
-                <IconButton
-                  icon={estaGuardada ? "bookmark" : "bookmark"}
-                  iconColor={
-                    estaGuardada
-                      ? colores.rojoPrimario
-                      : colores.textoGrisClaro
-                  }
-                  size={24}
-                  onPress={manejarFavorito}
-                />
-                <Text style={estilos.contador}>{contadorFavoritos}</Text>
-              </View>
-
-              <View style={estilos.accion}>
-                <IconButton
-                  icon="share-variant"
-                  iconColor={colores.azul}
-                  size={24}
-                  onPress={manejarCompartir}
-                />
-                <Text style={estilos.contador}>{contadorCompartidos}</Text>
-              </View>
+              <Accion icon="eye" iconColor={colores.textoGris} contador={contadorLecturas} onPress={irADetalle} texto="Ver" />
+              <Accion icon="comment" iconColor={colores.azul || '#144784'} contador={contadorComentarios} onPress={toggleComentariosVisibles} texto="Comentar" />
+              <Accion icon="bookmark" iconColor={estaGuardada ? colores.rojoPrimario : colores.textoGrisClaro} contador={contadorFavoritos} onPress={manejarFavorito} texto="Guardar" />
+              <Accion icon="share-variant" iconColor={colores.azul || '#144784'} contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
             </View>
           </View>
-        </Card>
-      </Animated.View>
 
-      {/* Modal detalle */}
-      <Modal visible={mostrarDetalle} animationType="slide">
-        <ScrollView
-          style={{
-            flex: 1,
-            padding: espaciado.normal,
-            backgroundColor: "#fff",
-          }}
-        >
-          <Button title="Cerrar" onPress={() => setMostrarDetalle(false)} />
-          <Image
-            source={{ uri: noticia.imagen }}
-            style={{
-              width: "100%",
-              height: 250,
-              borderRadius: 10,
-              marginBottom: espaciado.normal,
-            }}
-          />
-          {noticia.categoria && (
-            <Text
-              style={{
-                color: colores.principal,
-                fontWeight: "bold",
-                marginBottom: espaciado.minimo,
-              }}
-            >
-              {noticia.categoria}
-            </Text>
+          <Image source={{ uri: noticia.imagen }} style={estilos.imagenRight} />
+        </View>
+      </TouchableOpacity>
+
+      {comentariosVisibles && (
+        <View style={estilos.seccionComentarios}>
+          <Text style={estilos.tituloComentarios}>Comentarios</Text>
+          {comentarios.length > 0 ? (
+            comentarios.map((comentario, index) => (
+              <View key={index} style={estilos.comentario}>
+                <Text>{comentario.texto}</Text>
+                <Text style={estilos.fechaComentario}>{comentario.fecha}</Text>
+              </View>
+            ))
+          ) : (
+            <Text style={estilos.noComentarios}>No hay comentarios aún.</Text>
           )}
-          <Text
-            style={{
-              fontSize: tamanosTexto.grande,
-              fontWeight: "700",
-              marginBottom: espaciado.pequeno,
-            }}
-          >
-            {noticia.titulo}
-          </Text>
-          <Text
-            style={{
-              color: colores.textoGris,
-              fontSize: tamanosTexto.pequeno,
-              marginBottom: espaciado.normal,
-            }}
-          >
-            {noticia.fuente} • {noticia.tiempo}
-          </Text>
-          <Text
-            style={{
-              fontSize: tamanosTexto.normal,
-              color: colores.textoGris,
-              marginBottom: espaciado.normal,
-            }}
-          >
-            {noticia.descripcion}
-          </Text>
-        </ScrollView>
-      </Modal>
-    </>
+
+          <TextInput
+            style={estilos.inputComentario}
+            placeholder="Escribe un comentario..."
+            value={nuevoComentario}
+            onChangeText={setNuevoComentario}
+          />
+          <Button title="Comentar" onPress={agregarComentario} />
+        </View>
+      )}
+    </Animated.View>
   );
 }
 
 const estilos = StyleSheet.create({
-  cardAnimada: {
-    width: 320,
-    marginRight: espaciado.mediano,
-  },
   tarjeta: {
-    height: 540,
-    borderRadius: 10,
-    backgroundColor: "#fff",
+    marginBottom: espaciado.normal,
+    borderRadius: 12,
     overflow: "hidden",
-    marginBottom: espaciado.mediano,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
   },
-  imagen: {
-    height: 200,
-    width: "100%",
-    resizeMode: "cover",
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: espaciado.normal,
   },
-  cardContenido: {
+  left: {
     flex: 1,
-    justifyContent: "space-between",
-  },
-  areaContenido: {
-    paddingHorizontal: espaciado.normal,
-    paddingTop: espaciado.normal,
-    flexShrink: 1,
-    minHeight: 250,
-  },
-  fuenteTiempo: {
-    fontSize: tamanosTexto.pequeno,
-    color: colores.textoGrisClaro,
-    marginBottom: espaciado.minimo,
-  },
-  etiquetaCategoria: {
-    backgroundColor: colores.principal,
-    alignSelf: "flex-start",
-    paddingHorizontal: espaciado.pequeno,
-    paddingVertical: espaciado.minimo,
-    borderRadius: 5,
-    marginBottom: espaciado.pequeno,
-  },
-  textoCategoria: {
-    fontSize: tamanosTexto.muyPequeno,
-    color: "#fff",
-    fontWeight: "600",
+    paddingRight: espaciado.normal,
   },
   titulo: {
-    fontSize: tamanosTexto.mediano,
+    fontSize: tamanosTexto.grande,
     fontWeight: "700",
     color: colores.textoOscuro,
-    marginBottom: espaciado.pequeno,
   },
   descripcion: {
     fontSize: tamanosTexto.normal,
@@ -307,24 +206,133 @@ const estilos = StyleSheet.create({
   },
   contenedorAcciones: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-around", 
     alignItems: "center",
     paddingVertical: espaciado.minimo,
-    paddingHorizontal: espaciado.normal,
+    gap: 10,
   },
-accion: {
-  alignItems: "center",
-  justifyContent: "center",
-  width: 70,
-  marginTop: -8,
-},
+  accion: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  contador: {
+    fontSize: 12,
+    color: colores.textoGris,
+  },
+  textoAccion: {
+    fontSize: 12,
+    color: colores.textoGris,
+    textAlign: 'center',
+    paddingTop: 5,
+  },
+  imagenRight: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+  },
+ 
 
-contador: {
-  color: "#000",
-  fontSize: 13,
-  marginTop: -6, 
-  fontWeight: "bold",
-  textAlign: "center",
-},
 
+  tarjeta: {
+    marginBottom: espaciado.normal,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: espaciado.normal,
+  },
+  left: {
+    flex: 1,
+    paddingRight: espaciado.normal,
+  },
+  titulo: {
+    fontSize: tamanosTexto.grande,
+    fontWeight: "700",
+    color: colores.textoOscuro,
+  },
+  descripcion: {
+    fontSize: tamanosTexto.normal,
+    color: colores.textoGris,
+  },
+  contenedorAcciones: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingVertical: espaciado.minimo,
+    paddingHorizontal: 0,
+    gap: 8,
+  },
+  accion: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: 56,
+    marginTop: 0,
+  },
+  contador: {
+    color: "#000",
+    fontSize: 16,
+    marginTop: -6,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  seccionComentarios: {
+    marginTop: espaciado.grande,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+    paddingTop: espaciado.normal,
+  },
+  tituloComentarios: {
+    fontSize: tamanosTexto.mediano,
+    fontWeight: "700",
+    marginBottom: espaciado.pequeno,
+    color: colores.textoOscuro,
+  },
+  noComentarios: {
+    color: colores.textoGris,
+  },
+  comentario: {
+    backgroundColor: "#f8f8f8",
+    padding: espaciado.pequeno,
+    borderRadius: 8,
+    marginBottom: espaciado.minimo,
+  },
+  fechaComentario: {
+    fontSize: 11,
+    color: colores.textoGris,
+    marginTop: 2,
+    textAlign: "right",
+  },
+  inputComentario: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+  },
+  imagenRight: {
+    width: 110,
+    height: 110,
+    borderRadius: 8,
+    backgroundColor: '#eee',
+  },
+  etiquetaCategoria: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+    marginBottom: 8,
+  },
+  textoCategoria: {
+    color: '#fff',
+    fontSize: tamanosTexto.muyPequeno,
+    fontWeight: '700',
+  },
 });
