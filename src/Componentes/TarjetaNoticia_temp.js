@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import {View,StyleSheet,Animated, Text,Share,Image, TouchableOpacity,Dimensions,TextInput,Button} from "react-native";
-import {  Title, Paragraph, IconButton } from "react-native-paper";
+import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity, Dimensions, TextInput, Button } from "react-native";
+import { Title, Paragraph, IconButton } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colores, tamanosTexto, espaciado, coloresCategorias } from "../configuracion/colores";
 
 const { width } = Dimensions.get("window");
-const CARD_MARGIN = 10;
-const CARD_WIDTH = width * 0.99;
 
 const Accion = ({ icon, iconColor, contador, onPress, texto }) => (
   <View style={estilos.accion}>
@@ -128,24 +126,33 @@ export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardad
         <View style={estilos.row}>
           <View style={estilos.left}>
             {noticia.categoria && (
-              <View style={[estilos.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
+              <View
+                style={[
+                  estilos.etiquetaCategoria,
+                  { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro },
+                ]}
+              >
                 <Text style={estilos.textoCategoria}>{noticia.categoria}</Text>
               </View>
             )}
-            <Title style={estilos.titulo} numberOfLines={2}>{noticia.titulo}</Title>
-            <Paragraph style={estilos.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
-
-            <View style={estilos.contenedorAcciones}>
-              <Accion icon="eye" iconColor={colores.textoGris} contador={contadorLecturas} onPress={irADetalle} texto="Ver" />
-              <Accion icon="comment" iconColor={colores.azul || '#144784'} contador={contadorComentarios} onPress={toggleComentariosVisibles} texto="Comentar" />
-              <Accion icon="bookmark" iconColor={estaGuardada ? colores.rojoPrimario : colores.textoGrisClaro} contador={contadorFavoritos} onPress={manejarFavorito} texto="Guardar" />
-              <Accion icon="share-variant" iconColor={colores.azul || '#144784'} contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
-            </View>
+            <Title style={estilos.titulo} numberOfLines={2}>
+              {noticia.titulo}
+            </Title>
+            <Paragraph style={estilos.descripcion} numberOfLines={3}>
+              {noticia.descripcion}
+            </Paragraph>
           </View>
 
           <Image source={{ uri: noticia.imagen }} style={estilos.imagenRight} />
         </View>
       </TouchableOpacity>
+
+      <View style={estilos.contenedorAcciones}>
+        <Accion icon="eye" iconColor={colores.textoGris} contador={contadorLecturas} onPress={irADetalle} texto="Ver" />
+        <Accion icon="comment" iconColor={colores.azul || '#144784'} contador={contadorComentarios} onPress={toggleComentariosVisibles} texto="Comentar" />
+        <Accion icon="bookmark" iconColor={estaGuardada ? colores.rojoPrimario : colores.textoGrisClaro} contador={contadorFavoritos} onPress={manejarFavorito} texto="Guardar" />
+        <Accion icon="share-variant" iconColor={colores.azul || '#144784'} contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
+      </View>
 
       {comentariosVisibles && (
         <View style={estilos.seccionComentarios}>
@@ -185,15 +192,17 @@ const estilos = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 3,
+    width: "100%",
   },
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     padding: espaciado.normal,
   },
   left: {
     flex: 1,
     paddingRight: espaciado.normal,
+    justifyContent: 'flex-start', 
   },
   titulo: {
     fontSize: tamanosTexto.grande,
@@ -206,14 +215,16 @@ const estilos = StyleSheet.create({
   },
   contenedorAcciones: {
     flexDirection: "row",
-    justifyContent: "space-around", 
+    justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: espaciado.minimo,
-    gap: 10,
+    paddingHorizontal: espaciado.normal,
+    width: "100%",
   },
   accion: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
   },
   contador: {
     fontSize: 12,
@@ -222,66 +233,28 @@ const estilos = StyleSheet.create({
   textoAccion: {
     fontSize: 12,
     color: colores.textoGris,
-    textAlign: 'center',
+    textAlign: "center",
     paddingTop: 5,
   },
   imagenRight: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
+    width: 110,
+    height: 110,
+    borderRadius: 8,
+    backgroundColor: '#eee',
+    marginTop: 35, 
+    flexShrink: 0, 
   },
- 
-
-
-  tarjeta: {
-    marginBottom: espaciado.normal,
-    borderRadius: 12,
-    overflow: "hidden",
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 3,
+  etiquetaCategoria: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+    marginBottom: 8,
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: espaciado.normal,
-  },
-  left: {
-    flex: 1,
-    paddingRight: espaciado.normal,
-  },
-  titulo: {
-    fontSize: tamanosTexto.grande,
-    fontWeight: "700",
-    color: colores.textoOscuro,
-  },
-  descripcion: {
-    fontSize: tamanosTexto.normal,
-    color: colores.textoGris,
-  },
-  contenedorAcciones: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
-    paddingVertical: espaciado.minimo,
-    paddingHorizontal: 0,
-    gap: 8,
-  },
-  accion: {
-    alignItems: "center",
-    justifyContent: "center",
-    width: 56,
-    marginTop: 0,
-  },
-  contador: {
-    color: "#000",
-    fontSize: 16,
-    marginTop: -6,
-    fontWeight: "bold",
-    textAlign: "center",
+  textoCategoria: {
+    color: '#fff',
+    fontSize: tamanosTexto.muyPequeno,
+    fontWeight: '700',
   },
   seccionComentarios: {
     marginTop: espaciado.grande,
@@ -316,23 +289,5 @@ const estilos = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     marginTop: 10,
-  },
-  imagenRight: {
-    width: 110,
-    height: 110,
-    borderRadius: 8,
-    backgroundColor: '#eee',
-  },
-  etiquetaCategoria: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 16,
-    marginBottom: 8,
-  },
-  textoCategoria: {
-    color: '#fff',
-    fontSize: tamanosTexto.muyPequeno,
-    fontWeight: '700',
   },
 });
