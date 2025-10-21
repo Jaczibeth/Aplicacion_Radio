@@ -9,8 +9,7 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
   const [nuevoComentario, setNuevoComentario] = useState("");
   const [likes, setLikes] = useState(0);
   const [yaDioLike, setYaDioLike] = useState(false);
-  const colorCategoria =
-    coloresCategorias[noticia.categoria] || coloresCategorias["Otro"];
+  const colorCategoria = coloresCategorias[noticia.categoria] || coloresCategorias["Otro"];
   const storageComentariosKey = `comentariosNoticia_${noticia.id}`;
   const storageContadoresKey = `contadorNoticia_${noticia.id}`;
   React.useEffect(() => {
@@ -139,12 +138,12 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
         <TouchableOpacity onPress={manejarAgregarComentario} style={estilos.botonEnviar} activeOpacity={0.7}> <Text style={{ color: "#fff", fontWeight: "bold" }}>Enviar</Text></TouchableOpacity>
 
         <TouchableOpacity onPress={onLike} style={estilos.botonIcono}>
-          <IconButton icon={yaDioLike ? "thumb-up" : "thumb-up-outline"} color={yaDioLike ? colores.rojoPrimario : "#b9b0b0ff"} size={24} />
+          <IconButton icon={yaDioLike ? "thumb-up" : "thumb-up"} color={yaDioLike ? colores.rojoPrimario : "#b9b0b0ff"} size={24} />
           <Text style={estilos.contador}>{likes}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onShare} style={estilos.botonIcono}>
-          <IconButton icon="share-outline" color="#555" size={24} />
+          <IconButton icon="share" color="#555" size={24} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
