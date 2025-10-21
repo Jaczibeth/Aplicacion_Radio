@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Title, Searchbar, Avatar } from "react-native-paper";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold } from "@expo-google-fonts/poppins";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { useFocusEffect } from "@react-navigation/native";
 import { noticias } from "../../Data/noticias";
 import { NOMBRE_APP, PESTANAS, MENSAJES } from "../../configuracion/constantes";
 import BarraPestanas from "../../Componentes/BarraPestanas";
-import TarjetaNoticia from "../../Componentes/TarjetaNoticia";
+import TarjetaNoticia from "../../Componentes/TarjetaNoticia_temp";
 import estilos from "./estilos";
-
 export default function PantallaInicio({ navigation }) {
   const [pestanaActiva, setPestanaActiva] = useState(PESTANAS.DESTACADAS);
   const [textoBusqueda, setTextoBusqueda] = useState("");
   const [favoritos, setFavoritos] = useState([]);
-  const [noticiaSeleccionada, setNoticiaSeleccionada] = useState(null);
+  const [recargar, setRecargar] = useState(false); // Forzar re-render
 
   const [fuentesCargadas] = useFonts({
     Poppins_400Regular,
@@ -46,6 +45,12 @@ export default function PantallaInicio({ navigation }) {
     };
     guardarFavoritos();
   }, [favoritos]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setRecargar(prev => !prev);
+    }, [])
+  );
 
   if (!fuentesCargadas) return null;
 
@@ -111,8 +116,7 @@ export default function PantallaInicio({ navigation }) {
         value={textoBusqueda}
         onChangeText={setTextoBusqueda}
         style={estilos.buscador}
-        elevation={1}
-      />
+        elevation={1} />
 
       <BarraPestanas
         pestanaActiva={pestanaActiva}
@@ -122,8 +126,7 @@ export default function PantallaInicio({ navigation }) {
           } else {
             setPestanaActiva(nuevaPestana);
           }
-        }}
-      />
+        }} />
 
       {pestanaActiva === PESTANAS.DESTACADAS && (
         <>
@@ -145,8 +148,7 @@ export default function PantallaInicio({ navigation }) {
 
       {pestanaActiva === PESTANAS.MARCADORES && (
         <Text style={estilos.tituloSeccion}>Guardados</Text>
-      )}
-    </>
+      )}</>
   );
 
   return (
@@ -154,14 +156,22 @@ export default function PantallaInicio({ navigation }) {
       <FlatList
         data={pestanaActiva === PESTANAS.MARCADORES ? favoritos : noticiasFiltradas}
         keyExtractor={(item) => item.id.toString()}
+        extraData={recargar}
         ListHeaderComponent={renderizarCabecera}
         renderItem={({ item }) => (
           <View style={{ paddingHorizontal: 10, marginBottom: 12 }}>
             <TarjetaNoticia
+              key={`${item.id}-${recargar}`} 
               noticia={item}
               estaGuardada={estaEnFavoritos(item)}
               alCambiarGuardado={cambiarFavorito}
-              alVerDetalle={() => navigation.navigate("DetalleNoticia", { noticia: item })}
+              alVerDetalle={({ mostrarComentarios }) => {
+                navigation.navigate("DetalleNoticia", {
+                  noticia: item,
+                  mostrarComentarios: mostrarComentarios ?? false,
+                });
+              }}
+              recargar={recargar} 
             />
           </View>
         )}
@@ -170,8 +180,7 @@ export default function PantallaInicio({ navigation }) {
             <Text style={estilos.textoVacio}>{MENSAJES.SIN_FAVORITOS}</Text>
           ) : null
         }
-        contentContainerStyle={{ paddingBottom: 90 }}
-      />
+        contentContainerStyle={{ paddingBottom: 90 }}  />
     </SafeAreaView>
   );
 }
