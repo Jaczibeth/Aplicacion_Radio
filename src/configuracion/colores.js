@@ -1,9 +1,8 @@
 // CONFIGURACIÓN DE COLORES Y ESTILOS DE LA APP
-
 // Colores principales
 export const colores = {
   // Colores primarios
-  principal: "#0059ff",      // Azul principal
+  principal: "#1448a9ff",      // Azul principal
   secundario: "#1e90ff",     // Azul claro
   rojoPrimario: "#C41E3A",   // Rojo La Tlaxiaqueña
   
@@ -137,19 +136,20 @@ export default {
   bordesRedondeados,
   temaPrincipal,
 };
-
-// Colores asignados por categoría de noticia (consistencia centralizada)
+//categorias en las noticias colores para cada una
 export const coloresCategorias = {
-  Politica: "#cd220fff",
+  Política: "#cd220fff",
   Deportes: "#f39c12",
-  Tecnologia: "#3498db",
+  Tecnología: "#3498db", 
   Salud: "#27ae60",
   Cultura: "#401155ff",
   Clima: "#00aaff",
-  Educacion: "#7abae6ff",
-  Economia: "#e67e22",
+  Educación: "#7abae6ff",
+  Economía: "#e67e22", 
   Entretenimiento: "#9b59b6",
+  Ciencia: "#2ecc71",
+  Turismo: "#1abc9c",
+  Ciudad: "#34495e",
+  Agricultura: "#f1c40f",
   Otro: "#95a5a6",
 };
-
-
