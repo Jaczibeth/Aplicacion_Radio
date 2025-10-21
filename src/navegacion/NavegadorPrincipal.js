@@ -8,8 +8,6 @@ import Pantallaconfiguracion from "../configuracion/Pantallaconfiguracion";
 import NavegacionInferior from "../Componentes/NavegacionInferior";
 import DescubrirScreen from "../Pages/Descubrir/DescubrirScreen";
 import DetalleNoticiaScreen from "../Pages/inicio/DetalleNoticiaScreen";
-
-
 const Pila = createNativeStackNavigator();
 
 export default function NavegadorPrincipal() {

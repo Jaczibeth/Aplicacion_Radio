@@ -2,10 +2,8 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image, FlatList,} from "react-native";
 import { Avatar, Title } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import { noticias } from "../../Data/noticias";
 import { NOMBRE_APP } from "../../configuracion/constantes";
-
 export default function DescubrirScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
@@ -14,16 +12,12 @@ export default function DescubrirScreen({ navigation }) {
         <View style={styles.headerContent}>
           <Avatar.Image
             size={45}
-          source={require("../../assets/Logos/nt-el-reloj.gif")}
-
-          />
+          source={require("../../assets/Logos/nt-el-reloj.gif")} />
           <Title style={styles.title}>{NOMBRE_APP}</Title>
         </View>
       </View>
 
       <Text style={styles.subTitle}>Explora más noticias</Text>
-
-      {/* Contenedor scroll y banner */}
       <View style={styles.contentWrapper}> 
         <FlatList
           data={noticias}
@@ -32,19 +26,14 @@ export default function DescubrirScreen({ navigation }) {
           renderItem={({ item }) => (
              <TouchableOpacity
                style={styles.card}
-               onPress={() => navigation?.navigate?.("DetalleNoticia", { noticia: item })}
-             >
+               onPress={() => navigation?.navigate?.("DetalleNoticia", { noticia: item })}   >
                <Image source={{ uri: item.imagen }} style={styles.cardImage} />
                <Text style={styles.cardTitle} numberOfLines={2}>{item.titulo}</Text>
                <Text style={styles.cardCategory}>{item.categoria}</Text>
              </TouchableOpacity>
           )}
-          columnWrapperStyle={styles.grid}
-        />
-        {/* Banner inferior */}
-        <View style={styles.bannerInferior}>
-          <Text style={styles.bannerTexto}>¡No te pierdas nuestras noticias exclusivas!</Text>
-        </View>
+          columnWrapperStyle={styles.grid}/>
+      
       </View>
     </SafeAreaView>
   );
@@ -54,7 +43,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
   },
   header: {
     flexDirection: "row",
@@ -112,14 +101,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     marginBottom: 8,
     color: "#888",
-  },
-  bannerInferior: {
-    backgroundColor: "#144784",
-    paddingVertical: 12,
-    paddingHorizontal: 15,
-    borderRadius: 10,
-    marginTop: 10,
-    alignItems: "center",
   },
   bannerTexto: {
     color: "#fff",

@@ -1,42 +1,41 @@
 // CONFIGURACIÓN DE COLORES Y ESTILOS DE LA APP
 
-// Colores principales
 export const colores = {
-  // Colores primarios
-  principal: "#0059ff",      // Azul principal
+  principal: "#1448A9",      // Azul principal
   secundario: "#1e90ff",     // Azul claro
   rojoPrimario: "#C41E3A",   // Rojo La Tlaxiaqueña
   
-  // Fondos
+
+
+
   fondoBlanco: "#ffffff",
   fondoGris: "#f5f5f5",
   fondoGrisClaro: "#fafafa",
   
-  // Textos
   textoOscuro: "#000000",
   textoGris: "#555555",
   textoGrisClaro: "#888888",
   textoBlanc: "#ffffff",
   
-  // Bordes y separadores
+  
   borde: "#e0e0e0",
   bordeClaro: "#f0f0f0",
   
-  // Estados
+ 
   exito: "#4CAF50",
   error: "#f44336",
   advertencia: "#FF9800",
   
-  // Pestañas
+
   pestanaActiva: "#0059ff",
   pestanaInactiva: "#e0e0e0",
   
-  // Tarjetas
+ 
   fondoTarjeta: "#ffffff",
   sombraTarjeta: "rgba(0, 0, 0, 0.1)",
 };
 
-// Tamaños de texto
+
 export const tamanosTexto = {
   muyPequeno: 10,
   pequeno: 12,
@@ -48,7 +47,7 @@ export const tamanosTexto = {
   tituloGrande: 28,
 };
 
-// Espaciados
+
 export const espaciado = {
   minimo: 4,
   pequeno: 8,
@@ -59,7 +58,7 @@ export const espaciado = {
   enorme: 32,
 };
 
-// Bordes redondeados
+
 export const bordesRedondeados = {
   pequeno: 5,
   normal: 8,
@@ -69,27 +68,25 @@ export const bordesRedondeados = {
   completo: 50,
 };
 
-// Tema para React Native Paper v5
+
 export const temaPrincipal = {
   dark: false,
   version: 3,
   roundness: bordesRedondeados.normal,
   colors: {
-    // Colores principales
     primary: colores.principal,
     primaryContainer: "#E3F2FD",
     secondary: colores.secundario,
     secondaryContainer: "#F5F5F5",
     tertiary: colores.rojoPrimario,
     tertiaryContainer: "#FFE0E6",
-    
-    // Fondos y superficies
+  
     background: colores.fondoGrisClaro,
     surface: colores.fondoBlanco,
     surfaceVariant: colores.fondoGris,
     surfaceDisabled: "#E0E0E0",
     
-    // Textos
+
     onPrimary: "#FFFFFF",
     onPrimaryContainer: "#001A41",
     onSecondary: "#FFFFFF",
@@ -101,17 +98,17 @@ export const temaPrincipal = {
     onSurfaceVariant: colores.textoGris,
     onSurfaceDisabled: colores.textoGrisClaro,
     
-    // Bordes y separadores
+   
     outline: colores.borde,
     outlineVariant: colores.bordeClaro,
     
-    // Estados
+ 
     error: colores.error,
     onError: "#FFFFFF",
     errorContainer: "#FFEBEE",
     onErrorContainer: "#410002",
     
-    // Otros
+
     backdrop: "rgba(0, 0, 0, 0.5)",
     shadow: "#000000",
     scrim: "#000000",
@@ -138,18 +135,20 @@ export default {
   temaPrincipal,
 };
 
-// Colores asignados por categoría de noticia (consistencia centralizada)
 export const coloresCategorias = {
-  Politica: "#cd220fff",
+  Política: "#CD220F",
   Deportes: "#f39c12",
-  Tecnologia: "#3498db",
+  Tecnología: "#3498db", 
   Salud: "#27ae60",
-  Cultura: "#401155ff",
+  Cultura: "#401155",
   Clima: "#00aaff",
-  Educacion: "#7abae6ff",
-  Economia: "#e67e22",
+  Educación: "#7ABAE6",
+  Economía: "#e67e22", 
   Entretenimiento: "#9b59b6",
+  Ciencia: "#2ecc71",
+  Turismo: "#1abc9c",
+  "Medio Ambiente": "#27ae60",
+  Ciudad: "#34495e",
+  Agricultura: "#f1c40f",
   Otro: "#95a5a6",
 };
-
-
