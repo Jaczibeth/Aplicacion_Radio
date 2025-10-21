@@ -1,5 +1,4 @@
 // Nombre de la aplicación
-
 export const NOMBRE_APP = "NT's El Reloj";
 export const NOMBRE_APP_CORTO = "NT's El Reloj  ";
 // Definición de pestañas
@@ -8,8 +7,6 @@ export const PESTANAS = {
   MARCADORES: 'Marcadores', 
   DESCUBRIR: 'Descubrir',
 };
-
-
 // Lista de pestañas
 export const LISTA_PESTANAS = [
   PESTANAS.MARCADORES,
