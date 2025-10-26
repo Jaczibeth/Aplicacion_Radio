@@ -83,7 +83,10 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
         onPress: async () => {
           const copia = comentarios.filter((_, i) => i !== index);
           setComentarios(copia);
-          await guardarComentarios(copia);  },}, ]); };
+          await guardarComentarios(copia);
+        },
+      },]);
+  };
   const onLike = async () => {
     if (yaDioLike) return;
     const nuevoTotalLikes = likes + 1;
@@ -107,7 +110,7 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
         url: noticia.imagen,
         title: noticia.titulo,
       }
-    );
+      );
     } catch (error) {
       alert("Error al compartir: " + error.message);
     }
