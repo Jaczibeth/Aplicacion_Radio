@@ -14,7 +14,7 @@ export default function PantallaInicio({ navigation }) {
   const [pestanaActiva, setPestanaActiva] = useState(PESTANAS.DESTACADAS);
   const [textoBusqueda, setTextoBusqueda] = useState("");
   const [favoritos, setFavoritos] = useState([]);
-  const [recargar, setRecargar] = useState(false); // Forzar re-render
+  const [recargar, setRecargar] = useState(false);
 
   const [fuentesCargadas] = useFonts({
     Poppins_400Regular,
@@ -66,15 +66,13 @@ export default function PantallaInicio({ navigation }) {
   const estaEnFavoritos = (noticia) => {
     return favoritos.some((n) => n.id === noticia.id);
   };
-
-  const noticiasFiltradas = textoBusqueda
-    ? noticias.filter(
-        (noticia) =>
-          noticia.titulo.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
-          (noticia.descripcion &&
-            noticia.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase()))
-      )
-    : noticias;
+    const noticiasFiltradas = textoBusqueda
+  ? noticias.filter((noticia) =>
+      noticia.titulo.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
+      (noticia.descripcion &&
+        noticia.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase()))
+    )
+  : noticias;
 
   const anchoPantalla = Dimensions.get("window").width;
   const itemAncho = Math.round(anchoPantalla * 0.9);
@@ -99,14 +97,41 @@ export default function PantallaInicio({ navigation }) {
     </TouchableOpacity>
   );
 
-  const renderizarCabecera = () => (
-    <>
+  const renderizarCabeceraLista = () => {
+    if (pestanaActiva === PESTANAS.DESTACADAS) {
+      return (
+          <>
+            <Text style={estilos.tituloSeccion}>Tendencia</Text>
+            <FlatList
+              data={noticias.slice(0, 3)}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              snapToAlignment="center"
+              decelerationRate="fast"
+              snapToInterval={itemAncho + itemMargen * 2}
+              contentContainerStyle={{ paddingHorizontal: itemMargen }}
+              renderItem={renderItemCarrusel}
+              keyExtractor={(item) => `carrusel-${item.id}`}
+            />
+            <Text style={[estilos.tituloSeccion, { marginTop: 16 }]}>Noticias Destacadas</Text>
+          </>
+      );
+    }
+    if (pestanaActiva === PESTANAS.MARCADORES) {
+      return <Text style={estilos.tituloSeccion}>Guardados</Text>;
+    }
+    return null;
+  };
+
+  return (
+    <SafeAreaView style={estilos.contenedor}>
       <View style={estilos.encabezado}>
         <View style={estilos.contenedorTitulo}>
-          <Avatar.Image
-            size={45}
-            source={require("../../assets/Logos/nt-el-reloj.gif")}
-          />
+         <Avatar.Image
+                     size={45}
+                     source={require("../../assets/Logos/nt-el-reloj.gif")}
+                     style={{ backgroundColor: "transparent" }}
+                   />
           <Title style={estilos.tituloApp}>{NOMBRE_APP}</Title>
         </View>
       </View>
@@ -128,36 +153,11 @@ export default function PantallaInicio({ navigation }) {
           }
         }} />
 
-      {pestanaActiva === PESTANAS.DESTACADAS && (
-        <>
-          <Text style={estilos.tituloSeccion}>Tendencia</Text>
-          <FlatList
-            data={noticias.slice(0, 3)}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            snapToAlignment="center"
-            decelerationRate="fast"
-            snapToInterval={itemAncho + itemMargen * 2}
-            contentContainerStyle={{ paddingHorizontal: itemMargen }}
-            renderItem={renderItemCarrusel}
-            keyExtractor={(item) => `carrusel-${item.id}`}
-          />
-          <Text style={[estilos.tituloSeccion, { marginTop: 16 }]}>Noticias Destacadas</Text>
-        </>
-      )}
-
-      {pestanaActiva === PESTANAS.MARCADORES && (
-        <Text style={estilos.tituloSeccion}>Guardados</Text>
-      )}</>
-  );
-
-  return (
-    <SafeAreaView style={estilos.contenedor}>
       <FlatList
         data={pestanaActiva === PESTANAS.MARCADORES ? favoritos : noticiasFiltradas}
         keyExtractor={(item) => item.id.toString()}
         extraData={recargar}
-        ListHeaderComponent={renderizarCabecera}
+        ListHeaderComponent={renderizarCabeceraLista}
         renderItem={({ item }) => (
           <View style={{ paddingHorizontal: 10, marginBottom: 12 }}>
             <TarjetaNoticia
@@ -178,7 +178,7 @@ export default function PantallaInicio({ navigation }) {
         ListEmptyComponent={
           pestanaActiva === PESTANAS.MARCADORES ? (
             <Text style={estilos.textoVacio}>{MENSAJES.SIN_FAVORITOS}</Text>
-          ) : null
+          ) : <Text style={estilos.textoVacio}>No se encontraron resultados para tu búsqueda.</Text>
         }
         contentContainerStyle={{ paddingBottom: 90 }}  />
     </SafeAreaView>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { View, StyleSheet, Animated, Text, Share,Image, TouchableOpacity, Dimensions} from "react-native";
+import { View, StyleSheet, Animated, Share,Image, TouchableOpacity, Dimensions} from "react-native";
+import { Text } from "react-native";
 import { Title, Paragraph, IconButton } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colores, tamanosTexto, espaciado, coloresCategorias } from "../configuracion/colores";
@@ -188,89 +189,20 @@ export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardad
 }
 
 const estilos = StyleSheet.create({
-  tarjeta: {
-    marginBottom: espaciado.normal,
-    borderRadius: 12,
-    overflow: "hidden",
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 3,
-    width: "100%",
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    padding: espaciado.normal,
-  },
-  left: {
-    flex: 1,
-    paddingRight: espaciado.normal,
-    justifyContent: 'flex-start',
-  },
-  titulo: {
-    fontSize: tamanosTexto.grande,
-    fontWeight: "700",
-    color: colores.textoOscuro,
-  },
-  descripcion: {
-    fontSize: tamanosTexto.normal,
-    color: colores.textoGris,
-  },
-  contenedorAcciones: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: espaciado.minimo,
-    paddingHorizontal: espaciado.normal,
-    width: "100%",
-  },
-  accion: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  filaIconoContador: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icono: {
-    margin: 0,
-    height: 22, 
-  },
-  contador: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 2,
-  },
-  textoAccion: {
-    fontSize: 12,
-    color: colores.textoGris,
-    textAlign: "center",
-    marginTop: -4,
-  },
-  imagenRight: {
-    width: 110,
-    height: 110,
-    borderRadius: 8,
-    backgroundColor: '#eee',
-    marginTop: 35,
-    flexShrink: 0,
-  },
-  etiquetaCategoria: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 16,
-    marginBottom: 8,
-  },
-  textoCategoria: {
-    color: '#fff',
-    fontSize: tamanosTexto.muyPequeno,
-    fontWeight: '700',
-  },
+  tarjeta: {  marginBottom: espaciado.normal, borderRadius: 12,  overflow: "hidden", backgroundColor: "#fff",  shadowColor: "#000", shadowOffset: { width: 0, height: 2 },  shadowOpacity: 0.2,shadowRadius: 5,  elevation: 3,width: "100%",},
+  row: { flexDirection: 'row', alignItems: 'flex-start', padding: espaciado.normal,},
+  left: { flex: 1,  paddingRight: espaciado.normal,justifyContent: 'flex-start',},
+  titulo: {fontSize: tamanosTexto.grande,  fontWeight: "700",color: colores.textoOscuro,},
+  descripcion: {fontSize: tamanosTexto.normal,color: colores.textoGris,},
+  contenedorAcciones: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: espaciado.minimo, paddingHorizontal: espaciado.normal, width: "100%", },
+  accion: {alignItems: 'center', flex: 1,},
+  filaIconoContador: { flexDirection: 'row',alignItems: 'center',justifyContent: 'center',},
+  icono: { margin: 0,height: 22, },
+  contador: { fontSize: 14, fontWeight: '600', marginLeft: 2,},
+  textoAccion: { fontSize: 12, color: colores.textoGris, textAlign: "center", marginTop: -4,},
+  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: '#eee',  marginTop: 35, flexShrink: 0,},
+  etiquetaCategoria: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 16,marginBottom: 8, },
+  textoCategoria: { color: '#fff', fontSize: tamanosTexto.muyPequeno, fontWeight: '700',},
   tituloComentarios: { fontSize: tamanosTexto.mediano, fontWeight: "700", marginBottom: espaciado.pequeno,color: colores.textoOscuro,},
   noComentarios: { color: colores.textoGris,},
   comentario: { backgroundColor: "#f8f8f8",padding: espaciado.pequeno,borderRadius: 8,marginBottom: espaciado.minimo,},
