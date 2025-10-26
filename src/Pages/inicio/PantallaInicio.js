@@ -10,11 +10,15 @@ import { NOMBRE_APP, PESTANAS, MENSAJES } from "../../configuracion/constantes";
 import BarraPestanas from "../../Componentes/BarraPestanas";
 import TarjetaNoticia from "../../Componentes/TarjetaNoticia_temp";
 import estilos from "./estilos";
+import useAnimacionBuscar from "../../Componentes/AnimacionBuscar";
+
 export default function PantallaInicio({ navigation }) {
   const [pestanaActiva, setPestanaActiva] = useState(PESTANAS.DESTACADAS);
   const [textoBusqueda, setTextoBusqueda] = useState("");
   const [favoritos, setFavoritos] = useState([]);
   const [recargar, setRecargar] = useState(false);
+  const textoAnimado = useAnimacionBuscar();
+
 
   const [fuentesCargadas] = useFonts({
     Poppins_400Regular,
@@ -66,13 +70,13 @@ export default function PantallaInicio({ navigation }) {
   const estaEnFavoritos = (noticia) => {
     return favoritos.some((n) => n.id === noticia.id);
   };
-    const noticiasFiltradas = textoBusqueda
-  ? noticias.filter((noticia) =>
+  const noticiasFiltradas = textoBusqueda
+    ? noticias.filter((noticia) =>
       noticia.titulo.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
       (noticia.descripcion &&
         noticia.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase()))
     )
-  : noticias;
+    : noticias;
 
   const anchoPantalla = Dimensions.get("window").width;
   const itemAncho = Math.round(anchoPantalla * 0.9);
@@ -100,21 +104,21 @@ export default function PantallaInicio({ navigation }) {
   const renderizarCabeceraLista = () => {
     if (pestanaActiva === PESTANAS.DESTACADAS) {
       return (
-          <>
-            <Text style={estilos.tituloSeccion}>Tendencia</Text>
-            <FlatList
-              data={noticias.slice(0, 3)}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              snapToAlignment="center"
-              decelerationRate="fast"
-              snapToInterval={itemAncho + itemMargen * 2}
-              contentContainerStyle={{ paddingHorizontal: itemMargen }}
-              renderItem={renderItemCarrusel}
-              keyExtractor={(item) => `carrusel-${item.id}`}
-            />
-            <Text style={[estilos.tituloSeccion, { marginTop: 16 }]}>Noticias Destacadas</Text>
-          </>
+        <>
+          <Text style={estilos.tituloSeccion}>Tendencia</Text>
+          <FlatList
+            data={noticias.slice(0, 3)}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToAlignment="center"
+            decelerationRate="fast"
+            snapToInterval={itemAncho + itemMargen * 2}
+            contentContainerStyle={{ paddingHorizontal: itemMargen }}
+            renderItem={renderItemCarrusel}
+            keyExtractor={(item) => `carrusel-${item.id}`}
+          />
+          <Text style={[estilos.tituloSeccion, { marginTop: 16 }]}>Noticias Destacadas</Text>
+        </>
       );
     }
     if (pestanaActiva === PESTANAS.MARCADORES) {
@@ -127,21 +131,30 @@ export default function PantallaInicio({ navigation }) {
     <SafeAreaView style={estilos.contenedor}>
       <View style={estilos.encabezado}>
         <View style={estilos.contenedorTitulo}>
-         <Avatar.Image
-                     size={45}
-                     source={require("../../assets/Logos/nt-el-reloj.gif")}
-                     style={{ backgroundColor: "transparent" }}
-                   />
+          <Avatar.Image
+            size={45}
+            source={require("../../assets/Logos/nt-el-reloj.gif")}
+            style={{ backgroundColor: "transparent" }}
+          />
           <Title style={estilos.tituloApp}>{NOMBRE_APP}</Title>
         </View>
       </View>
 
-      <Searchbar
+      {/* <Searchbar
         placeholder={MENSAJES.BUSCAR_PLACEHOLDER}
         value={textoBusqueda}
         onChangeText={setTextoBusqueda}
         style={estilos.buscador}
-        elevation={1} />
+        elevation={1} /> */}
+      <Searchbar
+        placeholder={textoAnimado}
+        value={textoBusqueda}
+        onChangeText={setTextoBusqueda}
+        style={estilos.buscador}
+        elevation={1}
+        inputStyle={{ fontFamily: "Poppins_400Regular" }}
+      />
+
 
       <BarraPestanas
         pestanaActiva={pestanaActiva}
@@ -161,7 +174,7 @@ export default function PantallaInicio({ navigation }) {
         renderItem={({ item }) => (
           <View style={{ paddingHorizontal: 10, marginBottom: 12 }}>
             <TarjetaNoticia
-              key={`${item.id}-${recargar}`} 
+              key={`${item.id}-${recargar}`}
               noticia={item}
               estaGuardada={estaEnFavoritos(item)}
               alCambiarGuardado={cambiarFavorito}
@@ -171,7 +184,7 @@ export default function PantallaInicio({ navigation }) {
                   mostrarComentarios: mostrarComentarios ?? false,
                 });
               }}
-              recargar={recargar} 
+              recargar={recargar}
             />
           </View>
         )}
@@ -180,7 +193,7 @@ export default function PantallaInicio({ navigation }) {
             <Text style={estilos.textoVacio}>{MENSAJES.SIN_FAVORITOS}</Text>
           ) : <Text style={estilos.textoVacio}>No se encontraron resultados para tu búsqueda.</Text>
         }
-        contentContainerStyle={{ paddingBottom: 90 }}  />
+        contentContainerStyle={{ paddingBottom: 90 }} />
     </SafeAreaView>
   );
 }

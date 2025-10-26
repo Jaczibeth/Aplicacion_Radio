@@ -47,3 +47,14 @@ export const MENSAJES = {
   SIN_FAVORITOS: 'No tienes favoritos aún.',
   BUSCAR_PLACEHOLDER: "¿Qué deseas buscar hoy?",
 };
+export const TEXTOS_BUSQUEDA_ROTATIVOS = [
+  "¿Qué deseas buscar hoy?",
+  "Noticias de Cultura",
+  "Noticias de Política",
+  "Noticias de Educación",
+  "Noticias de Salud",
+  "Noticias del Clima",
+  "Noticias de Economía",
+  "Noticias de Deportes",
+  "Noticias de Entretenimiento",
+];
