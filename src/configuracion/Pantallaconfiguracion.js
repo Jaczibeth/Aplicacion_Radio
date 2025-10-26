@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View,  Animated,  StyleSheet,ScrollView, Linking,  TouchableOpacity,  TextInput,  Text,} from "react-native";
+import {View,Animated,StyleSheet, ScrollView,Linking,TouchableOpacity,  TextInput,Text,} from "react-native";
 import { IconButton } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,9 +9,6 @@ export default function PantallaConfiguracion({ navigation }) {
   const scrollX = useRef(new Animated.Value(0)).current;
   const [comentario, setComentario] = useState("");
   const [calificacion, setCalificacion] = useState(0);
-
-  // Nombre de red social visible al presionar un ícono
-  const [redVisible, setRedVisible] = useState(null);
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -40,15 +37,15 @@ export default function PantallaConfiguracion({ navigation }) {
     );
 
   const redesSociales = [
-    {nombre: "Facebook",url: "https://www.facebook.com/share/1gNuX9RpDQ/",icon: "facebook", },
-    { nombre: "Instagram", url: "https://www.instagram.com/ntelreloj?igsh=MXZhcmQ1czZsdTVkeQ==", icon: "instagram",},
-    { nombre: "X", url: "https://x.com/LaTlaxiaquenaOn?t=jGFVMeHrWWSEZTei-chq1w&s=09", icon: "twitter", },
-    {nombre: "YouTube",url: "https://youtube.com/@noticieroselrelojdetlaxiaco?si=8e8oi5BFxuZTvMjA",icon: "youtube-play", },
-    { nombre: "Ubicación", url: "https://maps.app.goo.gl/7pduto4TCMH5xGbF9", icon: "map-marker",},
+    { nombre: "Facebook", url: "https://www.facebook.com/share/1gNuX9RpDQ/", icon: "facebook", color: "#1877F2" },
+    { nombre: "Instagram", url: "https://www.instagram.com/ntelreloj?igsh=MXZhcmQ1czZsdTVkeQ==", icon: "instagram", color: "#E1306C" },
+    { nombre: "X", url: "https://x.com/LaTlaxiaquenaOn?t=jGFVMeHrWWSEZTei-chq1w&s=09", icon: "twitter", color: "#000000" },
+    { nombre: "YouTube", url: "https://youtube.com/@noticieroselrelojdetlaxiaco?si=8e8oi5BFxuZTvMjA", icon: "youtube-play", color: "#FF0000" },
+    { nombre: "Ubicación", url: "https://maps.app.goo.gl/7pduto4TCMH5xGbF9", icon: "map-marker", color: "#34A853" },
   ];
 
-  const itemAncho = 60; 
-  const itemMargen = 10;
+  const itemAncho = 70;
+  const itemMargen = 12;
 
   const renderItemCarrusel = ({ item, index }) => {
     const inputRange = [
@@ -59,40 +56,49 @@ export default function PantallaConfiguracion({ navigation }) {
 
     const scaleScroll = scrollX.interpolate({
       inputRange,
-      outputRange: [0.9, 1, 0.9], 
+      outputRange: [0.85, 1, 0.85],
       extrapolate: "clamp",
     });
+    const pressAnim = new Animated.Value(1);
+
+    const handlePressIn = () => {
+      Animated.spring(pressAnim, {
+        toValue: 1.2,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    const handlePressOut = () => {
+      Animated.spring(pressAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+      }).start();
+    };
 
     return (
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => Linking.openURL(item.url)}
-        onPressIn={() => setRedVisible(item.nombre)}  
-        onPressOut={() => setRedVisible(null)}        
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
         style={{
           width: itemAncho,
-          height: itemAncho,
           marginHorizontal: itemMargen,
-          justifyContent: "center",
           alignItems: "center",
-        }}   >
+        }}
+      >
         <Animated.View
           style={{
-            transform: [{ scale: scaleScroll }],
-            backgroundColor: "#ffffff1e",
-            width: itemAncho,
-            height: itemAncho,
-            borderRadius: itemAncho / 1,
+            transform: [{ scale: Animated.multiply(scaleScroll, pressAnim) }],
             justifyContent: "center",
             alignItems: "center",
-            shadowColor: "#efededff",
-            shadowOpacity: 0.2,
-            shadowOffset: { width: 0, height: 5 },
-            shadowRadius: 4,
-            elevation: 5,
-          }}>
-          <FontAwesome name={item.icon} size={28} color="#144784" />
+          }}
+        >
+          <FontAwesome name={item.icon} size={40} color={item.color} />
         </Animated.View>
+        <Text style={{ marginTop: 6, fontSize: 14, fontWeight: "600", color: "#144784" }}>
+          {item.nombre}
+        </Text>
       </TouchableOpacity>
     );
   };
@@ -104,7 +110,6 @@ export default function PantallaConfiguracion({ navigation }) {
           icon="arrow-left"
           size={24}
           onPress={() => navigation.goBack()}
-          color={styles.icon.color}
         />
         <Text style={styles.headerTitle}>Configuración</Text>
       </View>
@@ -118,8 +123,7 @@ export default function PantallaConfiguracion({ navigation }) {
                 <IconButton
                   key={rating}
                   icon={rating <= calificacion ? "star" : "star-outline"}
-                  size={24}
-                  color="#144784"
+                  size={28}
                   onPress={() => handleCalificacion(rating)}
                 />
               ))}
@@ -129,7 +133,7 @@ export default function PantallaConfiguracion({ navigation }) {
           <Text style={styles.sectionTitle}>Comentarios sobre la App</Text>
           <TextInput
             style={styles.commentInput}
-            placeholder="Escribe tu comentario aquí ....."
+            placeholder="Escribe tu comentario aquí..."
             value={comentario}
             onChangeText={setComentario}
             multiline
@@ -148,32 +152,19 @@ export default function PantallaConfiguracion({ navigation }) {
           </View>
 
           <Text style={styles.sectionTitle}>Síguenos en Redes Sociales</Text>
-
           <Animated.FlatList
             data={redesSociales}
             horizontal
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.nombre}
-            snapToAlignment="center"
-            decelerationRate="fast"
-            snapToInterval={itemAncho + itemMargen * 2}
             contentContainerStyle={{ paddingHorizontal: itemMargen }}
             renderItem={renderItemCarrusel}
             onScroll={Animated.event(
               [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-              {
-                useNativeDriver: true,
-              }
+              { useNativeDriver: false }
             )}
             scrollEventThrottle={16}
           />
-
-          {/* Mostrar nombre solo si hay uno visible */}
-          {redVisible && (
-            <View style={styles.nombreRedContainer}>
-              <Text style={styles.nombreRedText}>{redVisible}</Text>
-            </View>
-          )}
         </Animated.View>
       </ScrollView>
     </SafeAreaView>
@@ -181,75 +172,16 @@ export default function PantallaConfiguracion({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f3eded" },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#fbf9f9",
-    elevation: 2,
-  },
-  headerTitle: {
-    fontSize: 23,
-    fontWeight: "700",
-    color: "#000000ff",
-    marginLeft: 8,
-    alignSelf: "center",
-  },
+  container: { flex: 1, backgroundColor: "#f4f6f9" },
+  header: { flexDirection: "row",  alignItems: "center", paddingHorizontal: 16, paddingVertical: 12,backgroundColor: "#e3e9f2ff", elevation: 4, },
+  headerTitle: { fontSize: 22, fontWeight: "700", color: "#161515ff", marginLeft: 8 },
   content: { flex: 1, paddingHorizontal: 16 },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#144784",
-    marginTop: 32,
-    marginBottom: 8,
-  },
-  option: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "#B3B3B3",
-  },
-  optionText: { fontSize: 14, color: "#7aadf8" },
-  stars: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    marginTop: 10,
-    width: "100%",
-  },
-  commentInput: {
-    height: 100,
-    borderColor: "#9c9797ff",
-    borderWidth: 1,
-    padding: 8,
-    marginTop: 8,
-    borderRadius: 8,
-    textAlignVertical: "top",
-  },
-  sendButton: {
-    backgroundColor: "#a8a8a5",
-    padding: 12,
-    marginTop: 16,
-    borderRadius: 50,
-    alignItems: "center",
-  },
-  sendButtonText: { color: "#121111ff", fontSize: 16 },
-  supportText: {
-    fontSize: 14,
-    color: "#FF0000",
-    textDecorationLine: "underline",
-  },
-  icon: { color: "#144784" },
-  nombreRedContainer: {
-    marginTop: 12,
-    alignItems: "center",
-  },
-  nombreRedText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#144784",
-  },
+  sectionTitle: { fontSize: 18, fontWeight: "600", color: "#144784", marginTop: 24, marginBottom: 8 },
+  option: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#ccc" },
+  optionText: { fontSize: 16, color: "#333" },
+  commentInput: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, marginTop: 8, textAlignVertical: "top", backgroundColor: "#fff" },
+  sendButton: { backgroundColor: "#144784", padding: 14, borderRadius: 8, alignItems: "center", marginTop: 12 },
+  sendButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  supportText: { fontSize: 16, color: "#144784" },
+  stars: { flexDirection: "row", justifyContent: "center", marginTop: 10 },
 });
