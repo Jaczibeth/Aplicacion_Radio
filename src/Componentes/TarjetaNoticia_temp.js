@@ -1,20 +1,72 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { View, StyleSheet, Animated, Text, Share,Image, TouchableOpacity, Dimensions} from "react-native";
+import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity, TouchableWithoutFeedback, Dimensions } from "react-native";
 import { Title, Paragraph, IconButton } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { colores, tamanosTexto, espaciado, coloresCategorias } from "../configuracion/colores";
 
 const { width } = Dimensions.get("window");
 
-const Accion = ({ icon, iconColor, contador, onPress, texto, estaGuardada }) => (
-  <TouchableOpacity onPress={onPress} style={estilos.accion}>
-    <View style={estilos.filaIconoContador}>
-      <IconButton icon={icon} iconColor={iconColor} size={20} style={estilos.icono} />
-      <Text style={[estilos.contador, { color: iconColor }]}>{contador}</Text>
+const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+  const translateYAnim = useRef(new Animated.Value(-2)).current; 
+  const [mostrarTexto, setMostrarTexto] = useState(false);
+
+  const animar = () => {
+    Animated.sequence([
+      Animated.spring(scaleAnim, { toValue: 1.2, friction: 4, useNativeDriver: true }), 
+      Animated.spring(scaleAnim, { toValue: 1, friction: 4, useNativeDriver: true }),
+    ]).start();
+
+    setMostrarTexto(true);
+    Animated.parallel([
+      Animated.timing(opacityAnim, { toValue: 1, duration: 150, useNativeDriver: true }),
+      Animated.timing(translateYAnim, { toValue: 2, duration: 150, useNativeDriver: true }),
+    ]).start(() => {
+      setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(opacityAnim, { toValue: 0, duration: 150, useNativeDriver: true }),
+          Animated.timing(translateYAnim, { toValue: -2, duration: 150, useNativeDriver: true }),
+        ]).start(() => setMostrarTexto(false));
+      }, 800); // un poco más rápido
+    });
+
+    if (onPress) onPress();
+  };
+  return (
+    <View style={estilosAccion.contenedor}>
+      <TouchableWithoutFeedback onPress={animar}>
+        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+          <View style={{ alignItems: "center" }}>
+            <View style={estilosAccion.rowIcono}>
+              <View style={estilosAccion.botonCircular}>
+                <IconButton icon={icon} iconColor={iconColor} size={22} />
+              </View>
+              <Text style={estilosAccion.contador}>{contador}</Text>
+            </View>
+
+            {mostrarTexto && (
+              <Animated.View
+                style={{
+                  position: "absolute",
+                  top: 50, // menos separación del icono
+                  opacity: opacityAnim,
+                  transform: [{ translateY: translateYAnim }],
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 999,
+                  width: 80,
+                }}
+              >
+                <Text style={estilosAccion.textoTooltip}>{texto}</Text>
+              </Animated.View>
+            )}
+          </View>
+        </Animated.View>
+      </TouchableWithoutFeedback>
     </View>
-    <Text style={estilos.textoAccion}>{texto}</Text>
-  </TouchableOpacity>
-);
+  );
+};
 
 export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardado, alVerDetalle, recargar }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -24,11 +76,10 @@ export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardad
   const [contadorFavoritos, setContadorFavoritos] = useState(0);
   const [contadorComentarios, setContadorComentarios] = useState(0);
   const [contadorCompartidos, setContadorCompartidos] = useState(0);
-  const [comentarios, setComentarios] = useState([]);
-  const [nuevoComentario, setNuevoComentario] = useState("");
 
   const storageKey = `contadorNoticia_${noticia.id}`;
   const storageComentariosKey = `comentariosNoticia_${noticia.id}`;
+
   useEffect(() => {
     const cargarDatos = async () => {
       try {
@@ -61,7 +112,7 @@ export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardad
         const data = {
           lecturas: contadorLecturas,
           favoritos: contadorFavoritos,
-          likes: contadorLikes, 
+          likes: contadorLikes,
           compartidos: contadorCompartidos,
         };
         await AsyncStorage.setItem(storageKey, JSON.stringify(data));
@@ -72,60 +123,25 @@ export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardad
     guardarContadores();
   }, [contadorLecturas, contadorFavoritos, contadorLikes, contadorCompartidos]);
 
-  const abrirModalComentarios = async () => {
-    try {
-      const almacenados = await AsyncStorage.getItem(storageComentariosKey);
-      if (almacenados) {
-        setComentarios(JSON.parse(almacenados));
-      } else {
-        setComentarios([]);
-      }
-    } catch (error) {
-      console.log("Error al cargar comentarios:", error);
-    }
-    setModalVisible(true);
-  };
-  const guardarComentarios = async (comentariosAGuardar) => {
-    try {
-      await AsyncStorage.setItem(storageComentariosKey, JSON.stringify(comentariosAGuardar));
-    } catch (error) {
-      console.log("Error al guardar comentarios:", error);
-    }
-  };
-  const agregarComentario = () => {
-    if (nuevoComentario.trim() !== "") {
-      const nuevo = { texto: nuevoComentario.trim(), fecha: new Date().toLocaleString() };
-      const nuevosComentarios = [...comentarios, nuevo];
-      setComentarios(nuevosComentarios);
-      setNuevoComentario("");
-      setContadorComentarios(nuevosComentarios.length);
-      guardarComentarios(nuevosComentarios);
-    }
-  };
   useEffect(() => {
     fadeAnim.setValue(0);
     slideAnim.setValue(20);
     Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true,
-      }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 500, useNativeDriver: true }),
     ]).start();
   }, [noticia]);
+
   const irADetalle = useCallback(() => {
-  if (alVerDetalle) alVerDetalle({ mostrarComentarios: false });
-  setContadorLecturas((prev) => prev + 1);
-}, [alVerDetalle]);
+    if (alVerDetalle) alVerDetalle({ mostrarComentarios: false });
+    setContadorLecturas((prev) => prev + 1);
+  }, [alVerDetalle]);
+
   const manejarFavorito = useCallback(() => {
     if (!estaGuardada) setContadorFavoritos((prev) => prev + 1);
     alCambiarGuardado(noticia);
   }, [estaGuardada, alCambiarGuardado, noticia]);
+
   const manejarCompartir = useCallback(async () => {
     try {
       const resultado = await Share.share({
@@ -140,10 +156,10 @@ export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardad
       console.log("Error al compartir:", error);
     }
   }, [noticia]);
+
   const manejarLike = useCallback(async () => {
     const nuevoTotalLikes = contadorLikes + 1;
     setContadorLikes(nuevoTotalLikes);
-
     const contadoresActuales = await AsyncStorage.getItem(storageKey);
     const parsedContadores = contadoresActuales ? JSON.parse(contadoresActuales) : {};
     const nuevosContadores = { ...parsedContadores, likes: nuevoTotalLikes };
@@ -160,7 +176,8 @@ export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardad
                 style={[
                   estilos.etiquetaCategoria,
                   { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro },
-                ]} >
+                ]}
+              >
                 <Text style={estilos.textoCategoria}>{noticia.categoria}</Text>
               </View>
             )}
@@ -171,16 +188,15 @@ export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardad
               {noticia.descripcion}
             </Paragraph>
           </View>
-
           <Image source={{ uri: noticia.imagen }} style={estilos.imagenRight} />
         </View>
       </TouchableOpacity>
 
       <View style={estilos.contenedorAcciones}>
         <Accion icon="eye" iconColor={colores.textoGris} contador={contadorLecturas} onPress={irADetalle} texto="Ver" />
-        <Accion icon="comment" iconColor={colores.principal} contador={contadorComentarios} onPress={() => {if (alVerDetalle) alVerDetalle({ mostrarComentarios: true });   setContadorLecturas((prev) => prev + 1); }} texto="Comentar"/>
-        <Accion icon={estaGuardada ? "bookmark" : "bookmark"} iconColor={estaGuardada ? colores.rojoPrimario : colores.textoGrisClaro} contador={contadorFavoritos} onPress={manejarFavorito} texto="Guardar" />
-        <Accion icon={contadorLikes > 0 ? "thumb-up" : "thumb-up"} iconColor={colores.rojoPrimario} contador={contadorLikes} onPress={manejarLike} texto="Me gusta" />
+        <Accion icon="comment" iconColor={colores.principal} contador={contadorComentarios} onPress={() => { if (alVerDetalle) alVerDetalle({ mostrarComentarios: true }); setContadorLecturas((prev) => prev + 1); }} texto="Comentar" />
+        <Accion icon={estaGuardada ? "bookmark" : "bookmark-outline"} iconColor={estaGuardada ? colores.rojoPrimario : colores.textoGrisClaro} contador={contadorFavoritos} onPress={manejarFavorito} texto="Guardar" />
+        <Accion icon="thumb-up" iconColor={colores.rojoPrimario} contador={contadorLikes} onPress={manejarLike} texto="Me gusta" />
         <Accion icon="share-variant-outline" iconColor={colores.principal} contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
       </View>
     </Animated.View>
@@ -191,7 +207,7 @@ const estilos = StyleSheet.create({
   tarjeta: {
     marginBottom: espaciado.normal,
     borderRadius: 12,
-    overflow: "hidden",
+    overflow: "visible", // 👈 cambio aquí
     backgroundColor: "#fff",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -201,14 +217,14 @@ const estilos = StyleSheet.create({
     width: "100%",
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     padding: espaciado.normal,
   },
   left: {
     flex: 1,
     paddingRight: espaciado.normal,
-    justifyContent: 'flex-start',
+    justifyContent: "flex-start",
   },
   titulo: {
     fontSize: tamanosTexto.grande,
@@ -221,62 +237,67 @@ const estilos = StyleSheet.create({
   },
   contenedorAcciones: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     alignItems: "center",
-    paddingVertical: espaciado.minimo,
-    paddingHorizontal: espaciado.normal,
-    width: "100%",
-  },
-  accion: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  filaIconoContador: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icono: {
-    margin: 0,
-    height: 22, 
-  },
-  contador: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 2,
-  },
-  textoAccion: {
-    fontSize: 12,
-    color: colores.textoGris,
-    textAlign: "center",
-    marginTop: -4,
+    paddingVertical: espaciado.pequeno,
   },
   imagenRight: {
     width: 110,
     height: 110,
-    borderRadius: 8,
-    backgroundColor: '#eee',
+    borderRadius: 8, 
+    backgroundColor: "#eee",
     marginTop: 35,
     flexShrink: 0,
   },
   etiquetaCategoria: {
-    alignSelf: 'flex-start',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 16,
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
     marginBottom: 8,
   },
   textoCategoria: {
-    color: '#fff',
-    fontSize: tamanosTexto.muyPequeno,
-    fontWeight: '700',
+    color: "#fff",
+    fontSize: tamanosTexto.grande,
+    fontWeight: "700",
   },
-  tituloComentarios: { fontSize: tamanosTexto.mediano, fontWeight: "700", marginBottom: espaciado.pequeno,color: colores.textoOscuro,},
-  noComentarios: { color: colores.textoGris,},
-  comentario: { backgroundColor: "#f8f8f8",padding: espaciado.pequeno,borderRadius: 8,marginBottom: espaciado.minimo,},
-  fechaComentario: { fontSize: 11, color: colores.textoGris, marginTop: 2,textAlign: "right", },
-  inputComentario: { borderWidth: 1, borderColor: "#ddd", borderRadius: 10, padding: 10, marginTop: 10,},
-  modalFondo: { flex: 1,backgroundColor: "rgba(0, 0, 0, 0.5)",justifyContent: "flex-end", },
-  modalContenido: {  backgroundColor: "#fff", padding: espaciado.normal,borderTopLeftRadius: 16,borderTopRightRadius: 16, maxHeight: "80%", }, 
-  botonCerrar: { alignSelf: "flex-end", marginBottom: 10,},
 });
+const estilosAccion = StyleSheet.create({
+  contenedor: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  rowIcono: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  botonCircular: {
+    backgroundColor: "#f2f2f2",
+    borderRadius: 40,
+    width: 50,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 3,
+  },
+  contador: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#555",
+    marginLeft: 6,
+  },
+  tooltip: {
+    position: "absolute",
+    bottom: 65,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+  },
+  textoTooltip: {
+    color: "#000",
+    fontSize: 10,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+});
+
