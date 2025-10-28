@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {View,Animated,StyleSheet, ScrollView,Linking,TouchableOpacity,  TextInput,Text,} from "react-native";
+import { View, Animated, StyleSheet, ScrollView, Linking, TouchableOpacity, TextInput, Text, Image } from "react-native";
 import { IconButton } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -111,13 +111,23 @@ export default function PantallaConfiguracion({ navigation }) {
           size={24}
           onPress={() => navigation.goBack()}
         />
+
         <Text style={styles.headerTitle}>Configuración</Text>
+
+        
+        <Image
+          source={require("../assets/Logos/nt-el-reloj-circular.gif")} 
+          style={styles.logo}
+          resizeMode="contain"
+        />
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Animated.View style={{ opacity: fadeAnim }}>
           <Text style={styles.sectionTitle}>Califica nuestra App</Text>
-          <View style={styles.option}>
+
+          {/* Estrellas centradas */}
+          <View style={{ alignItems: "center", marginVertical: 10 }}>
             <View style={styles.stars}>
               {[1, 2, 3, 4, 5].map((rating) => (
                 <IconButton
@@ -173,15 +183,87 @@ export default function PantallaConfiguracion({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f4f6f9" },
-  header: { flexDirection: "row",  alignItems: "center", paddingHorizontal: 16, paddingVertical: 12,backgroundColor: "#e3e9f2ff", elevation: 4, },
-  headerTitle: { fontSize: 22, fontWeight: "700", color: "#161515ff", marginLeft: 8 },
-  content: { flex: 1, paddingHorizontal: 16 },
-  sectionTitle: { fontSize: 18, fontWeight: "600", color: "#144784", marginTop: 24, marginBottom: 8 },
-  option: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: "#ccc" },
-  optionText: { fontSize: 16, color: "#333" },
-  commentInput: { borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 10, marginTop: 8, textAlignVertical: "top", backgroundColor: "#fff" },
-  sendButton: { backgroundColor: "#144784", padding: 14, borderRadius: 8, alignItems: "center", marginTop: 12 },
-  sendButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  supportText: { fontSize: 16, color: "#144784" },
-  stars: { flexDirection: "row", justifyContent: "center", marginTop: 10 },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between", 
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#e3e9f2ff",
+    elevation: 4,
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#161515ff",
+    textAlign: "center",
+    flex: 1, 
+  },
+  logo: {
+    width: 40,
+    height: 40,
+  },
+  content: 
+  { 
+  flex: 1,
+   paddingHorizontal: 16
+     },
+  sectionTitle:
+   { 
+    fontSize: 18, 
+    fontWeight: "600", 
+    color: "#144784", 
+    marginTop: 24, 
+    marginBottom: 8 },
+  option: 
+  { 
+    flexDirection: "row", 
+    justifyContent: "space-between", 
+    paddingVertical: 8, 
+    borderBottomWidth: 1, 
+    borderBottomColor: "#ccc" 
+  },
+  optionText: 
+  { 
+    fontSize: 16, 
+    color: "#333" 
+  },
+  commentInput: 
+  { 
+    borderWidth: 1, 
+    borderColor: "#ccc", 
+    borderRadius: 8, 
+    padding: 10, 
+    marginTop: 8, 
+    textAlignVertical: "top", 
+    backgroundColor: "#fff"
+   },
+  sendButton: 
+  { 
+    backgroundColor: "#144784", 
+    padding: 14, 
+    borderRadius: 8, 
+    alignItems: "center", 
+    marginTop: 12 },
+  sendButtonText: 
+  { 
+    color: "#fff", 
+    fontSize: 16, 
+    fontWeight: "bold" 
+  },
+  supportText: 
+  {
+   fontSize: 16, 
+   color: "#144784" 
+  },
+  stars: 
+  { 
+    flexDirection: "row", 
+    justifyContent: "center" 
+  },
+  logo: {
+  width: 50,
+  height: 50, 
+},
+
 });
