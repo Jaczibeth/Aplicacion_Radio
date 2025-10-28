@@ -251,14 +251,14 @@ const estilos = StyleSheet.create({
   },
   etiquetaCategoria: {
     alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
     marginBottom: 8,
   },
   textoCategoria: {
     color: "#fff",
-    fontSize: tamanosTexto.muyPequeno,
+    fontSize: tamanosTexto.grande,
     fontWeight: "700",
   },
 });
