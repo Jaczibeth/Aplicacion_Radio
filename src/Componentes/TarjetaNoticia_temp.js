@@ -28,7 +28,7 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
           Animated.timing(opacityAnim, { toValue: 0, duration: 150, useNativeDriver: true }),
           Animated.timing(translateYAnim, { toValue: -2, duration: 150, useNativeDriver: true }),
         ]).start(() => setMostrarTexto(false));
-      }, 800); // un poco más rápido
+      }, 800); 
     });
 
     if (onPress) onPress();
@@ -49,7 +49,7 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
               <Animated.View
                 style={{
                   position: "absolute",
-                  top: 50, // menos separación del icono
+                  top: 50, 
                   opacity: opacityAnim,
                   transform: [{ translateY: translateYAnim }],
                   alignItems: "center",
@@ -195,9 +195,9 @@ export default function TarjetaNoticia({ noticia, estaGuardada, alCambiarGuardad
       <View style={estilos.contenedorAcciones}>
         <Accion icon="eye" iconColor={colores.textoGris} contador={contadorLecturas} onPress={irADetalle} texto="Ver" />
         <Accion icon="comment" iconColor={colores.principal} contador={contadorComentarios} onPress={() => { if (alVerDetalle) alVerDetalle({ mostrarComentarios: true }); setContadorLecturas((prev) => prev + 1); }} texto="Comentar" />
-        <Accion icon={estaGuardada ? "bookmark" : "bookmark-outline"} iconColor={estaGuardada ? colores.rojoPrimario : colores.textoGrisClaro} contador={contadorFavoritos} onPress={manejarFavorito} texto="Guardar" />
+        <Accion icon={estaGuardada ? "bookmark" : "bookmark"} iconColor={estaGuardada ? colores.rojoPrimario : colores.textoGrisClaro} contador={contadorFavoritos} onPress={manejarFavorito} texto="Guardar" />
         <Accion icon="thumb-up" iconColor={colores.rojoPrimario} contador={contadorLikes} onPress={manejarLike} texto="Me gusta" />
-        <Accion icon="share-variant-outline" iconColor={colores.principal} contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
+        <Accion icon="share-variant" iconColor={colores.principal} contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
       </View>
     </Animated.View>
   );
@@ -207,7 +207,7 @@ const estilos = StyleSheet.create({
   tarjeta: {
     marginBottom: espaciado.normal,
     borderRadius: 12,
-    overflow: "visible", // 👈 cambio aquí
+    overflow: "visible", 
     backgroundColor: "#fff",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
