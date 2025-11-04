@@ -1,4 +1,4 @@
-// AnimacionBuscar.js
+
 import { useState, useEffect } from "react";
 import { TEXTOS_BUSQUEDA_ROTATIVOS } from "../configuracion/constantes";
 
