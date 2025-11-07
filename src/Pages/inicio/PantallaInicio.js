@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { View, Text, FlatList, Image, TouchableOpacity, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Title, Searchbar, Avatar } from "react-native-paper";
@@ -62,6 +62,92 @@ export default function PantallaInicio({ navigation }) {
     }, [])
   );
 
+  // Configuración del carrusel
+  const anchoPantalla = Dimensions.get("window").width;
+  const itemAncho = Math.round(anchoPantalla * 0.9);
+  const itemMargen = 10;
+
+  // Refs para mantener/restaurar índice del carrusel aunque se recarguen los datos
+  const carouselRef = useRef(null);
+  const currentIndexRef = useRef(0);
+  const onViewRef = useRef(({ viewableItems }) => {
+    if (viewableItems && viewableItems.length > 0) {
+      const first = viewableItems[0];
+      // Guardar el índice actual visible
+      currentIndexRef.current = first.index ?? 0;
+    }
+  });
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
+
+  // Restaurar posición del carrusel después de recargas de datos
+  useEffect(() => {
+    // Sólo intentar restaurar si ya conocíamos un índice previo
+    const idx = currentIndexRef.current ?? 0;
+    const maxIndex = Math.max(0, Math.min(2, (noticias ? noticias.slice(0, 3).length - 1 : 0)));
+    const toIndex = Math.min(idx, maxIndex);
+    if (carouselRef.current && toIndex > 0) {
+      // esperar un frame para asegurarnos que el FlatList interno ya montó
+      const t = setTimeout(() => {
+        try {
+          carouselRef.current.scrollToIndex({ index: toIndex, animated: false });
+        } catch (e) {
+          // fall back silencioso
+        }
+      }, 50);
+      return () => clearTimeout(t);
+    }
+  }, [noticias]);
+
+  const renderItemCarrusel = ({ item }) => (
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => navigation.navigate("DetalleNoticia", { noticia: item })}
+      style={{ width: itemAncho, marginHorizontal: itemMargen }}
+    >
+      <Image
+        source={{ uri: item.imagen }}
+        style={{ width: "100%", height: 200, borderRadius: 12 }}
+        resizeMode="cover"
+      />
+      <Text style={estilos.tituloImagenCarrusel}>{item.titulo}</Text>
+    </TouchableOpacity>
+  );
+
+  // Encabezado dinámico de la lista
+  const renderizarCabeceraLista = () => {
+    if (pestanaActiva === PESTANAS.DESTACADAS) {
+      return (
+        <>
+          <Text style={estilos.tituloSeccion}>Tendencia</Text>
+          <FlatList
+            ref={carouselRef}
+            data={noticias.slice(0, 3)}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            snapToAlignment="center"
+            decelerationRate="fast"
+            snapToInterval={itemAncho + itemMargen * 2}
+            contentContainerStyle={{ paddingHorizontal: itemMargen }}
+            renderItem={renderItemCarrusel}
+            keyExtractor={(item) => `carrusel-${item.id}`}
+            onViewableItemsChanged={onViewRef.current}
+            viewabilityConfig={viewConfigRef.current}
+          />
+          <Text style={[estilos.tituloSeccion, { marginTop: 16 }]}>
+            Noticias Destacadas
+          </Text>
+        </>
+      );
+    }
+    if (pestanaActiva === PESTANAS.MARCADORES) {
+      return <Text style={estilos.tituloSeccion}>Guardados</Text>;
+    }
+    return null;
+  };
+
+  // Memoizar la cabecera para evitar reconstrucciones innecesarias
+  const cabeceraMemo = useMemo(() => renderizarCabeceraLista(), [pestanaActiva, noticias]);
+
   // Mostrar mientras carga o hay error
   if (!fuentesCargadas) return null;
   if (cargando)
@@ -92,54 +178,6 @@ export default function PantallaInicio({ navigation }) {
       )
     : noticias;
 
-  // Configuración del carrusel
-  const anchoPantalla = Dimensions.get("window").width;
-  const itemAncho = Math.round(anchoPantalla * 0.9);
-  const itemMargen = 10;
-
-  const renderItemCarrusel = ({ item }) => (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={() => navigation.navigate("DetalleNoticia", { noticia: item })}
-      style={{ width: itemAncho, marginHorizontal: itemMargen }}
-    >
-      <Image
-        source={{ uri: item.imagen }}
-        style={{ width: "100%", height: 200, borderRadius: 12 }}
-        resizeMode="cover"
-      />
-      <Text style={estilos.tituloImagenCarrusel}>{item.titulo}</Text>
-    </TouchableOpacity>
-  );
-
-  // Encabezado dinámico de la lista
-  const renderizarCabeceraLista = () => {
-    if (pestanaActiva === PESTANAS.DESTACADAS) {
-      return (
-        <>
-          <Text style={estilos.tituloSeccion}>Tendencia</Text>
-          <FlatList
-            data={noticias.slice(0, 3)}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            snapToAlignment="center"
-            decelerationRate="fast"
-            snapToInterval={itemAncho + itemMargen * 2}
-            contentContainerStyle={{ paddingHorizontal: itemMargen }}
-            renderItem={renderItemCarrusel}
-            keyExtractor={(item) => `carrusel-${item.id}`}
-          />
-          <Text style={[estilos.tituloSeccion, { marginTop: 16 }]}>
-            Noticias Destacadas
-          </Text>
-        </>
-      );
-    }
-    if (pestanaActiva === PESTANAS.MARCADORES) {
-      return <Text style={estilos.tituloSeccion}>Guardados</Text>;
-    }
-    return null;
-  };
 
   return (
     <SafeAreaView style={estilos.contenedor}>
@@ -179,7 +217,7 @@ export default function PantallaInicio({ navigation }) {
         data={pestanaActiva === PESTANAS.MARCADORES ? favoritos : noticiasFiltradas}
         keyExtractor={(item) => item.id.toString()}
         extraData={favoritos}
-        ListHeaderComponent={renderizarCabeceraLista}
+  ListHeaderComponent={cabeceraMemo}
         renderItem={({ item }) => (
           <View style={{ paddingHorizontal: 10, marginBottom: 12 }}>
             <TarjetaNoticia
