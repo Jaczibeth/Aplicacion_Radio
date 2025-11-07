@@ -3,61 +3,73 @@ import { View, Text, FlatList, Image, TouchableOpacity, Dimensions } from "react
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Title, Searchbar, Avatar } from "react-native-paper";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold } from "@expo-google-fonts/poppins";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { noticias } from "../../Data/noticias";
 import { NOMBRE_APP, PESTANAS, MENSAJES } from "../../configuracion/constantes";
 import BarraPestanas from "../../Componentes/BarraPestanas";
 import TarjetaNoticia from "../../Componentes/TarjetaNoticia_temp";
 import estilos from "./estilos";
 import useAnimacionBuscar from "../../Componentes/AnimacionBuscar";
+import useNoticias from "../../hooks/useNoticias";
 
 export default function PantallaInicio({ navigation }) {
+  // Estados principales
   const [pestanaActiva, setPestanaActiva] = useState(PESTANAS.DESTACADAS);
   const [textoBusqueda, setTextoBusqueda] = useState("");
   const [favoritos, setFavoritos] = useState([]);
-  const [recargar, setRecargar] = useState(false);
+
+  // Hook de noticias
+  const { noticias, cargando, error, eliminarNoticia, recargar } = useNoticias();
+
+  // Animación del buscador
   const textoAnimado = useAnimacionBuscar();
 
-
+  // Cargar fuentes
   const [fuentesCargadas] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
   });
 
+  // Cargar favoritos al iniciar
   useEffect(() => {
     const cargarFavoritos = async () => {
       try {
-        const favoritosGuardados = await AsyncStorage.getItem('favoritos');
-        if (favoritosGuardados !== null) {
-          setFavoritos(JSON.parse(favoritosGuardados));
-        }
-      } catch (error) {
-        console.error('Error al cargar los favoritos', error);
+        const guardados = await AsyncStorage.getItem("favoritos");
+        if (guardados) setFavoritos(JSON.parse(guardados));
+      } catch (err) {
+        console.error("Error al cargar favoritos:", err);
       }
     };
     cargarFavoritos();
   }, []);
 
+  // Guardar favoritos cuando cambien
   useEffect(() => {
     const guardarFavoritos = async () => {
       try {
-        await AsyncStorage.setItem('favoritos', JSON.stringify(favoritos));
-      } catch (error) {
-        console.error('Error al guardar los favoritos', error);
+        await AsyncStorage.setItem("favoritos", JSON.stringify(favoritos));
+      } catch (err) {
+        console.error("Error al guardar favoritos:", err);
       }
     };
     guardarFavoritos();
   }, [favoritos]);
 
+  // Recargar noticias cuando la pantalla vuelve a enfocarse
   useFocusEffect(
     useCallback(() => {
-      setRecargar(prev => !prev);
+      recargar();
     }, [])
   );
 
+  // Mostrar mientras carga o hay error
   if (!fuentesCargadas) return null;
+  if (cargando)
+    return <Text style={{ textAlign: "center", marginTop: 50 }}>Cargando noticias...</Text>;
+  if (error)
+    return <Text style={{ textAlign: "center", marginTop: 50 }}>Error: {error}</Text>;
 
+  //  Alternar favoritos
   const cambiarFavorito = (noticia) => {
     const existe = favoritos.find((n) => n.id === noticia.id);
     if (existe) {
@@ -67,17 +79,20 @@ export default function PantallaInicio({ navigation }) {
     }
   };
 
-  const estaEnFavoritos = (noticia) => {
-    return favoritos.some((n) => n.id === noticia.id);
-  };
+  //  Verificar si una noticia está en favoritos
+  const estaEnFavoritos = (noticia) => favoritos.some((n) => n.id === noticia.id);
+
+  //  Filtrar noticias por texto
   const noticiasFiltradas = textoBusqueda
-    ? noticias.filter((noticia) =>
-      noticia.titulo.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
-      (noticia.descripcion &&
-        noticia.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase()))
-    )
+    ? noticias.filter(
+        (n) =>
+          n.titulo.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
+          (n.descripcion &&
+            n.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase()))
+      )
     : noticias;
 
+  // Configuración del carrusel
   const anchoPantalla = Dimensions.get("window").width;
   const itemAncho = Math.round(anchoPantalla * 0.9);
   const itemMargen = 10;
@@ -90,17 +105,14 @@ export default function PantallaInicio({ navigation }) {
     >
       <Image
         source={{ uri: item.imagen }}
-        style={{
-          width: "100%",
-          height: 200,
-          borderRadius: 12,
-        }}
+        style={{ width: "100%", height: 200, borderRadius: 12 }}
         resizeMode="cover"
       />
       <Text style={estilos.tituloImagenCarrusel}>{item.titulo}</Text>
     </TouchableOpacity>
   );
 
+  // Encabezado dinámico de la lista
   const renderizarCabeceraLista = () => {
     if (pestanaActiva === PESTANAS.DESTACADAS) {
       return (
@@ -117,7 +129,9 @@ export default function PantallaInicio({ navigation }) {
             renderItem={renderItemCarrusel}
             keyExtractor={(item) => `carrusel-${item.id}`}
           />
-          <Text style={[estilos.tituloSeccion, { marginTop: 16 }]}>Noticias Destacadas</Text>
+          <Text style={[estilos.tituloSeccion, { marginTop: 16 }]}>
+            Noticias Destacadas
+          </Text>
         </>
       );
     }
@@ -129,6 +143,7 @@ export default function PantallaInicio({ navigation }) {
 
   return (
     <SafeAreaView style={estilos.contenedor}>
+  
       <View style={estilos.encabezado}>
         <View style={estilos.contenedorTitulo}>
           <Avatar.Image
@@ -140,12 +155,7 @@ export default function PantallaInicio({ navigation }) {
         </View>
       </View>
 
-      {/* <Searchbar
-        placeholder={MENSAJES.BUSCAR_PLACEHOLDER}
-        value={textoBusqueda}
-        onChangeText={setTextoBusqueda}
-        style={estilos.buscador}
-        elevation={1} /> */}
+    
       <Searchbar
         placeholder={textoAnimado}
         value={textoBusqueda}
@@ -155,26 +165,25 @@ export default function PantallaInicio({ navigation }) {
         inputStyle={{ fontFamily: "Poppins_400Regular" }}
       />
 
-
+  
       <BarraPestanas
         pestanaActiva={pestanaActiva}
         alCambiarPestana={(nuevaPestana) => {
-          if (nuevaPestana === PESTANAS.DESCUBRIR) {
-            navigation.navigate("Descubrir");
-          } else {
-            setPestanaActiva(nuevaPestana);
-          }
-        }} />
+          if (nuevaPestana === PESTANAS.DESCUBRIR) navigation.navigate("Descubrir");
+          else setPestanaActiva(nuevaPestana);
+        }}
+      />
 
+    
       <FlatList
         data={pestanaActiva === PESTANAS.MARCADORES ? favoritos : noticiasFiltradas}
         keyExtractor={(item) => item.id.toString()}
-        extraData={recargar}
+        extraData={favoritos}
         ListHeaderComponent={renderizarCabeceraLista}
         renderItem={({ item }) => (
           <View style={{ paddingHorizontal: 10, marginBottom: 12 }}>
             <TarjetaNoticia
-              key={`${item.id}-${recargar}`}
+              key={item.id}
               noticia={item}
               estaGuardada={estaEnFavoritos(item)}
               alCambiarGuardado={cambiarFavorito}
@@ -184,16 +193,21 @@ export default function PantallaInicio({ navigation }) {
                   mostrarComentarios: mostrarComentarios ?? false,
                 });
               }}
-              recargar={recargar}
+              eliminarNoticia={eliminarNoticia}
             />
           </View>
         )}
         ListEmptyComponent={
           pestanaActiva === PESTANAS.MARCADORES ? (
             <Text style={estilos.textoVacio}>{MENSAJES.SIN_FAVORITOS}</Text>
-          ) : <Text style={estilos.textoVacio}>No se encontraron resultados para tu búsqueda.</Text>
+          ) : (
+            <Text style={estilos.textoVacio}>
+              No se encontraron resultados para tu búsqueda.
+            </Text>
+          )
         }
-        contentContainerStyle={{ paddingBottom: 90 }} />
+        contentContainerStyle={{ paddingBottom: 90 }}
+      />
     </SafeAreaView>
   );
 }
