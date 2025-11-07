@@ -1,55 +1,45 @@
 import { useEffect, useState } from "react";
-import {getNoticias,eliminarNoticiaAPI,agregarNoticiaAPI,} from "../Data/Api";
+import axios from "axios";
 
-
-
+const BASE_URL = "http://192.168.0.105:8080/api/noticias";
 
 export default function useNoticias() {
   const [noticias, setNoticias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
-  // Cargar noticias al inicio
+  // Cargar noticias desde el backend
   const cargarNoticias = async () => {
     try {
       setCargando(true);
-      const data = await getNoticias();
-      const noticiasConTruncamiento = data.map(noticia => ({
-        ...noticia,
-        titulo: truncarCiudadDeMexico(noticia.titulo),
-        descripcion: truncarCiudadDeMexico(noticia.descripcion),
-        descripcionCompleta: truncarCiudadDeMexico(noticia.descripcionCompleta),
-        fuente: truncarCiudadDeMexico(noticia.fuente),
-      }));
-      setNoticias(noticiasConTruncamiento);
+      const response = await axios.get(BASE_URL);
+      setNoticias(response.data);
+      setError(null);
     } catch (err) {
+      console.error("Error al cargar noticias:", err);
       setError("No se pudieron cargar las noticias");
     } finally {
       setCargando(false);
     }
   };
 
-  // Eliminar noticia
+  //  Eliminar noticia
   const eliminarNoticia = async (id) => {
     try {
-      const ok = await eliminarNoticiaAPI(id);
-      if (ok) {
-        setNoticias((prev) => prev.filter((n) => n.id !== id));
-      }
+      await axios.delete(`${BASE_URL}/${id}`);
+      setNoticias((prev) => prev.filter((n) => n.id !== id));
     } catch (err) {
-      console.log("Error al eliminar noticia:", err);
+      console.error("Error al eliminar noticia:", err);
     }
   };
 
-  // Agregar noticia
-  const agregarNoticia = async (noticia) => {
+  //  Agregar noticia
+  const agregarNoticia = async (nuevaNoticia) => {
     try {
-      const nueva = await agregarNoticiaAPI(noticia);
-      if (nueva) {
-        setNoticias((prev) => [nueva, ...prev]);
-      }
+      const response = await axios.post(BASE_URL, nuevaNoticia);
+      setNoticias((prev) => [response.data, ...prev]);
     } catch (err) {
-      console.log("Error al agregar:", err);
+      console.error("Error al agregar noticia:", err);
     }
   };
 
