@@ -27,7 +27,7 @@ export const getNoticias = async () => {
     const response = await http.get("/noticias");
     return response.data;
   } catch (error) {
-    console.log("Error al cargar noticias:", error);
+    // console.log("Error al cargar noticias:", error);
     return [];
   }
 };

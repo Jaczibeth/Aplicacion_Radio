@@ -17,7 +17,7 @@ export const NoticiasProvider = ({ children }) => {
     try {
       setCargando(true);
       const response = await axios.get(BASE_URL);
-      console.log(" Noticias cargadas:", response.data);
+
       setNoticias(response.data);
       setError(null);
     } catch (err) {
@@ -41,6 +41,7 @@ export const NoticiasProvider = ({ children }) => {
 
   // Cargar noticias al iniciar
   useEffect(() => {
+
     cargarNoticias();
   }, []);
 
