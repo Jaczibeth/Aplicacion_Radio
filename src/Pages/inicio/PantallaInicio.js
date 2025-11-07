@@ -3,22 +3,21 @@ import { View, Text, FlatList, Image, TouchableOpacity, Dimensions } from "react
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Title, Searchbar, Avatar } from "react-native-paper";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold } from "@expo-google-fonts/poppins";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { noticias } from "../../Data/noticias";
 import { NOMBRE_APP, PESTANAS, MENSAJES } from "../../configuracion/constantes";
 import BarraPestanas from "../../Componentes/BarraPestanas";
 import TarjetaNoticia from "../../Componentes/TarjetaNoticia_temp";
 import estilos from "./estilos";
 import useAnimacionBuscar from "../../Componentes/AnimacionBuscar";
+import useNoticias from "../../hooks/useNoticias";
 
 export default function PantallaInicio({ navigation }) {
   const [pestanaActiva, setPestanaActiva] = useState(PESTANAS.DESTACADAS);
   const [textoBusqueda, setTextoBusqueda] = useState("");
   const [favoritos, setFavoritos] = useState([]);
-  const [recargar, setRecargar] = useState(false);
+  const { noticias, cargando, error, eliminarNoticia, recargar } = useNoticias();
   const textoAnimado = useAnimacionBuscar();
-
 
   const [fuentesCargadas] = useFonts({
     Poppins_400Regular,
@@ -28,12 +27,10 @@ export default function PantallaInicio({ navigation }) {
   useEffect(() => {
     const cargarFavoritos = async () => {
       try {
-        const favoritosGuardados = await AsyncStorage.getItem('favoritos');
-        if (favoritosGuardados !== null) {
-          setFavoritos(JSON.parse(favoritosGuardados));
-        }
-      } catch (error) {
-        console.error('Error al cargar los favoritos', error);
+        const favoritosGuardados = await AsyncStorage.getItem("favoritos");
+        if (favoritosGuardados) setFavoritos(JSON.parse(favoritosGuardados));
+      } catch (err) {
+        console.error("Error al cargar favoritos", err);
       }
     };
     cargarFavoritos();
@@ -42,9 +39,9 @@ export default function PantallaInicio({ navigation }) {
   useEffect(() => {
     const guardarFavoritos = async () => {
       try {
-        await AsyncStorage.setItem('favoritos', JSON.stringify(favoritos));
-      } catch (error) {
-        console.error('Error al guardar los favoritos', error);
+        await AsyncStorage.setItem("favoritos", JSON.stringify(favoritos));
+      } catch (err) {
+        console.error("Error al guardar favoritos", err);
       }
     };
     guardarFavoritos();
@@ -52,11 +49,13 @@ export default function PantallaInicio({ navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      setRecargar(prev => !prev);
+      recargar();
     }, [])
   );
 
   if (!fuentesCargadas) return null;
+  if (cargando) return <Text style={{ textAlign: "center", marginTop: 50 }}>Cargando noticias...</Text>;
+  if (error) return <Text style={{ textAlign: "center", marginTop: 50 }}>Error: {error}</Text>;
 
   const cambiarFavorito = (noticia) => {
     const existe = favoritos.find((n) => n.id === noticia.id);
@@ -67,15 +66,14 @@ export default function PantallaInicio({ navigation }) {
     }
   };
 
-  const estaEnFavoritos = (noticia) => {
-    return favoritos.some((n) => n.id === noticia.id);
-  };
+  const estaEnFavoritos = (noticia) => favoritos.some((n) => n.id === noticia.id);
+
   const noticiasFiltradas = textoBusqueda
-    ? noticias.filter((noticia) =>
-      noticia.titulo.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
-      (noticia.descripcion &&
-        noticia.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase()))
-    )
+    ? noticias.filter(
+        (noticia) =>
+          noticia.titulo.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
+          (noticia.descripcion && noticia.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase()))
+      )
     : noticias;
 
   const anchoPantalla = Dimensions.get("window").width;
@@ -88,15 +86,7 @@ export default function PantallaInicio({ navigation }) {
       onPress={() => navigation.navigate("DetalleNoticia", { noticia: item })}
       style={{ width: itemAncho, marginHorizontal: itemMargen }}
     >
-      <Image
-        source={{ uri: item.imagen }}
-        style={{
-          width: "100%",
-          height: 200,
-          borderRadius: 12,
-        }}
-        resizeMode="cover"
-      />
+      <Image source={{ uri: item.imagen }} style={{ width: "100%", height: 200, borderRadius: 12 }} resizeMode="cover" />
       <Text style={estilos.tituloImagenCarrusel}>{item.titulo}</Text>
     </TouchableOpacity>
   );
@@ -131,21 +121,11 @@ export default function PantallaInicio({ navigation }) {
     <SafeAreaView style={estilos.contenedor}>
       <View style={estilos.encabezado}>
         <View style={estilos.contenedorTitulo}>
-          <Avatar.Image
-            size={45}
-            source={require("../../assets/Logos/nt-el-reloj.gif")}
-            style={{ backgroundColor: "transparent" }}
-          />
+          <Avatar.Image size={45} source={require("../../assets/Logos/nt-el-reloj.gif")} style={{ backgroundColor: "transparent" }} />
           <Title style={estilos.tituloApp}>{NOMBRE_APP}</Title>
         </View>
       </View>
 
-      {/* <Searchbar
-        placeholder={MENSAJES.BUSCAR_PLACEHOLDER}
-        value={textoBusqueda}
-        onChangeText={setTextoBusqueda}
-        style={estilos.buscador}
-        elevation={1} /> */}
       <Searchbar
         placeholder={textoAnimado}
         value={textoBusqueda}
@@ -155,16 +135,13 @@ export default function PantallaInicio({ navigation }) {
         inputStyle={{ fontFamily: "Poppins_400Regular" }}
       />
 
-
       <BarraPestanas
         pestanaActiva={pestanaActiva}
         alCambiarPestana={(nuevaPestana) => {
-          if (nuevaPestana === PESTANAS.DESCUBRIR) {
-            navigation.navigate("Descubrir");
-          } else {
-            setPestanaActiva(nuevaPestana);
-          }
-        }} />
+          if (nuevaPestana === PESTANAS.DESCUBRIR) navigation.navigate("Descubrir");
+          else setPestanaActiva(nuevaPestana);
+        }}
+      />
 
       <FlatList
         data={pestanaActiva === PESTANAS.MARCADORES ? favoritos : noticiasFiltradas}
@@ -174,26 +151,26 @@ export default function PantallaInicio({ navigation }) {
         renderItem={({ item }) => (
           <View style={{ paddingHorizontal: 10, marginBottom: 12 }}>
             <TarjetaNoticia
-              key={`${item.id}-${recargar}`}
+              key={item.id}
               noticia={item}
               estaGuardada={estaEnFavoritos(item)}
               alCambiarGuardado={cambiarFavorito}
               alVerDetalle={({ mostrarComentarios }) => {
-                navigation.navigate("DetalleNoticia", {
-                  noticia: item,
-                  mostrarComentarios: mostrarComentarios ?? false,
-                });
+                navigation.navigate("DetalleNoticia", { noticia: item, mostrarComentarios: mostrarComentarios ?? false });
               }}
-              recargar={recargar}
+              eliminarNoticia={eliminarNoticia}
             />
           </View>
         )}
         ListEmptyComponent={
           pestanaActiva === PESTANAS.MARCADORES ? (
             <Text style={estilos.textoVacio}>{MENSAJES.SIN_FAVORITOS}</Text>
-          ) : <Text style={estilos.textoVacio}>No se encontraron resultados para tu búsqueda.</Text>
+          ) : (
+            <Text style={estilos.textoVacio}>No se encontraron resultados para tu búsqueda.</Text>
+          )
         }
-        contentContainerStyle={{ paddingBottom: 90 }} />
+        contentContainerStyle={{ paddingBottom: 90 }}
+      />
     </SafeAreaView>
   );
 }

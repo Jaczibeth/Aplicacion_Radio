@@ -2,6 +2,7 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider as PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
+import { NoticiasProvider } from "./src/context/NoticiasContext";
 
 // Navegación
 import NavegadorPrincipal from "./src/navegacion/NavegadorPrincipal";
@@ -16,10 +17,13 @@ import { temaPrincipal } from "./src/configuracion/colores";
 export default function App() {
   return (
     <PaperProvider theme={temaPrincipal}>
-      <NavigationContainer>
-        <StatusBar style="dark" />
-        <NavegadorPrincipal />
-      </NavigationContainer>
+      <NoticiasProvider>
+        <NavigationContainer>
+          <StatusBar style="dark" />
+          <NavegadorPrincipal />
+        </NavigationContainer>
+      </NoticiasProvider>
     </PaperProvider>
-  );
+  );
 }
+

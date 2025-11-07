@@ -37,22 +37,11 @@ const SeccionComentarios = ({
                   <Text style={estilos.autorComentario}>{c.autor}</Text>
                   <Text style={estilos.textoComentario}>{c.texto}</Text>
                   <Text style={estilos.fechaComentario}>{c.fecha}</Text>
-                  {c.editable && (
                     <View style={estilos.accionesComentario}>
-                      <TouchableOpacity
-                        onPress={() => {
-                          setComentarioEditando(i);
-                          setTextoEditando(c.texto);
-                          setVisibleDialog(true);
-                        }}
-                      >
-                        <Text style={estilos.botonEditar}>Editar</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity onPress={() => manejarEliminarComentario(i)}>
+                      <TouchableOpacity onPress={() => manejarEliminarComentario(c)}>
                         <Text style={estilos.botonEliminar}>Eliminar</Text>
                       </TouchableOpacity>
                     </View>
-                  )}
                 </View>
               ))
             )}
