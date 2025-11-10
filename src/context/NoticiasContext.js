@@ -3,7 +3,7 @@ import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
 
-const BASE_URL = "http://192.168.1.3:8080/api/noticias";
+const BASE_URL = "http://192.168.40.80:8080/api/noticias";
 
 export const NoticiasContext = createContext();
 
