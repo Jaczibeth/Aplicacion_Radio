@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, StyleSheet, Animated, Text,Share, Image, TouchableOpacity,Alert,} from "react-native";
+import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity, Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Title, Paragraph, IconButton } from "react-native-paper";
 import { coloresCategorias } from "../configuracion/colores";
@@ -10,58 +10,26 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   const [visible, setVisible] = useState(false);
 
   const animarClick = () => {
-    // Animación de clic
     Animated.sequence([
       Animated.spring(scaleAnim, { toValue: 1.15, friction: 4, useNativeDriver: true }),
       Animated.spring(scaleAnim, { toValue: 1, friction: 4, useNativeDriver: true }),
     ]).start();
 
-    // Mostrar al hacer clic
     setVisible(true);
-    Animated.timing(tooltipAnim, {
-      toValue: 1,
-      duration: 180,
-      useNativeDriver: true,
-    }).start(() => {
+    Animated.timing(tooltipAnim, { toValue: 1, duration: 180, useNativeDriver: true }).start(() => {
       setTimeout(() => {
-        Animated.timing(tooltipAnim, {
-          toValue: 0,
-          duration: 180,
-          useNativeDriver: true,
-        }).start(() => setVisible(false));
-      }, 800); // 0.8 segundos 
+        Animated.timing(tooltipAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => setVisible(false));
+      }, 800);
     });
 
-    
     if (onPress) onPress();
   };
 
   return (
     <View style={styles.contenedorAccion}>
       {visible && (
-        <Animated.View
-          style={[
-            styles.tooltip,
-            {
-              opacity: tooltipAnim,
-              transform: [
-                {
-                  translateY: tooltipAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [10, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <Text
-            style={styles.textoTooltip}
-            numberOfLines={1}
-            ellipsizeMode="clip"
-          >
-            {texto}
-          </Text>
+        <Animated.View style={[styles.tooltip, { opacity: tooltipAnim, transform: [{ translateY: tooltipAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }]}>
+          <Text style={styles.textoTooltip} numberOfLines={1} ellipsizeMode="clip">{texto}</Text>
         </Animated.View>
       )}
 
@@ -78,13 +46,7 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   );
 };
 
-const TarjetaNoticia_temp = ({
-  noticia,
-  eliminarNoticia,
-  alVerDetalle,
-  alCambiarGuardado,
-  estaGuardada,
-}) => {
+const TarjetaNoticia_temp = ({ noticia, eliminarNoticia, alVerDetalle, alCambiarGuardado, estaGuardada }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
@@ -96,12 +58,8 @@ const TarjetaNoticia_temp = ({
   useEffect(() => {
     const cargarComentarios = async () => {
       try {
-        const almacenados = await AsyncStorage.getItem(
-          `comentariosNoticia_${noticia.id}`
-        );
-        if (almacenados) {
-          setContadorComentarios(JSON.parse(almacenados).length);
-        }
+        const almacenados = await AsyncStorage.getItem(`comentariosNoticia_${noticia.id}`);
+        if (almacenados) setContadorComentarios(JSON.parse(almacenados).length);
       } catch (error) {
         console.log("Error al cargar comentarios:", error);
       }
@@ -116,16 +74,16 @@ const TarjetaNoticia_temp = ({
     ]).start();
   }, [noticia]);
 
-  const manejarLike = () => setContadorLikes((prev) => prev + 1);
+  const manejarLike = () => setContadorLikes(prev => prev + 1);
   const manejarFavorito = () => alCambiarGuardado(noticia);
   const manejarCompartir = async () => {
     try {
       await Share.share({
         title: noticia.titulo,
-        message: `${noticia.titulo}\n\n${noticia.descripcion || ""}\n\nFuente: ${noticia.fuente || ""}`,
+        message: `${noticia.titulo}\n\n${noticia.descripcionCompleta || noticia.descripcion}\n\nFuente: ${noticia.fuente || ""}`,
         url: noticia.imagen,
       });
-      setContadorCompartidos((prev) => prev + 1);
+      setContadorCompartidos(prev => prev + 1);
     } catch (error) {
       console.log("Error al compartir:", error);
     }
@@ -138,36 +96,17 @@ const TarjetaNoticia_temp = ({
     ]);
   };
 
- 
   return (
-    <Animated.View
-      style={[
-        styles.tarjeta,
-        { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
-      ]}
-    >
+    <Animated.View style={[styles.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
       <View style={styles.row}>
         <View style={styles.left}>
           {noticia.categoria && (
-            <View
-              style={[
-                styles.etiquetaCategoria,
-                {
-                  backgroundColor:
-                    coloresCategorias[noticia.categoria] ||
-                    coloresCategorias.Otro,
-                },
-              ]}
-            >
+            <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
               <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
             </View>
           )}
-          <Title style={styles.titulo} numberOfLines={2}>
-            {noticia.titulo}
-          </Title>
-          <Paragraph style={styles.descripcion} numberOfLines={3}>
-            {noticia.descripcion}
-          </Paragraph>
+          <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
+          <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
         </View>
         <Image source={{ uri: noticia.imagen }} style={styles.imagenRight} />
       </View>
@@ -178,8 +117,8 @@ const TarjetaNoticia_temp = ({
           iconColor="#660909ff"
           contador={contadorLecturas}
           onPress={() => {
-            setContadorLecturas((prev) => prev + 1);
-            alVerDetalle(noticia); // ✅ mantiene la función ver detalle
+            setContadorLecturas(prev => prev + 1);
+            alVerDetalle(noticia); // PASA toda la noticia, incluyendo descripcionCompleta
           }}
           texto="Ver"
         />
@@ -224,99 +163,20 @@ const TarjetaNoticia_temp = ({
 };
 
 const styles = StyleSheet.create({
-  tarjeta: {
-    marginBottom: 20,
-    borderRadius: 12,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-    paddingBottom: 10,
-  },
-  row: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    padding: 10,
-  },
-  left: {
-    flex: 1,
-    paddingRight: 10,
-    justifyContent: "flex-start",
-  },
-  titulo: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#333",
-  },
-  descripcion: {
-    fontSize: 14,
-    color: "#666",
-  },
-  imagenRight: {
-    width: 110,
-    height: 110,
-    borderRadius: 8,
-    backgroundColor: "#eee",
-    marginTop: 20,
-  },
-  etiquetaCategoria: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginBottom: 8,
-  },
-  textoCategoria: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  filaAcciones: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingVertical: 10,
-  },
-  contenedorAccion: {
-    alignItems: "center",
-    justifyContent: "center",
-    width: 55,
-  },
-  botonCircular: {
-    backgroundColor: "#f3f3f3",
-    borderRadius: 40,
-    width: 46,
-    height: 46,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  contador: {
-    fontSize: 12,
-    color: "#555",
-    fontWeight: "600",
-    marginTop: 3,
-  },
-  tooltip: {
-    position: "absolute",
-    bottom: 60,
-    backgroundColor: "#144784",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    zIndex: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: 70,
-    maxWidth: 90,
-  },
-  textoTooltip: {
-    color: "#fff",
-    fontSize: 11,
-    fontWeight: "600",
-    textAlign: "center",
-  },
+  tarjeta: { marginBottom: 20, borderRadius: 12, backgroundColor: "#fff", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 3, paddingBottom: 10 },
+  row: { flexDirection: "row", alignItems: "flex-start", padding: 10 },
+  left: { flex: 1, paddingRight: 10, justifyContent: "flex-start" },
+  titulo: { fontSize: 16, fontWeight: "700", color: "#333" },
+  descripcion: { fontSize: 14, color: "#666" },
+  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: "#eee", marginTop: 20 },
+  etiquetaCategoria: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginBottom: 8 },
+  textoCategoria: { color: "#fff", fontSize: 12, fontWeight: "700" },
+  filaAcciones: { flexDirection: "row", justifyContent: "space-around", alignItems: "center", paddingVertical: 10 },
+  contenedorAccion: { alignItems: "center", justifyContent: "center", width: 55 },
+  botonCircular: { backgroundColor: "#f3f3f3", borderRadius: 40, width: 46, height: 46, justifyContent: "center", alignItems: "center" },
+  contador: { fontSize: 12, color: "#555", fontWeight: "600", marginTop: 3 },
+  tooltip: { position: "absolute", bottom: 60, backgroundColor: "#144784", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, zIndex: 10, alignItems: "center", justifyContent: "center", minWidth: 70, maxWidth: 90 },
+  textoTooltip: { color: "#fff", fontSize: 11, fontWeight: "600", textAlign: "center" },
 });
 
 export default TarjetaNoticia_temp;
