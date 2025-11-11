@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  StyleSheet,
-  Animated,
-  Text,
-  Share,
-  Image,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, StyleSheet, Animated, Text,Share, Image, TouchableOpacity,Alert,} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Title, Paragraph, IconButton } from "react-native-paper";
 import { coloresCategorias } from "../configuracion/colores";
