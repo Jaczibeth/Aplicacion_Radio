@@ -6,7 +6,6 @@ import CabeceraNoticia from "./DetalleNoticia/CabeceraNoticia";
 import CuerpoNoticia from "./DetalleNoticia/CuerpoNoticia";
 import SeccionComentarios from "./DetalleNoticia/SeccionComentarios";
 import BarraComentarios from "./DetalleNoticia/BarraComentarios";
-
 import Api from "../Data/Api";
 
 export default function DetalleNoticia({ noticia, onCerrar }) {
@@ -21,7 +20,6 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
 
   const colorCategoria = coloresCategorias[noticia.categoria] || coloresCategorias["Otro"];
 
- 
   const cargarComentarios = async () => {
     try {
       const data = await Api.getComentariosPorNoticia(noticia.id);
@@ -35,15 +33,10 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
     cargarComentarios();
   }, [noticia.id]);
 
-
   const manejarAgregarComentario = async () => {
     if (nuevoComentario.trim() === "") return;
 
-    const comentario = {
-      autor: "Anónimo",
-      texto: nuevoComentario.trim(),
-    };
-
+    const comentario = { autor: "Anónimo", texto: nuevoComentario.trim() };
     const nuevo = await Api.agregarComentarioAPI(noticia.id, comentario);
 
     if (nuevo) {
@@ -54,14 +47,34 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
     }
   };
 
+const manejarEditarComentario = async () => {
+  try {
+    const actualizado = await Api.editarComentarioAPI(comentarioEditando, textoEditando);
+    if (actualizado) {
+      setComentarios(prev => prev.map(c => c.id === comentarioEditando ? actualizado : c));
+      setVisibleDialog(false);
+      setComentarioEditando(null);
+      setTextoEditando("");
+    }
+  } catch (error) {
+    Alert.alert("Error", "No se pudo actualizar el comentario");
+  }
+};
 
-  const manejarEditarComentario = async () => {
-    const copia = [...comentarios];
-    copia[comentarioEditando].texto = textoEditando;
-    setComentarios(copia);
-    setVisibleDialog(false);
+
+  const manejarEliminarComentario = async (comentario) => {
+    try {
+      const respuesta = await Api.eliminarComentarioAPI(comentario.id);
+      if (respuesta) {
+        setComentarios(comentarios.filter(c => c.id !== comentario.id));
+      } else {
+        Alert.alert("Error", "No se pudo eliminar el comentario");
+      }
+    } catch (error) {
+      console.error("Error al eliminar comentario:", error);
+      Alert.alert("Error", "Error al eliminar comentario");
+    }
   };
-
 
   const onShare = async () => {
     try {
@@ -83,7 +96,6 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
     >
       <View style={estilos.scrollPrincipal}>
         <CabeceraNoticia noticia={noticia} onCerrar={onCerrar} colorCategoria={colorCategoria} />
-
         <CuerpoNoticia noticia={noticia} />
 
         <SeccionComentarios
@@ -93,8 +105,7 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
           setComentarioEditando={setComentarioEditando}
           setTextoEditando={setTextoEditando}
           setVisibleDialog={setVisibleDialog}
-          noticiaId={noticia.id}
-          recargarComentarios={cargarComentarios}
+          manejarEliminarComentario={manejarEliminarComentario}
         />
       </View>
 
