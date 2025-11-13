@@ -53,10 +53,7 @@ export const agregarNoticiaAPI = async (noticia) => {
   }
 };
 
-//
 // Comentarios
-//
-
 // Obtener comentarios por noticia
 export const getComentariosPorNoticia = async (noticiaId) => {
   try {
