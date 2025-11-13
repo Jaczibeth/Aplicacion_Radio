@@ -3,8 +3,8 @@ import { Platform } from "react-native";
 
 const BASE_URL = Platform.select({
   ios: "http://localhost:8080/api",
-  android: "http://192.168.137.118:8080/api", 
-  default: "http://192.168.137:8080/api",
+  android: "http://192.168.0.105:8080/api", 
+  default: "http://192.168.0.105:8080/api",
 });
 
 // Instancia de axios
@@ -53,10 +53,7 @@ export const agregarNoticiaAPI = async (noticia) => {
   }
 };
 
-//
 // Comentarios
-//
-
 // Obtener comentarios por noticia
 export const getComentariosPorNoticia = async (noticiaId) => {
   try {
