@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Share, KeyboardAvoidingView, Platform, Alert } from "react-native";
+import { View, StyleSheet,Share, KeyboardAvoidingView, Platform, Alert, ScrollView,} from "react-native";
+import { Text } from "react-native-paper";
 import Dialog from "react-native-dialog";
 import { coloresCategorias } from "../configuracion/colores";
 import CabeceraNoticia from "./DetalleNoticia/CabeceraNoticia";
 import CuerpoNoticia from "./DetalleNoticia/CuerpoNoticia";
 import SeccionComentarios from "./DetalleNoticia/SeccionComentarios";
 import BarraComentarios from "./DetalleNoticia/BarraComentarios";
-
 import Api from "../Data/Api";
 
 export default function DetalleNoticia({ noticia, onCerrar }) {
@@ -19,9 +19,30 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
   const [textoEditando, setTextoEditando] = useState("");
   const [mostrarComentarios, setMostrarComentarios] = useState(false);
 
-  const colorCategoria = coloresCategorias[noticia.categoria] || coloresCategorias["Otro"];
+  const colorCategoria =
+    coloresCategorias[noticia.categoria] || coloresCategorias["Otro"];
 
- 
+  // Fecha formateada
+  const obtenerFechaFormateada = () => {
+    try {
+      const fecha = noticia.fechaPublicacion
+        ? new Date(noticia.fechaPublicacion)
+        : new Date();
+
+      return fecha.toLocaleString("es-ES", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch {
+      return "Fecha no disponible";
+    }
+  };
+
+  // Cargar comentarios
   const cargarComentarios = async () => {
     try {
       const data = await Api.getComentariosPorNoticia(noticia.id);
@@ -35,15 +56,11 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
     cargarComentarios();
   }, [noticia.id]);
 
-
+  // Agregar comentario
   const manejarAgregarComentario = async () => {
     if (nuevoComentario.trim() === "") return;
 
-    const comentario = {
-      autor: "Anónimo",
-      texto: nuevoComentario.trim(),
-    };
-
+    const comentario = { autor: "Anónimo", texto: nuevoComentario.trim() };
     const nuevo = await Api.agregarComentarioAPI(noticia.id, comentario);
 
     if (nuevo) {
@@ -54,19 +71,46 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
     }
   };
 
-
+  // Editar comentario
   const manejarEditarComentario = async () => {
-    const copia = [...comentarios];
-    copia[comentarioEditando].texto = textoEditando;
-    setComentarios(copia);
-    setVisibleDialog(false);
+    try {
+      const actualizado = await Api.editarComentarioAPI(
+        comentarioEditando,
+        textoEditando
+      );
+      if (actualizado) {
+        setComentarios((prev) =>
+          prev.map((c) => (c.id === comentarioEditando ? actualizado : c))
+        );
+        setVisibleDialog(false);
+        setComentarioEditando(null);
+        setTextoEditando("");
+      }
+    } catch (error) {
+      Alert.alert("Error", "No se pudo actualizar el comentario");
+    }
   };
 
+  // Eliminar comentario
+  const manejarEliminarComentario = async (comentario) => {
+    try {
+      const respuesta = await Api.eliminarComentarioAPI(comentario.id);
+      if (respuesta) {
+        setComentarios(comentarios.filter((c) => c.id !== comentario.id));
+      } else {
+        Alert.alert("Error", "No se pudo eliminar el comentario");
+      }
+    } catch (error) {
+      console.error("Error al eliminar comentario:", error);
+      Alert.alert("Error", "Error al eliminar comentario");
+    }
+  };
 
+  // Compartir noticia
   const onShare = async () => {
     try {
       await Share.share({
-        message: `${noticia.titulo}\n\n${noticia.descripcion}\n\nFuente: ${noticia.fuente}`,
+        message: `${noticia.titulo}\n\n${noticia.descripcionCompleta || noticia.descripcion}\n\nFuente: ${noticia.fuente}`,
         url: noticia.imagen,
         title: noticia.titulo,
       });
@@ -81,11 +125,20 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
-      <View style={estilos.scrollPrincipal}>
-        <CabeceraNoticia noticia={noticia} onCerrar={onCerrar} colorCategoria={colorCategoria} />
+      <ScrollView style={estilos.scrollPrincipal}>
+  
+        <CabeceraNoticia
+          noticia={noticia}
+          onCerrar={onCerrar}
+          colorCategoria={colorCategoria}
+        />
 
+        <View style={estilos.contenedorFecha}>
+          <Text variant="bodySmall" style={estilos.textoFecha}>
+            Publicado el {obtenerFechaFormateada()}
+          </Text>
+        </View>
         <CuerpoNoticia noticia={noticia} />
-
         <SeccionComentarios
           mostrarComentarios={mostrarComentarios}
           setMostrarComentarios={setMostrarComentarios}
@@ -93,10 +146,9 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
           setComentarioEditando={setComentarioEditando}
           setTextoEditando={setTextoEditando}
           setVisibleDialog={setVisibleDialog}
-          noticiaId={noticia.id}
-          recargarComentarios={cargarComentarios}
+          manejarEliminarComentario={manejarEliminarComentario}
         />
-      </View>
+      </ScrollView>
 
       <BarraComentarios
         nuevoComentario={nuevoComentario}
@@ -108,7 +160,10 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
       <Dialog.Container visible={visibleDialog}>
         <Dialog.Title>Editar comentario</Dialog.Title>
         <Dialog.Input value={textoEditando} onChangeText={setTextoEditando} />
-        <Dialog.Button label="Cancelar" onPress={() => setVisibleDialog(false)} />
+        <Dialog.Button
+          label="Cancelar"
+          onPress={() => setVisibleDialog(false)}
+        />
         <Dialog.Button label="Guardar" onPress={manejarEditarComentario} />
       </Dialog.Container>
     </KeyboardAvoidingView>
@@ -117,5 +172,13 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
 
 const estilos = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
-  scrollPrincipal: { flex: 1 },
+  scrollPrincipal: { flex: 1, paddingBottom: 10 },
+  contenedorFecha: {
+    marginHorizontal: 16,
+    marginVertical: 8,
+  },
+  textoFecha: {
+    color: "#666",
+    fontStyle: "italic",
+  },
 });
