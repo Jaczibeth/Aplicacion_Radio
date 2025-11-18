@@ -7,9 +7,7 @@ export default function NavegacionInferior({ navigation }) {
   const items = [
     { icon: "home", label: "Inicio", ruta: "Inicio" },
     { icon: "compass", label: "Todas", ruta: "Descubrir" },
-    { icon: "radio", label: "Radio", ruta: "AudioPlayer" },
-    { icon: "cog", label: "Ajustes", ruta: "Configuracion" },
-  ];
+    { icon: "cog", label: "Ajustes", ruta: "Configuracion" }, ];
   const rutaActual = useRoute();
   return (
     <View style={estilos.barraNavegacion}>
