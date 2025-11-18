@@ -8,6 +8,7 @@ import Pantallaconfiguracion from "../configuracion/Pantallaconfiguracion";
 import NavegacionInferior from "../Componentes/NavegacionInferior";
 import DescubrirScreen from "../Pages/Descubrir/DescubrirScreen";
 import DetalleNoticiaScreen from "../Pages/inicio/DetalleNoticiaScreen";
+import AudioPlayerScreen from "../Pages/Descubrir/AudioPlayerScreen";
 const Pila = createNativeStackNavigator();
 
 export default function NavegadorPrincipal() {
@@ -35,6 +36,9 @@ export default function NavegadorPrincipal() {
         {(props) => <PantallasConNavegacion Component={DescubrirScreen} {...props} />}
       </Pila.Screen>
       <Pila.Screen name="DetalleNoticia" component={DetalleNoticiaScreen} />
+      <Pila.Screen name="AudioPlayer">
+        {(props) => <PantallasConNavegacion Component={AudioPlayerScreen} {...props} />}
+      </Pila.Screen>
       <Pila.Screen name="Configuracion" component={Pantallaconfiguracion} />
     </Pila.Navigator>
   );
