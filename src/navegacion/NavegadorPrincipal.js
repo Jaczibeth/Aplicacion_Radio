@@ -36,7 +36,9 @@ export default function NavegadorPrincipal() {
         {(props) => <PantallasConNavegacion Component={DescubrirScreen} {...props} />}
       </Pila.Screen>
       <Pila.Screen name="DetalleNoticia" component={DetalleNoticiaScreen} />
-      <Pila.Screen name="AudioPlayer" component={AudioPlayerScreen} />
+      <Pila.Screen name="AudioPlayer">
+        {(props) => <PantallasConNavegacion Component={AudioPlayerScreen} {...props} />}
+      </Pila.Screen>
       <Pila.Screen name="Configuracion" component={Pantallaconfiguracion} />
     </Pila.Navigator>
   );
