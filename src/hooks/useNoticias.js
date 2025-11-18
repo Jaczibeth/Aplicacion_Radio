@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const BASE_URL = "http://192.168.1.5:8080/api/noticias";
+const BASE_URL = "http://192.168.137.102:8080/api/noticias";
 
 export default function useNoticias() {
   const [noticias, setNoticias] = useState([]);
