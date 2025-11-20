@@ -20,7 +20,6 @@ export default function NotificacionFondo({ visible, onHide }) {
       }).start();
     }
   }, [visible]);
-  
   return (
     <Animated.View
       style={[
@@ -62,5 +61,10 @@ const estilos = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-  texto: {color: "#FFFFFF",fontSize: 16,textAlign: "center",fontWeight: "600",},
+  texto: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    textAlign: "center",
+    fontWeight: "600",
+  },
 });

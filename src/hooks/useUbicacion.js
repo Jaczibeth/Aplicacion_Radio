@@ -43,7 +43,6 @@ export const useUbicacion = () => {
                 Linking.openSettings();
               },
             },
-
           ]
         );
         setPermisoConcedido(false);
@@ -64,8 +63,3 @@ export const useUbicacion = () => {
     setMostrarNotificacion,
   };
 };
-
-
-
-
-
