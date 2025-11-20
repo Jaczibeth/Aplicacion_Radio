@@ -10,8 +10,7 @@ export default function DescubrirScreen({ navigation }) {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate("DetalleNoticia", { noticia: item })}
-    >
+      onPress={() => navigation.navigate("DetalleNoticia", { noticia: item })}>
       <Image source={{ uri: item.imagen }} style={styles.cardImage} />
       <Text style={styles.cardTitle} numberOfLines={2}>{item.titulo}</Text>
       <Text style={styles.cardCategory}>{item.categoria}</Text>
