@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+
 const BASE_URL = "http://192.168.40.112:8080/api/noticias";
 
 export default function useNoticias() {
