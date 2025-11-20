@@ -46,9 +46,7 @@ export default function PantallaConfiguracion({ navigation }) {
   ];
 
   const alumnos = [
-     "Desarrolladores",
-     "Septimo semestre",
-      "Grupo B",
+     "Los desarrolladores de esta aplicacion son alumnos de la carrera en INGENIERIA EN SISTEMAS COMPUTACIONALES del Instituto Tecnológico de Tlaxiaco , cursando el septimo semestre del grupo B:",
     "Jaczibeth Cruz Ramirez",
     "Edgar Mauricio Sarmiento Ruiz",
     "Ameli Reyes Hernández",
