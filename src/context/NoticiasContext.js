@@ -4,7 +4,7 @@ import axios from "axios";
 
 
 
-const BASE_URL = "http://192.168.40.112:8080/api/noticias";
+const BASE_URL = "http://192.168.10.248:8080/api/noticias";
 
 export const NoticiasContext = createContext();
 
