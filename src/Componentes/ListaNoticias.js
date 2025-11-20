@@ -2,9 +2,7 @@ import React, { useRef, useState } from "react";
 import { View, FlatList, StyleSheet, Text, Dimensions, Animated } from "react-native";
 import TarjetaNoticia from "./TarjetaNoticia";
 import { colores, espaciado, tamanosTexto } from "../configuracion/colores";
-
 const { width } = Dimensions.get("window");
-
 export default function ListaNoticias({ noticias, alVerDetalle }) {
   const scrollX = useRef(new Animated.Value(0)).current;
 
