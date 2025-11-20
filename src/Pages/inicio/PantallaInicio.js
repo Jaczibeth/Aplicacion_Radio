@@ -11,14 +11,24 @@ import TarjetaNoticia from "../../Componentes/TarjetaNoticia_temp";
 import estilos from "./estilos";
 import useAnimacionBuscar from "../../Componentes/AnimacionBuscar";
 import useNoticias from "../../hooks/useNoticias";
+import { useUbicacion } from "../../hooks/useUbicacion";
+import NotificacionFondo from "../../Componentes/NotificacionFondo";
 
 export default function PantallaInicio({ navigation }) {
   const [pestanaActiva, setPestanaActiva] = useState(PESTANAS.DESTACADAS);
   const [textoBusqueda, setTextoBusqueda] = useState("");
   const [favoritos, setFavoritos] = useState([]);
+  const [permisosYaSolicitados, setPermisosYaSolicitados] = useState(false);
 
   const { noticias, cargando, error, eliminarNoticia, recargar } = useNoticias();
   const textoAnimado = useAnimacionBuscar();
+  const {
+    ubicacion,
+    permisoConcedido,
+    mostrarNotificacion,
+    solicitarPermisos,
+    setMostrarNotificacion,
+  } = useUbicacion();
 
   const [fuentesCargadas] = useFonts({
     Poppins_400Regular,
@@ -36,7 +46,6 @@ export default function PantallaInicio({ navigation }) {
     };
     cargarFavoritos();
   }, []);
-
   useEffect(() => {
     const guardarFavoritos = async () => {
       try {
@@ -53,6 +62,17 @@ export default function PantallaInicio({ navigation }) {
       recargar();
     }, [])
   );
+
+  // Solicitar permisos después de que las noticias se carguen
+  useEffect(() => {
+    if (noticias.length > 0 && !permisosYaSolicitados && !cargando) {
+      setPermisosYaSolicitados(true);
+      // Pequeño delay para asegurar que la interfaz esté lista
+      setTimeout(() => {
+        solicitarPermisos();
+      }, 500);
+    }
+  }, [noticias, cargando, permisosYaSolicitados]);
 
   //  CONFIGURACIÓN DEL CARRUSEL 
   const anchoPantalla = Dimensions.get("window").width;
@@ -109,13 +129,11 @@ export default function PantallaInicio({ navigation }) {
         marginHorizontal: 10,
         borderRadius: 12,
         overflow: "hidden",
-      }}
-    >
+      }}>
       <Image
         source={{ uri: item.imagen }}
         style={{ width: "100%", height: 220, borderRadius: 12 }}
-        resizeMode="cover"
-      />
+        resizeMode="cover"/>
       <View
         style={{
           position: "absolute",
@@ -124,8 +142,7 @@ export default function PantallaInicio({ navigation }) {
           right: 0,
           backgroundColor: "rgba(0,0,0,0.4)",
           padding: 10,
-        }}
-      >
+        }}>
         <Text style={{ color: "#fff", fontWeight: "600" }} numberOfLines={2}>
           {item.titulo}
         </Text>
@@ -139,7 +156,6 @@ export default function PantallaInicio({ navigation }) {
       return (
         <>
           <Text style={estilos.tituloSeccion}>Tendencia</Text>
-
           <FlatList
             ref={carouselRef}
             data={noticias.slice(0, 3)}
@@ -160,8 +176,6 @@ export default function PantallaInicio({ navigation }) {
               animarPunto(index);
             }}
           />
-
-        
           <View
             style={{
               flexDirection: "row",
@@ -169,8 +183,7 @@ export default function PantallaInicio({ navigation }) {
               alignItems: "center",
               marginTop: 8,
               marginBottom: 16,
-            }}
-          >
+            }}>
             {puntosAnim.map((anim, index) => {
               const scale = anim.interpolate({
                 inputRange: [0, 1],
@@ -190,24 +203,21 @@ export default function PantallaInicio({ navigation }) {
                     marginHorizontal: 5,
                     backgroundColor: color,
                     transform: [{ scale }],
-                  }}
-                />
+                  }}/>
               );
             })}
           </View>
-
-          <Text style={[estilos.tituloSeccion, { marginTop: 8 }]}>
-            Noticias Destacadas
-          </Text>
+          <Text style={[estilos.tituloSeccion, { marginTop: 8 }]}>Noticias Destacadas</Text>
         </>
       );
     }
-
     if (pestanaActiva === PESTANAS.MARCADORES)
       return <Text style={estilos.tituloSeccion}>Guardados</Text>;
-
     return null;
   };
+
+
+
 
   const cabeceraMemo = useMemo(
     () => renderizarCabeceraLista(),
@@ -259,25 +269,20 @@ export default function PantallaInicio({ navigation }) {
           <Title style={estilos.tituloApp}>{NOMBRE_APP}</Title>
         </View>
       </View>
-
       <Searchbar
         placeholder={textoAnimado}
         value={textoBusqueda}
         onChangeText={setTextoBusqueda}
         style={estilos.buscador}
         elevation={1}
-        inputStyle={{ fontFamily: "Poppins_400Regular" }}
-      />
-
+        inputStyle={{ fontFamily: "Poppins_400Regular" }} />
       <BarraPestanas
         pestanaActiva={pestanaActiva}
         alCambiarPestana={(nuevaPestana) => {
           if (nuevaPestana === PESTANAS.DESCUBRIR)
             navigation.navigate("Descubrir");
           else setPestanaActiva(nuevaPestana);
-        }}
-      />
-
+        }} />
       <FlatList
         data={pestanaActiva === PESTANAS.MARCADORES ? favoritos : noticiasFiltradas}
         keyExtractor={(item) => item.id.toString()}
@@ -310,6 +315,10 @@ export default function PantallaInicio({ navigation }) {
           )
         }
         contentContainerStyle={{ paddingBottom: 90 }}
+      />
+      <NotificacionFondo
+        visible={mostrarNotificacion}
+        onHide={() => setMostrarNotificacion(false)}
       />
     </SafeAreaView>
   );
