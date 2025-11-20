@@ -20,6 +20,7 @@ export default function NotificacionFondo({ visible, onHide }) {
       }).start();
     }
   }, [visible]);
+
   return (
     <Animated.View
       style={[
