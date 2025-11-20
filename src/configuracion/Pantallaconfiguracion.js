@@ -46,11 +46,15 @@ export default function PantallaConfiguracion({ navigation }) {
   ];
 
   const alumnos = [
+     "Desarrolladores",
+     "Septimo semestre",
+      "Grupo B",
     "Jaczibeth Cruz Ramirez",
     "Edgar Mauricio Sarmiento Ruiz",
     "Ameli Reyes Hernández",
     "Ana Kimberly Hernandez Perez",
     "Daniel Velasco López",
+
   ];
 
   const itemAncho = 70;

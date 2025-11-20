@@ -85,7 +85,7 @@ export default function AudioPlayerScreen() {
         </View>
 
         <View style={styles.perms}>
-          <Text>Permisos Notif.: {hasNotificationPermission ? "✅" : "❌"}</Text>
+          <Text>Permisos Notif.: {hasNotificationPermission ? "Si" : "No"}</Text>
         </View>
       </View>
     </View>
