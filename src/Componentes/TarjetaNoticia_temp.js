@@ -71,6 +71,7 @@ const TarjetaNoticia_temp = ({ noticia, eliminarNoticia, alVerDetalle, alCambiar
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
+      
     ]).start();
   }, [noticia]);
 
