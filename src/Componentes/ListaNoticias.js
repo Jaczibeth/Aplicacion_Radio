@@ -30,7 +30,11 @@ export default function ListaNoticias({ noticias, alVerDetalle }) {
         contentContainerStyle={estilos.lista}
         renderItem={({ item }) => (
           <View style={{ width: width * 0.8, marginRight: espaciado.normal }}>
-            <TarjetaNoticia noticia={item} alVerDetalle={() => alVerDetalle(item)} />
+            <TarjetaNoticia_temp
+  noticia={item}
+  alVerDetalle={(noticiaActual) => alVerDetalle(noticiaActual)}
+/>
+
           </View>
         )}
       />

@@ -20,7 +20,8 @@ export default function PantallaInicio({ navigation }) {
   const [favoritos, setFavoritos] = useState([]);
   const [permisosYaSolicitados, setPermisosYaSolicitados] = useState(false);
 
-  const { noticias, cargando, error, eliminarNoticia, recargar } = useNoticias();
+  const { noticias, cargando, error, eliminarNoticia, agregarNoticia, recargar } = useNoticias();
+
   const textoAnimado = useAnimacionBuscar();
   const {
     ubicacion,
@@ -57,12 +58,8 @@ export default function PantallaInicio({ navigation }) {
     guardarFavoritos();
   }, [favoritos]);
 
-  useFocusEffect(
-    useCallback(() => {
-      recargar();
-    }, [])
-  );
-
+  
+  
   // Solicitar permisos después de que las noticias se carguen
   useEffect(() => {
     if (noticias.length > 0 && !permisosYaSolicitados && !cargando) {
