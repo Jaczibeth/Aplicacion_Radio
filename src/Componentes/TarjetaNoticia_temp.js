@@ -54,11 +54,10 @@ const TarjetaNoticia_temp = ({ noticia, eliminarNoticia, alVerDetalle, alCambiar
   const [contadorLikes, setContadorLikes] = useState(0);
   const [contadorCompartidos, setContadorCompartidos] = useState(0);
   const [contadorComentarios, setContadorComentarios] = useState(0);
-
   useEffect(() => {
     const cargarComentarios = async () => {
       try {
-        const almacenados = await AsyncStorage.getItem(comentariosNoticia_${noticia.id});
+        const almacenados = await AsyncStorage.getItem(`comentariosNoticia_${noticia.id}`);
         if (almacenados) setContadorComentarios(JSON.parse(almacenados).length);
       } catch (error) {
         console.log("Error al cargar comentarios:", error);
@@ -81,7 +80,7 @@ const TarjetaNoticia_temp = ({ noticia, eliminarNoticia, alVerDetalle, alCambiar
     try {
       await Share.share({
         title: noticia.titulo,
-        message: ${noticia.titulo}\n\n${noticia.descripcionCompleta || noticia.descripcion}\n\nFuente: ${noticia.fuente || ""},
+        message: `${noticia.titulo}\n\n${noticia.descripcionCompleta || noticia.descripcion}\n\nFuente: ${noticia.fuente || ""}`,
         url: noticia.imagen,
       });
       setContadorCompartidos(prev => prev + 1);
@@ -190,4 +189,4 @@ const styles = StyleSheet.create({
   textoTooltip: { color: "#fff", fontSize: 11, fontWeight: "600", textAlign: "center" },
 });
 
-export default TarjetaNoticia_temp;
+export default TarjetaNoticia;
