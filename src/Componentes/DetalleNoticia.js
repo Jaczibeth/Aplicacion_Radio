@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet,Share, KeyboardAvoidingView, Platform, Alert, ScrollView,} from "react-native";
+import { View, StyleSheet, Share, KeyboardAvoidingView, Platform, Alert, ScrollView } from "react-native";
 import { Text } from "react-native-paper";
 import Dialog from "react-native-dialog";
 import { coloresCategorias } from "../configuracion/colores";
@@ -16,31 +16,20 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
   const [nuevoComentario, setNuevoComentario] = useState("");
   const [visibleDialog, setVisibleDialog] = useState(false);
   const [comentarioEditando, setComentarioEditando] = useState(null);
-  const [textoEditando, setTextoEditando] = useState("");
+  const [contenidoEditando, setContenidoEditando] = useState("");
   const [mostrarComentarios, setMostrarComentarios] = useState(false);
 
   const colorCategoria =
     coloresCategorias[noticia.categoria] || coloresCategorias["Otro"];
-
-  // Fecha formateada
-  const obtenerFechaFormateada = () => {
-    try {
-      const fecha = noticia.fechaPublicacion
-        ? new Date(noticia.fechaPublicacion)
-        : new Date();
-
-      return fecha.toLocaleString("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-    } catch {
-      return "Fecha no disponible";
-    }
-  };
+const onShare = async () => {
+  try {
+    await Share.share({
+      message: `${noticia.titulo}\n\n${noticia.descripcionCompleta || noticia.descripcion}`,
+    });
+  } catch (error) {
+    alert("Error al compartir: " + error.message);
+  }
+};
 
   // Cargar comentarios
   const cargarComentarios = async () => {
@@ -57,34 +46,47 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
   }, [noticia.id]);
 
   // Agregar comentario
-  const manejarAgregarComentario = async () => {
-    if (nuevoComentario.trim() === "") return;
+  // Agregar comentario
+// Agregar comentario
+const manejarAgregarComentario = async () => {
+  if (nuevoComentario.trim() === "") return;
 
-    const comentario = { autor: "Anónimo", texto: nuevoComentario.trim() };
-    const nuevo = await Api.agregarComentarioAPI(noticia.id, comentario);
+  const comentario = { autor: "Anónimo", contenido: nuevoComentario.trim() };
+  const nuevo = await Api.agregarComentarioAPI(noticia.id, comentario);
 
-    if (nuevo) {
-      setComentarios([nuevo, ...comentarios]);
-      setNuevoComentario("");
-    } else {
-      Alert.alert("Error", "No se pudo agregar el comentario");
+  if (nuevo) {
+    const nuevosComentarios = [nuevo, ...comentarios];
+    setComentarios(nuevosComentarios);
+    setNuevoComentario("");
+
+    // 🟦 AVISAR A LA TARJETA QUE CAMBIÓ EL CONTADOR
+    if (noticia?.alActualizarComentarios) {
+      noticia.alActualizarComentarios(nuevosComentarios.length);
     }
-  };
+
+  } else {
+    Alert.alert("Error", "No se pudo agregar el comentario");
+  }
+};
+
+
+
 
   // Editar comentario
   const manejarEditarComentario = async () => {
     try {
       const actualizado = await Api.editarComentarioAPI(
         comentarioEditando,
-        textoEditando
+        contenidoEditando   // ← CORREGIDO
       );
+
       if (actualizado) {
-        setComentarios((prev) =>
-          prev.map((c) => (c.id === comentarioEditando ? actualizado : c))
+        setComentarios(prev =>
+          prev.map(c => (c.id === comentarioEditando ? actualizado : c))
         );
         setVisibleDialog(false);
         setComentarioEditando(null);
-        setTextoEditando("");
+        setContenidoEditando("");
       }
     } catch (error) {
       Alert.alert("Error", "No se pudo actualizar el comentario");
@@ -92,32 +94,29 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
   };
 
   // Eliminar comentario
-  const manejarEliminarComentario = async (comentario) => {
-    try {
-      const respuesta = await Api.eliminarComentarioAPI(comentario.id);
-      if (respuesta) {
-        setComentarios(comentarios.filter((c) => c.id !== comentario.id));
-      } else {
-        Alert.alert("Error", "No se pudo eliminar el comentario");
-      }
-    } catch (error) {
-      console.error("Error al eliminar comentario:", error);
-      Alert.alert("Error", "Error al eliminar comentario");
-    }
-  };
+const manejarEliminarComentario = async (comentario) => {
+  try {
+    const respuesta = await Api.eliminarComentarioAPI(comentario.id);
+    if (respuesta) {
+      const nuevosComentarios = comentarios.filter(c => c.id !== comentario.id);
+      setComentarios(nuevosComentarios);
 
-  // Compartir noticia
-  const onShare = async () => {
-    try {
-      await Share.share({
-        message: `${noticia.titulo}\n\n${noticia.descripcionCompleta || noticia.descripcion}\n\nFuente: ${noticia.fuente}`,
-        url: noticia.imagen,
-        title: noticia.titulo,
-      });
-    } catch (error) {
-      alert("Error al compartir: " + error.message);
+      // 🟦 NOTIFICAR A LA TARJETA PARA BAJAR EL CONTADOR
+      if (noticia?.alActualizarComentarios) {
+        noticia.alActualizarComentarios(nuevosComentarios.length);
+      }
+
+    } else {
+      Alert.alert("Error", "No se pudo eliminar el comentario");
     }
-  };
+  } catch (error) {
+    console.error("Error al eliminar comentario:", error);
+    Alert.alert("Error", "Error al eliminar comentario");
+  }
+};
+
+
+
 
   return (
     <KeyboardAvoidingView
@@ -135,19 +134,28 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
 
         <View style={estilos.contenedorFecha}>
           <Text variant="bodySmall" style={estilos.textoFecha}>
-            Publicado el {obtenerFechaFormateada()}
+            Publicado el {new Date(noticia.fechaPublicacion).toLocaleString()}
           </Text>
         </View>
+
         <CuerpoNoticia noticia={noticia} />
-        <SeccionComentarios
-          mostrarComentarios={mostrarComentarios}
-          setMostrarComentarios={setMostrarComentarios}
-          comentarios={comentarios}
-          setComentarioEditando={setComentarioEditando}
-          setTextoEditando={setTextoEditando}
-          setVisibleDialog={setVisibleDialog}
-          manejarEliminarComentario={manejarEliminarComentario}
-        />
+
+        {/* Mostrar comentarios */}
+<SeccionComentarios
+  mostrarComentarios={mostrarComentarios}
+  setMostrarComentarios={setMostrarComentarios}
+  comentarios={comentarios}
+  setComentarioEditando={setComentarioEditando}
+  setContenidoEditando={setContenidoEditando}
+  setVisibleDialog={setVisibleDialog}
+  manejarEliminarComentario={manejarEliminarComentario}
+  actualizarComentarios={noticia?.alActualizarComentarios}
+/>
+
+
+
+
+
       </ScrollView>
 
       <BarraComentarios
@@ -157,13 +165,14 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
         onShare={onShare}
       />
 
+      {/* DIALOG PARA EDITAR */}
       <Dialog.Container visible={visibleDialog}>
         <Dialog.Title>Editar comentario</Dialog.Title>
-        <Dialog.Input value={textoEditando} onChangeText={setTextoEditando} />
-        <Dialog.Button
-          label="Cancelar"
-          onPress={() => setVisibleDialog(false)}
+        <Dialog.Input 
+          value={contenidoEditando}
+          onChangeText={setContenidoEditando}
         />
+        <Dialog.Button label="Cancelar" onPress={() => setVisibleDialog(false)} />
         <Dialog.Button label="Guardar" onPress={manejarEditarComentario} />
       </Dialog.Container>
     </KeyboardAvoidingView>
