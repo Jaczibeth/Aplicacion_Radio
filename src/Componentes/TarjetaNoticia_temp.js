@@ -46,7 +46,14 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   );
 };
 
-const TarjetaNoticia = ({ noticia, eliminarNoticia, alVerDetalle, alCambiarGuardado, estaGuardada }) => {
+const TarjetaNoticia_temp = ({
+  noticia,
+  eliminarNoticia,
+  alVerDetalle,
+  alCambiarGuardado,
+  estaGuardada,
+  totalComentarios, 
+}) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
