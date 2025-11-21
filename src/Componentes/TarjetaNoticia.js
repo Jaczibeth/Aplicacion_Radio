@@ -46,7 +46,7 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   );
 };
 
-const TarjetaNoticia_temp = ({ noticia, eliminarNoticia, alVerDetalle, alCambiarGuardado, estaGuardada }) => {
+const TarjetaNoticia = ({ noticia, eliminarNoticia, alVerDetalle, alCambiarGuardado, estaGuardada }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
@@ -180,4 +180,4 @@ const styles = StyleSheet.create({
   textoTooltip: { color: "#fff", fontSize: 11, fontWeight: "600", textAlign: "center" },
 });
 
-export default TarjetaNoticia_temp;
+export default TarjetaNoticia;
