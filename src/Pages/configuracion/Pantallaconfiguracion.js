@@ -126,7 +126,7 @@ export default function PantallaConfiguracion({ navigation }) {
         <Text style={styles.headerTitle}>Configuración</Text>
 
         <Image
-          source={require("../assets/Logos/nt-el-reloj-circular.gif")} 
+          source={require("../../assets/Logos/nt-el-reloj-circular.gif")} 
           style={styles.logo}
           resizeMode="contain"
         />

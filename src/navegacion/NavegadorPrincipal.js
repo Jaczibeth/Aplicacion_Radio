@@ -4,7 +4,7 @@ import { View } from "react-native";
 
 import PantallaCarga from "../Pages/carga/PantallaCarga";
 import PantallaInicio from "../Pages/inicio/PantallaInicio";
-import Pantallaconfiguracion from "../configuracion/Pantallaconfiguracion";
+import Pantallaconfiguracion from "../Pages/configuracion/Pantallaconfiguracion";
 import NavegacionInferior from "../Componentes/NavegacionInferior";
 import DescubrirScreen from "../Pages/Descubrir/DescubrirScreen";
 import DetalleNoticiaScreen from "../Pages/inicio/DetalleNoticiaScreen";
