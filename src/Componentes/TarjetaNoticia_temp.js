@@ -46,14 +46,15 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   );
 };
 
-const TarjetaNoticia_temp = ({ noticia, eliminarNoticia, alVerDetalle, alCambiarGuardado, estaGuardada }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current;
+const TarjetaNoticia_temp = ({
+  noticia,
+  eliminarNoticia,
+  alVerDetalle,
+  alCambiarGuardado,
+  estaGuardada,
+  totalComentarios, 
+}) => {
 
-  const [contadorLecturas, setContadorLecturas] = useState(0);
-  const [contadorLikes, setContadorLikes] = useState(0);
-  const [contadorCompartidos, setContadorCompartidos] = useState(0);
-  const [contadorComentarios, setContadorComentarios] = useState(0);
   useEffect(() => {
     const cargarComentarios = async () => {
       try {
@@ -189,4 +190,4 @@ const styles = StyleSheet.create({
   textoTooltip: { color: "#fff", fontSize: 11, fontWeight: "600", textAlign: "center" },
 });
 
-export default TarjetaNoticia;
+export default TarjetaNoticia_temp;
