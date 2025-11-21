@@ -8,7 +8,8 @@ export default function ListaNoticiasVertical({
   estaGuardada,
   alCambiarGuardado,
   alVerDetalle
-}) {
+})
+ {
   if (!noticias || noticias.length === 0) {
     return (
       <View style={estilos.contenedorVacio}>
@@ -33,6 +34,7 @@ export default function ListaNoticiasVertical({
       )}
       contentContainerStyle={{ paddingBottom: 20 }}
       showsVerticalScrollIndicator={false}
+      
     />
   );
 }

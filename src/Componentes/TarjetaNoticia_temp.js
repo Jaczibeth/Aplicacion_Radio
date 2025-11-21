@@ -71,6 +71,7 @@ const TarjetaNoticia_temp = ({ noticia, eliminarNoticia, alVerDetalle, alCambiar
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
+
     ]).start();
   }, [noticia]);
 
@@ -97,68 +98,78 @@ const TarjetaNoticia_temp = ({ noticia, eliminarNoticia, alVerDetalle, alCambiar
   };
 
   return (
-    <Animated.View style={[styles.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-      <View style={styles.row}>
-        <View style={styles.left}>
-          {noticia.categoria && (
-            <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
-              <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
-            </View>
-          )}
-          <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
-          <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
-        </View>
-        <Image source={{ uri: noticia.imagen }} style={styles.imagenRight} />
-      </View>
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => {
+        setContadorLecturas(prev => prev + 1);
+        alVerDetalle(noticia);}}>
+      <Animated.View
+        style={[
+          styles.tarjeta,
+          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },]}>
 
-      <View style={styles.filaAcciones}>
-        <Accion
-          icon="eye"
-          iconColor="#660909ff"
-          contador={contadorLecturas}
-          onPress={() => {
-            setContadorLecturas(prev => prev + 1);
-            alVerDetalle(noticia); // PASA toda la noticia, incluyendo descripcionCompleta
-          }}
-          texto="Ver"
-        />
-        <Accion
-          icon="comment"
-          iconColor="#2196F3"
-          contador={contadorComentarios}
-          onPress={() => alVerDetalle({ mostrarComentarios: true })}
-          texto="Comentarios"
-        />
-        <Accion
-          icon="thumb-up"
-          iconColor="#f44336"
-          contador={contadorLikes}
-          onPress={manejarLike}
-          texto="Me gusta"
-        />
-        <Accion
-          icon="bookmark"
-          iconColor={estaGuardada ? "#FFC107" : "#0d93e681"}
-          contador={estaGuardada ? 1 : 0}
-          onPress={manejarFavorito}
-          texto="Guardar"
-        />
-        <Accion
-          icon="share-variant"
-          iconColor="#2196F3"
-          contador={contadorCompartidos}
-          onPress={manejarCompartir}
-          texto="Compartir"
-        />
-        <Accion
-          icon="delete"
-          iconColor="#f44336"
-          contador={0}
-          onPress={manejarEliminar}
-          texto="Eliminar"
-        />
-      </View>
-    </Animated.View>
+        <View style={styles.row}>
+          <View style={styles.left}>
+            {noticia.categoria && (
+              <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
+                <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
+              </View>
+            )}
+            <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
+            <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
+          </View>
+          <Image source={{ uri: noticia.imagen }} style={styles.imagenRight} />
+        </View>
+
+        <View style={styles.filaAcciones}>
+          <Accion
+            icon="eye"
+            iconColor="#660909ff"
+            contador={contadorLecturas}
+            onPress={() => {
+              setContadorLecturas(prev => prev + 1);
+              alVerDetalle(noticia); // PASA toda la noticia, incluyendo descripcionCompleta
+            }}
+            texto="Ver"
+          />
+          <Accion
+            icon="comment"
+            iconColor="#2196F3"
+            contador={contadorComentarios}
+            onPress={() => alVerDetalle({ mostrarComentarios: true })}
+            texto="Comentarios"
+          />
+          <Accion
+            icon="thumb-up"
+            iconColor="#f44336"
+            contador={contadorLikes}
+            onPress={manejarLike}
+            texto="Me gusta"
+          />
+          <Accion
+            icon="bookmark"
+            iconColor={estaGuardada ? "#FFC107" : "#0d93e681"}
+            contador={estaGuardada ? 1 : 0}
+            onPress={manejarFavorito}
+            texto="Guardar"
+          />
+          <Accion
+            icon="share-variant"
+            iconColor="#2196F3"
+            contador={contadorCompartidos}
+            onPress={manejarCompartir}
+            texto="Compartir"
+          />
+          <Accion
+            icon="delete"
+            iconColor="#f44336"
+            contador={0}
+            onPress={manejarEliminar}
+            texto="Eliminar"
+          />
+        </View>
+      </Animated.View>
+    </TouchableOpacity>
   );
 };
 
