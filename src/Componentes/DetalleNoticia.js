@@ -23,24 +23,19 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
     coloresCategorias[noticia.categoria] || coloresCategorias["Otro"];
 
   // Fecha formateada
-  const obtenerFechaFormateada = () => {
-    try {
-      const fecha = noticia.fechaPublicacion
-        ? new Date(noticia.fechaPublicacion)
-        : new Date();
+const obtenerFechaFormateada = () => {
+  const fecha = new Date(); 
 
-      return fecha.toLocaleString("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
-    } catch {
-      return "Fecha no disponible";
-    }
-  };
+  return fecha.toLocaleString("es-ES", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+};
+
 
   // Cargar comentarios
   const cargarComentarios = async () => {
@@ -109,8 +104,9 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
   // Compartir noticia
   const onShare = async () => {
     try {
+      const descripcion = noticia.descripcionCompleta || noticia.descripcion || 'Descripción no disponible';
       await Share.share({
-        message: `${noticia.titulo}\n\n${noticia.descripcionCompleta || noticia.descripcion}\n\nFuente: ${noticia.fuente}`,
+        message: `${noticia.titulo}\n\n${descripcion}\n\nFuente: ${noticia.fuente || 'Fuente no disponible'}`,
         url: noticia.imagen,
         title: noticia.titulo,
       });
@@ -131,7 +127,9 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
           noticia={noticia}
           onCerrar={onCerrar}
           colorCategoria={colorCategoria}
+          
         />
+  
 
         <View style={estilos.contenedorFecha}>
           <Text variant="bodySmall" style={estilos.textoFecha}>
@@ -182,3 +180,4 @@ const estilos = StyleSheet.create({
     fontStyle: "italic",
   },
 });
+ 
