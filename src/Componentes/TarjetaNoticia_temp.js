@@ -46,36 +46,38 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   );
 };
 
-const TarjetaNoticia_temp = ({ noticia, eliminarNoticia, alVerDetalle, alCambiarGuardado, estaGuardada }) => {
+const TarjetaNoticia_temp = ({
+  noticia,
+  eliminarNoticia,
+  alVerDetalle,
+  alCambiarGuardado,
+  estaGuardada,
+  totalComentarios, 
+}) => {
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
   const [contadorLecturas, setContadorLecturas] = useState(0);
   const [contadorLikes, setContadorLikes] = useState(0);
   const [contadorCompartidos, setContadorCompartidos] = useState(0);
-  const [contadorComentarios, setContadorComentarios] = useState(0);
+ const [contadorComentarios, setContadorComentarios] = useState(noticia?.cantidadComentarios || 0);
 
   useEffect(() => {
-    const cargarComentarios = async () => {
-      try {
-        const almacenados = await AsyncStorage.getItem(`comentariosNoticia_${noticia.id}`);
-        if (almacenados) setContadorComentarios(JSON.parse(almacenados).length);
-      } catch (error) {
-        console.log("Error al cargar comentarios:", error);
-      }
-    };
-    cargarComentarios();
-  }, [noticia.id]);
+    if (typeof totalComentarios === "number") {
+      setContadorComentarios(totalComentarios);
+    }
+  }, [totalComentarios]);
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
-      
+
     ]).start();
   }, [noticia]);
 
-  const manejarLike = () => setContadorLikes(prev => prev + 1);
+ const manejarLike = () => {setContadorLikes(prev => (prev === 0 ? 1 : 0));};
   const manejarFavorito = () => alCambiarGuardado(noticia);
   const manejarCompartir = async () => {
     try {
@@ -98,68 +100,95 @@ const TarjetaNoticia_temp = ({ noticia, eliminarNoticia, alVerDetalle, alCambiar
   };
 
   return (
-    <Animated.View style={[styles.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-      <View style={styles.row}>
-        <View style={styles.left}>
-          {noticia.categoria && (
-            <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
-              <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
-            </View>
-          )}
-          <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
-          <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
-        </View>
-        <Image source={{ uri: noticia.imagen }} style={styles.imagenRight} />
-      </View>
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => {
+  setContadorLecturas(prev => prev + 1);
+  alVerDetalle({
+    ...noticia,
+    mostrarComentarios: true,
+    alActualizarComentarios: setContadorComentarios,  // ← AÑADIDO
+  });
+}}
+>
+      <Animated.View
+        style={[
+          styles.tarjeta,
+          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },]}>
 
-      <View style={styles.filaAcciones}>
-        <Accion
-          icon="eye"
-          iconColor="#660909ff"
-          contador={contadorLecturas}
-          onPress={() => {
-            setContadorLecturas(prev => prev + 1);
-            alVerDetalle(noticia); // PASA toda la noticia, incluyendo descripcionCompleta
-          }}
-          texto="Ver"
-        />
-        <Accion
-          icon="comment"
-          iconColor="#2196F3"
-          contador={contadorComentarios}
-          onPress={() => alVerDetalle({ mostrarComentarios: true })}
-          texto="Comentarios"
-        />
-        <Accion
-          icon="thumb-up"
-          iconColor="#f44336"
-          contador={contadorLikes}
-          onPress={manejarLike}
-          texto="Me gusta"
-        />
-        <Accion
-          icon="bookmark"
-          iconColor={estaGuardada ? "#FFC107" : "#0d93e681"}
-          contador={estaGuardada ? 1 : 0}
-          onPress={manejarFavorito}
-          texto="Guardar"
-        />
-        <Accion
-          icon="share-variant"
-          iconColor="#2196F3"
-          contador={contadorCompartidos}
-          onPress={manejarCompartir}
-          texto="Compartir"
-        />
-        <Accion
-          icon="delete"
-          iconColor="#f44336"
-          contador={0}
-          onPress={manejarEliminar}
-          texto="Eliminar"
-        />
-      </View>
-    </Animated.View>
+        <View style={styles.row}>
+          <View style={styles.left}>
+            {noticia.categoria && (
+              <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
+                <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
+              </View>
+            )}
+            <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
+            <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
+          </View>
+          <Image source={{ uri: noticia.imagen }} style={styles.imagenRight} />
+        </View>
+
+        <View style={styles.filaAcciones}>
+          <Accion
+            icon="eye"
+            iconColor="#660909ff"
+            contador={contadorLecturas}
+            onPress={() => {
+              setContadorLecturas(prev => prev + 1);
+              alVerDetalle({
+    ...noticia,
+    alActualizarComentarios: setContadorComentarios,
+  });
+}}
+            texto="Ver"
+          />
+          <Accion
+  icon="comment"
+  iconColor="#2196F3"
+  contador={contadorComentarios}
+  onPress={() =>
+  alVerDetalle({
+    ...noticia,
+    mostrarComentarios: true,
+    alActualizarComentarios: setContadorComentarios,
+  })
+}
+
+  texto="Comentarios"
+/>
+
+          <Accion
+            icon="thumb-up"
+            iconColor="#f44336"
+            contador={contadorLikes}
+            onPress={manejarLike}
+            texto="Me gusta"
+          />
+          <Accion
+            icon="bookmark"
+            iconColor={estaGuardada ? "#FFC107" : "#0d93e681"}
+            contador={estaGuardada ? 1 : 0}
+            onPress={manejarFavorito}
+            texto="Guardar"
+          />
+          <Accion
+            icon="share-variant"
+            iconColor="#2196F3"
+            contador={contadorCompartidos}
+            onPress={manejarCompartir}
+            texto="Compartir"
+          />
+          <Accion
+            icon="delete"
+            iconColor="#f44336"
+            contador={0}
+            onPress={manejarEliminar}
+            texto="Eliminar"
+          />
+        </View>
+      </Animated.View>
+    </TouchableOpacity>
   );
 };
 
