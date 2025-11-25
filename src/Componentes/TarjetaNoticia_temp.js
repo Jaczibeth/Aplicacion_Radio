@@ -55,30 +55,28 @@ const TarjetaNoticia_temp = ({
   totalComentarios, 
 }) => {
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(20)).current;
-
-  const [contadorLecturas, setContadorLecturas] = useState(0);
-  const [contadorLikes, setContadorLikes] = useState(0);
-  const [contadorCompartidos, setContadorCompartidos] = useState(0);
- const [contadorComentarios, setContadorComentarios] = useState(noticia?.cantidadComentarios || 0);
-
   useEffect(() => {
-    if (typeof totalComentarios === "number") {
-      setContadorComentarios(totalComentarios);
-    }
-  }, [totalComentarios]);
+    const cargarComentarios = async () => {
+      try {
+        const almacenados = await AsyncStorage.getItem(`comentariosNoticia_${noticia.id}`);
+        if (almacenados) setContadorComentarios(JSON.parse(almacenados).length);
+      } catch (error) {
+        console.log("Error al cargar comentarios:", error);
+      }
+    };
+    cargarComentarios();
+  }, [noticia.id]);
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
-
     ]).start();
   }, [noticia]);
 
- const manejarLike = () => {setContadorLikes(prev => (prev === 0 ? 1 : 0));};
+  const manejarLike = () => setContadorLikes(prev => prev + 1);
   const manejarFavorito = () => alCambiarGuardado(noticia);
+  
   const manejarCompartir = async () => {
     try {
       await Share.share({
@@ -103,19 +101,14 @@ const TarjetaNoticia_temp = ({
     <TouchableOpacity
       activeOpacity={0.9}
       onPress={() => {
-  setContadorLecturas(prev => prev + 1);
-  alVerDetalle({
-    ...noticia,
-    mostrarComentarios: true,
-    alActualizarComentarios: setContadorComentarios,  // ← AÑADIDO
-  });
-}}
->
+        setContadorLecturas(prev => prev + 1);
+        alVerDetalle(noticia);}}>
       <Animated.View
         style={[
           styles.tarjeta,
-          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },]}>
-
+          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },
+        ]}
+      >
         <View style={styles.row}>
           <View style={styles.left}>
             {noticia.categoria && (
@@ -136,28 +129,17 @@ const TarjetaNoticia_temp = ({
             contador={contadorLecturas}
             onPress={() => {
               setContadorLecturas(prev => prev + 1);
-              alVerDetalle({
-    ...noticia,
-    alActualizarComentarios: setContadorComentarios,
-  });
-}}
+              alVerDetalle(noticia); // PASA toda la noticia, incluyendo descripcionCompleta
+            }}
             texto="Ver"
           />
           <Accion
-  icon="comment"
-  iconColor="#2196F3"
-  contador={contadorComentarios}
-  onPress={() =>
-  alVerDetalle({
-    ...noticia,
-    mostrarComentarios: true,
-    alActualizarComentarios: setContadorComentarios,
-  })
-}
-
-  texto="Comentarios"
-/>
-
+            icon="comment"
+            iconColor="#2196F3"
+            contador={contadorComentarios}
+            onPress={() => alVerDetalle({ mostrarComentarios: true })}
+            texto="Comentarios"
+          />
           <Accion
             icon="thumb-up"
             iconColor="#f44336"

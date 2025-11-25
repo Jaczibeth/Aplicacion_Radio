@@ -60,8 +60,9 @@ const SeccionComentarios = ({
                   <Text style={estilos.autorComentario}>{c.autor}</Text>
                   <Text style={estilos.textoComentario}>{c.texto}</Text>
 
-                  
-         
+                  <Text style={estilos.fechaComentario}>
+                    {formatearFecha(c.fecha)}
+                  </Text>
 
                   <Text style={estilos.autorComentario}>
                     {c.autor || "Anónimo"}
