@@ -12,7 +12,6 @@ import estilos from "./estilos";
 import useAnimacionBuscar from "../../hooks/useAnimacionBuscar";
 import useNoticias from "../../hooks/useNoticias";
 import { useUbicacion } from "../../hooks/useUbicacion";
-import NotificacionFondo from "../../Componentes/NotificacionFondo";
 
 export default function PantallaInicio({ navigation }) {
   const [pestanaActiva, setPestanaActiva] = useState(PESTANAS.DESTACADAS);
@@ -26,9 +25,7 @@ export default function PantallaInicio({ navigation }) {
   const {
     ubicacion,
     permisoConcedido,
-    mostrarNotificacion,
     solicitarPermisos,
-    setMostrarNotificacion,
   } = useUbicacion();
 
   const [fuentesCargadas] = useFonts({
@@ -312,10 +309,6 @@ export default function PantallaInicio({ navigation }) {
           )
         }
         contentContainerStyle={{ paddingBottom: 90 }}
-      />
-      <NotificacionFondo
-        visible={mostrarNotificacion}
-        onHide={() => setMostrarNotificacion(false)}
       />
     </SafeAreaView>
   );
