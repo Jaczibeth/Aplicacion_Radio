@@ -1,6 +1,8 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { View, FlatList, StyleSheet, Text } from "react-native";
-import TarjetaNoticia from "./TarjetaNoticia";
+import { PanGestureHandler } from "react-native-gesture-handler"; 
+import TarjetaNoticia_temp from "./TarjetaNoticia_temp";
 import { colores, tamanosTexto, espaciado } from "../configuracion/colores";
 
 export default function ListaNoticiasVertical({
@@ -8,9 +10,10 @@ export default function ListaNoticiasVertical({
   estaGuardada,
   alCambiarGuardado,
   alVerDetalle
-})
- {
-  if (!noticias || noticias.length === 0) {
+}) {
+  const [listaNoticias, setListaNoticias] = useState(noticias);
+
+  if (!listaNoticias || listaNoticias.length === 0) {
     return (
       <View style={estilos.contenedorVacio}>
         <Text style={estilos.textoVacio}>No hay noticias disponibles</Text>
@@ -18,23 +21,37 @@ export default function ListaNoticiasVertical({
     );
   }
 
+  const moverAlFinal = (item) => {
+    setListaNoticias((prev) => {
+      const nuevaLista = prev.filter((n) => n.id !== item.id);
+      return [...nuevaLista, item];
+    });
+  };
+
   return (
     <FlatList
-      data={noticias}
+      data={listaNoticias}
       keyExtractor={(item) => item.id.toString()}
       renderItem={({ item }) => (
-        <View style={estilos.contenedorItem}>
-          <TarjetaNoticia
-            noticia={item}
-            estaGuardada={estaGuardada(item)}
-            alCambiarGuardado={alCambiarGuardado}
-            alVerDetalle={() => alVerDetalle(item)}
-          />
-        </View>
+        <PanGestureHandler
+          onGestureEvent={(event) => {
+            if (event.nativeEvent.translationX > 100 || event.nativeEvent.translationX < -100) {
+              moverAlFinal(item);
+            }
+          }}
+        >
+          <View style={estilos.contenedorItem}>
+            <TarjetaNoticia_temp
+              noticia={item}
+              estaGuardada={estaGuardada(item)}
+              alCambiarGuardado={alCambiarGuardado}
+              alVerDetalle={() => alVerDetalle(item)}
+            />
+          </View>
+        </PanGestureHandler>
       )}
       contentContainerStyle={{ paddingBottom: 20 }}
       showsVerticalScrollIndicator={false}
-      
     />
   );
 }
