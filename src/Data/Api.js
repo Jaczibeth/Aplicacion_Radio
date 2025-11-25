@@ -3,8 +3,8 @@ import { Platform } from "react-native";
 
 const BASE_URL = Platform.select({
   ios: "http://localhost:8080/api",
-  android: "http://192.168.0.104:8080/api", 
-  default: "http://192.168.0.104:8080/api",
+  android: "http://192.168.137.229:8080/api", 
+  default: "http://192.168.137.229:8080/api",
 });
 
 // Instancia de axios
@@ -21,8 +21,8 @@ http.interceptors.response.use(
   }
 );
 
+// Noticias
 
-// Obtener todas las noticias
 export const getNoticias = async () => {
   try {
     const response = await http.get("/noticias");
@@ -33,7 +33,6 @@ export const getNoticias = async () => {
   }
 };
 
-// Eliminar noticia
 export const eliminarNoticiaAPI = async (id) => {
   try {
     const response = await http.delete(`/noticias/${id}`);
@@ -44,7 +43,6 @@ export const eliminarNoticiaAPI = async (id) => {
   }
 };
 
-// Agregar noticia
 export const agregarNoticiaAPI = async (noticia) => {
   try {
     const response = await http.post("/noticias", noticia);
@@ -55,8 +53,8 @@ export const agregarNoticiaAPI = async (noticia) => {
   }
 };
 
-
-// Obtener comentarios de una noticia
+// Comentarios
+// Obtener comentarios por noticia
 export const getComentariosPorNoticia = async (noticiaId) => {
   try {
     const response = await http.get(`/comentarios/noticia/${noticiaId}`);
@@ -67,23 +65,18 @@ export const getComentariosPorNoticia = async (noticiaId) => {
   }
 };
 
-// Agregar comentario
+//  Agregar comentario (ruta corregida)
 export const agregarComentarioAPI = async (noticiaId, comentario) => {
   try {
-    const body = {
-      autor: comentario.autor,
-      contenido: comentario.contenido,
-    };
-
-    const response = await http.post(`/comentarios/noticia/${noticiaId}`, body);
+    const response = await http.post(`/comentarios/noticia/${noticiaId}`, comentario);
     return response.data;
   } catch (error) {
-    console.log("Error al agregar comentario:", error);
+    console.log("Error al agregar comentario:", error?.response?.data || error.message);
     return null;
   }
 };
 
-// Eliminar comentario
+// Eliminar comentario (ruta directa)
 export const eliminarComentarioAPI = async (comentarioId) => {
   try {
     const response = await http.delete(`/comentarios/${comentarioId}`);
@@ -93,11 +86,9 @@ export const eliminarComentarioAPI = async (comentarioId) => {
     return false;
   }
 };
-
-// Editar comentario
-export const editarComentarioAPI = async (id, contenido) => {
+export const editarComentarioAPI = async (id, texto) => {
   try {
-    const response = await http.put(`/comentarios/${id}`, { contenido });
+    const response = await http.put(`/comentarios/${id}`, { texto });
     return response.data;
   } catch (error) {
     console.error("Error al editar comentario:", error?.response?.data || error.message);
@@ -116,3 +107,4 @@ export default {
   editarComentarioAPI,
   BASE_URL,
 };
+

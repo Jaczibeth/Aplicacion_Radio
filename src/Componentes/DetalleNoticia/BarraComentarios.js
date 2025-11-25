@@ -1,5 +1,7 @@
+
 import React from "react";
 import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { IconButton } from "react-native-paper";
 
 export default function BarraComentarios({
   nuevoComentario,
@@ -15,12 +17,15 @@ export default function BarraComentarios({
         value={nuevoComentario}
         onChangeText={setNuevoComentario}
       />
-      <TouchableOpacity style={estilos.boton} onPress={manejarAgregarComentario}>
-        <Text style={estilos.texto}>Enviar</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={estilos.botonShare} onPress={onShare}>
-        <Text style={estilos.texto}> compartir</Text>
-      </TouchableOpacity>
+
+      {/* BOTÓN CON ÍCONO DE ENVIAR */}
+      <IconButton
+        icon="send"
+        size={28}
+        iconColor="white"
+        style={estilos.botonIcono}
+        onPress={manejarAgregarComentario}
+      />
     </View>
   );
 }
@@ -33,12 +38,17 @@ const estilos = StyleSheet.create({
     borderColor: "#ccc",
     padding: 8,
   },
-  input: { flex: 1, borderWidth: 1, borderColor: "#ddd", borderRadius: 8, padding: 8 },
-  boton: {
-    backgroundColor: "#007AFF",
-    marginLeft: 5,
-    padding: 10,
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ddd",
     borderRadius: 8,
+    padding: 8,
+  },
+  botonIcono: {
+    backgroundColor: "#9ac6f5ff",
+    borderRadius: 50,
+    marginLeft: 5,
   },
   botonShare: {
     backgroundColor: "#28a745",
@@ -46,5 +56,7 @@ const estilos = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
   },
-  texto: { color: "white" },
+  texto: { 
+    color: "white" 
+  },
 });

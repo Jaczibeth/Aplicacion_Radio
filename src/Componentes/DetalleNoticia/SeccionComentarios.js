@@ -13,7 +13,24 @@ const SeccionComentarios = ({
   manejarEliminarComentario,
 }) => {
 
-  // Abrir diálogo de edición
+
+  const formatearFecha = (fechaTexto) => {
+    try {
+      const fecha = new Date(fechaTexto);
+      return fecha.toLocaleString("es-MX", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true, 
+      });
+    } catch {
+      return "Fecha no disponible";
+    }
+  };
+
+
   const abrirEditarComentario = (comentario) => {
     setComentarioEditando(comentario.id);
     setContenidoEditando(comentario.contenido); // ← CORREGIDO
@@ -40,6 +57,12 @@ const SeccionComentarios = ({
               comentarios.map((c) => (
                 <View key={c.id} style={estilos.comentario}>
 
+                  <Text style={estilos.autorComentario}>{c.autor}</Text>
+                  <Text style={estilos.textoComentario}>{c.texto}</Text>
+
+                  
+         
+
                   <Text style={estilos.autorComentario}>
                     {c.autor || "Anónimo"}
                   </Text>
@@ -48,11 +71,16 @@ const SeccionComentarios = ({
 
                   <Text style={estilos.fechaComentario}>
                     {c.fecha ? new Date(c.fecha).toLocaleString() : ""}
+
                   </Text>
 
                   <View style={estilos.accionesComentario}>
                     <TouchableOpacity onPress={() => abrirEditarComentario(c)}>
                       <Text style={estilos.botonEditar}>Editar</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => manejarEliminarComentario(c)}>
+                      <Text style={estilos.botonEliminar}>Eliminar</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
@@ -62,6 +90,7 @@ const SeccionComentarios = ({
 >
   <Text style={estilos.botonEliminar}>Eliminar</Text>
 </TouchableOpacity>
+
 
                   </View>
 

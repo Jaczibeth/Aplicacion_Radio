@@ -1,13 +1,19 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 
-const CuerpoNoticia = ({ noticia }) => {
+const CuerpoNoticia = ({ noticia}) => {
+  if (!noticia) return null;
+
+  const descripcion = noticia.descripcionCompleta || noticia.descripcion || 'Descripción no disponible';
+
   return (
-    <ScrollView style={estilos.container}>
-      <Text style={estilos.descripcion}>
-        {noticia.descripcionCompleta || noticia.descripcion}
-      </Text>
-    </ScrollView>
+    <View style={estilos.container}>
+     
+    
+
+    
+      <Text style={estilos.descripcion}>{descripcion}</Text>
+    </View>
   );
 };
 
@@ -16,6 +22,25 @@ const estilos = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 8,
   },
+
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+
+  categoria: {
+    backgroundColor: "#0364ff",
+    color: "white",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+    fontSize: 14,
+  },
+
+ 
+
   descripcion: {
     fontSize: 16,
     lineHeight: 24,
