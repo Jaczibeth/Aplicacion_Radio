@@ -31,7 +31,7 @@ const CalificacionModal = ({ visible, onClose, onRatingSuccess }) => {
 
   const fetchResumen = async () => {
     try {
-      const response = await axios.get("http://192.168.0.105:8080/api/calificacion/resumen");
+      const response = await axios.get("http://192.168.137.82:8080/api/calificacion/resumen");
       setPromedio(response.data.promedio);
       setTotal(response.data.total);
     } catch (error) {
@@ -49,7 +49,7 @@ const CalificacionModal = ({ visible, onClose, onRatingSuccess }) => {
     if (currentRating > 0 && !isSubmitting) {
       setIsSubmitting(true);
       try {
-        await axios.post("http://192.168.0.105:8080/api/calificacion", {
+        await axios.post("http://192.168.137.82:8080/api/calificacion", {
           valor: currentRating, 
         });
         onRatingSuccess();
