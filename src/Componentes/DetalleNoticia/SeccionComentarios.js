@@ -39,6 +39,16 @@ const SeccionComentarios = ({
                 <View key={c.id} style={estilos.comentario}>
                   <Text style={estilos.autorComentario}>{c.autor || "Anónimo"}</Text>
                   <Text style={estilos.textoComentario}>{c.texto}</Text>
+
+                  
+         
+
+                  <Text style={estilos.autorComentario}>
+                    {c.autor || "Anónimo"}
+                  </Text>
+
+                  <Text style={estilos.textoComentario}>{c.contenido}</Text>
+
                   <Text style={estilos.fechaComentario}>
                     {c.fecha ? new Date(c.fecha).toLocaleString() : ""}
                   </Text>

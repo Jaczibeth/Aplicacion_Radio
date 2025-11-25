@@ -53,15 +53,28 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   );
 };
 
-const TarjetaNoticia_temp = ({ noticia, alVerDetalle, alCambiarGuardado, estaGuardada }) => {
+const TarjetaNoticia_temp = ({
+  noticia,
+  eliminarNoticia,
+  alVerDetalle,
+  alCambiarGuardado,
+  estaGuardada,
+  totalComentarios, 
+}) => {
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
   const [contadorLecturas, setContadorLecturas] = useState(0);
   const [contadorLikes, setContadorLikes] = useState(0);
   const [contadorCompartidos, setContadorCompartidos] = useState(0);
-  const [contadorGuardados, setContadorGuardados] = useState(0);
-  const [calificacionUsuario, setCalificacionUsuario] = useState(0);
+ const [contadorComentarios, setContadorComentarios] = useState(noticia?.cantidadComentarios || 0);
+
+  useEffect(() => {
+    if (typeof totalComentarios === "number") {
+      setContadorComentarios(totalComentarios);
+    }
+  }, [totalComentarios]);
 
   useEffect(() => {
     Animated.parallel([
@@ -70,52 +83,8 @@ const TarjetaNoticia_temp = ({ noticia, alVerDetalle, alCambiarGuardado, estaGua
     ]).start();
   }, [noticia]);
 
-
-  const fetchTotales = async () => {
-    try {
-      const response = await axios.get(`http://192.168.137.82:8080/api/interacciones/totales/${noticia.id}`);
-      setContadorLecturas(response.data.vistas);
-      setContadorLikes(response.data.likes);
-      setContadorGuardados(response.data.guardados);
-      setContadorCompartidos(response.data.compartidos);
-    } catch (error) {
-      console.error("Error al obtener totales:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchTotales();
-  }, [noticia.id]);
-
-  const registrarInteraccion = async (tipo) => {
-    try {
- await axios.post("http://192.168.137.82:8080/api/interacciones", {
-        noticiaId: noticia.id,
-        tipo,
-      });
-      fetchTotales();
-    } catch (error) {
-      console.error("Error al registrar interacción:", error);
-    }
-  };
-
-  const manejarVer = () => {
-    registrarInteraccion("ver");
-    alVerDetalle({ ...noticia, mostrarComentarios: true });
-  };
-
-  const manejarComentarios = () => {
-    registrarInteraccion("comentario");
-    alVerDetalle({ ...noticia, mostrarComentarios: true });
-  };
-
-  const manejarLike = () => registrarInteraccion("like");
-
-  const manejarFavorito = () => {
-    alCambiarGuardado(noticia);
-    registrarInteraccion("guardar");
-  };
-
+ const manejarLike = () => {setContadorLikes(prev => (prev === 0 ? 1 : 0));};
+  const manejarFavorito = () => alCambiarGuardado(noticia);
   const manejarCompartir = async () => {
     try {
       await Share.share({
@@ -130,8 +99,22 @@ const TarjetaNoticia_temp = ({ noticia, alVerDetalle, alCambiarGuardado, estaGua
   };
 
   return (
-    <TouchableOpacity activeOpacity={0.9} onPress={manejarVer}>
-      <Animated.View style={[styles.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+    <TouchableOpacity
+      activeOpacity={0.9}
+      onPress={() => {
+  setContadorLecturas(prev => prev + 1);
+  alVerDetalle({
+    ...noticia,
+    mostrarComentarios: true,
+    alActualizarComentarios: setContadorComentarios,  // ← AÑADIDO
+  });
+}}
+>
+      <Animated.View
+        style={[
+          styles.tarjeta,
+          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },]}>
+
         <View style={styles.row}>
           <View style={styles.left}>
             <View style={styles.headerRow}>
@@ -160,11 +143,62 @@ const TarjetaNoticia_temp = ({ noticia, alVerDetalle, alCambiarGuardado, estaGua
         </View>
 
         <View style={styles.filaAcciones}>
-          <Accion icon="eye" iconColor="#660909ff" contador={contadorLecturas} onPress={manejarVer} texto="Ver" />
-          <Accion icon="comment" iconColor="#2196F3" contador={noticia.comentariosCount || 0} onPress={manejarComentarios} texto="Comentarios" />
-          <Accion icon="thumb-up" iconColor="#f44336" contador={contadorLikes} onPress={manejarLike} texto="Me gusta" />
-          <Accion icon="bookmark" iconColor={estaGuardada ? "#FFC107" : "#0d93e681"} contador={contadorGuardados} onPress={manejarFavorito} texto="Guardar" />
-          <Accion icon="share-variant" iconColor="#2196F3" contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
+          <Accion
+            icon="eye"
+            iconColor="#660909ff"
+            contador={contadorLecturas}
+            onPress={() => {
+              setContadorLecturas(prev => prev + 1);
+              alVerDetalle({
+    ...noticia,
+    alActualizarComentarios: setContadorComentarios,
+  });
+}}
+            texto="Ver"
+          />
+          <Accion
+  icon="comment"
+  iconColor="#2196F3"
+  contador={contadorComentarios}
+  onPress={() =>
+  alVerDetalle({
+    ...noticia,
+    mostrarComentarios: true,
+    alActualizarComentarios: setContadorComentarios,
+  })
+}
+
+  texto="Comentarios"
+/>
+
+          <Accion
+            icon="thumb-up"
+            iconColor="#f44336"
+            contador={contadorLikes}
+            onPress={manejarLike}
+            texto="Me gusta"
+          />
+          <Accion
+            icon="bookmark"
+            iconColor={estaGuardada ? "#FFC107" : "#0d93e681"}
+            contador={estaGuardada ? 1 : 0}
+            onPress={manejarFavorito}
+            texto="Guardar"
+          />
+          <Accion
+            icon="share-variant"
+            iconColor="#2196F3"
+            contador={contadorCompartidos}
+            onPress={manejarCompartir}
+            texto="Compartir"
+          />
+          <Accion
+            icon="delete"
+            iconColor="#f44336"
+            contador={0}
+            onPress={manejarEliminar}
+            texto="Eliminar"
+          />
         </View>
       </Animated.View>
     </TouchableOpacity>
