@@ -1,5 +1,5 @@
 import React, { createContext, useState, useRef, useEffect } from "react";
-import { Audio } from "expo-av";
+import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from "expo-av";
 
 export const AudioContext = createContext();
 
@@ -15,9 +15,9 @@ export const AudioProvider = ({ children }) => {
           allowsRecordingIOS: false,
           playsInSilentModeIOS: true,
           staysActiveInBackground: true,
-          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+          interruptionModeIOS: InterruptionModeIOS.DoNotMix,
           shouldDuckAndroid: true,
-          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+          interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
           playThroughEarpieceAndroid: false,
         });
       } catch (e) {
