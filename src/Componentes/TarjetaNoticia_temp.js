@@ -100,7 +100,7 @@ const TarjetaNoticia_temp = ({
     }
   };
 
-  // ✅ Registrar calificación
+  
   const registrarCalificacion = async (valor) => {
     try {
       await axios.post("http://192.168.0.105:8080/api/calificaciones", {
