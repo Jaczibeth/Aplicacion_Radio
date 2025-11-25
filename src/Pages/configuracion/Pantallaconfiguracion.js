@@ -179,7 +179,11 @@ export default function PantallaConfiguracion({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <IconButton icon="arrow-left" size={24} onPress={() => navigation.goBack()} />
+        <IconButton icon="arrow-left" size={24} onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          }
+        }} />
         <Text style={styles.headerTitle}>Configuración</Text>
         <Image
 
