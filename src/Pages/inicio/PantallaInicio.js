@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback,useMemo,useRef,} from "react";
+import React, { useState, useEffect,useMemo,useRef,} from "react";
 import { View, Text, FlatList, Image, TouchableOpacity,  Dimensions, Animated,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Title, Searchbar, Avatar } from "react-native-paper";
