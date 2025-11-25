@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity } from "react-native";
 import { Title, Paragraph, IconButton } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons"; 
 import { coloresCategorias } from "../configuracion/colores";
 import axios from "axios";
 
@@ -61,6 +62,7 @@ const TarjetaNoticia_temp = ({
   const [contadorCompartidos, setContadorCompartidos] = useState(0);
   const [contadorComentarios, setContadorComentarios] = useState(0);
   const [contadorGuardados, setContadorGuardados] = useState(0);
+  const [calificacionUsuario, setCalificacionUsuario] = useState(0);
 
   useEffect(() => {
     Animated.parallel([
@@ -69,7 +71,6 @@ const TarjetaNoticia_temp = ({
     ]).start();
   }, [noticia]);
 
-  
   const fetchTotales = async () => {
     try {
       const response = await axios.get(`http://192.168.0.105:8080/api/interacciones/totales/${noticia.id}`);
@@ -93,9 +94,22 @@ const TarjetaNoticia_temp = ({
         noticiaId: noticia.id,
         tipo: tipo,
       });
-      fetchTotales(); 
+      fetchTotales();
     } catch (error) {
       console.error("Error al registrar interacción:", error);
+    }
+  };
+
+  // ✅ Registrar calificación
+  const registrarCalificacion = async (valor) => {
+    try {
+      await axios.post("http://192.168.0.105:8080/api/calificaciones", {
+        noticiaId: noticia.id,
+        valor: valor,
+      });
+      setCalificacionUsuario(valor);
+    } catch (error) {
+      console.error("Error al registrar calificación:", error);
     }
   };
 
@@ -110,7 +124,6 @@ const TarjetaNoticia_temp = ({
   };
 
   const manejarLike = () => registrarInteraccion("like");
-
   const manejarFavorito = () => {
     alCambiarGuardado(noticia);
     registrarInteraccion("guardar");
@@ -120,7 +133,7 @@ const TarjetaNoticia_temp = ({
     try {
       await Share.share({
         title: noticia.titulo,
-        message: `${noticia.titulo}\n\n${noticia.descripcion}\n\nFuente: ${noticia.fuente || ""}`,
+        message: `${noticia.titulo}\n\n${noticia.descripcion}\n\nFuente: ${noticia.fuente}`,
         url: noticia.imagen,
       });
       registrarInteraccion("compartir");
@@ -134,14 +147,31 @@ const TarjetaNoticia_temp = ({
       <Animated.View style={[styles.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
         <View style={styles.row}>
           <View style={styles.left}>
+          <View style={styles.headerRow}>
             {noticia.categoria && (
               <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
                 <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
               </View>
             )}
-            <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
-            <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
+            <View style={styles.estrellasContainer}>
+              {[1, 2, 3, 4, 5].map((estrella) => (
+                <TouchableOpacity key={estrella} onPress={() => registrarCalificacion(estrella)}>
+                  <Ionicons
+                    name={estrella <= calificacionUsuario ? "star" : "star-outline"}
+                    size={18}
+                    color={estrella <= calificacionUsuario ? "#FFD700" : "#ccc"}
+                    style={{ marginHorizontal: 2 }}
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
+
+          <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
+          <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
+          </View>
+
+          {/* Imagen */}
           <Image source={{ uri: noticia.imagen }} style={styles.imagenRight} />
         </View>
 
@@ -164,8 +194,10 @@ const styles = StyleSheet.create({
   left: { flex: 1, paddingRight: 10, justifyContent: "flex-start" },
   titulo: { fontSize: 16, fontWeight: "700", color: "#333" },
   descripcion: { fontSize: 14, color: "#666" },
-  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: "#eee", marginTop: 20 },
-  etiquetaCategoria: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginBottom: 8 },
+  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: "#eee", marginTop: 46},
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  estrellasContainer: { flexDirection: 'row' },
+  etiquetaCategoria: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
   textoCategoria: { color: "#fff", fontSize: 12, fontWeight: "700" },
   filaAcciones: { flexDirection: "row", justifyContent: "space-around", alignItems: "center", paddingVertical: 10 },
   contenedorAccion: { alignItems: "center", justifyContent: "center", width: 55 },
