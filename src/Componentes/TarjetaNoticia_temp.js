@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity, Alert } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {View, StyleSheet,Animated, Text, Share, Image, TouchableOpacity,} from "react-native";
 import { Title, Paragraph, IconButton } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons";
 import { coloresCategorias } from "../configuracion/colores";
+import axios from "axios";
 
 const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -14,25 +15,32 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
       Animated.spring(scaleAnim, { toValue: 1.15, friction: 4, useNativeDriver: true }),
       Animated.spring(scaleAnim, { toValue: 1, friction: 4, useNativeDriver: true }),
     ]).start();
-
     setVisible(true);
     Animated.timing(tooltipAnim, { toValue: 1, duration: 180, useNativeDriver: true }).start(() => {
       setTimeout(() => {
         Animated.timing(tooltipAnim, { toValue: 0, duration: 180, useNativeDriver: true }).start(() => setVisible(false));
       }, 800);
     });
-
     if (onPress) onPress();
   };
 
   return (
     <View style={styles.contenedorAccion}>
       {visible && (
-        <Animated.View style={[styles.tooltip, { opacity: tooltipAnim, transform: [{ translateY: tooltipAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }]}>
-          <Text style={styles.textoTooltip} numberOfLines={1} ellipsizeMode="clip">{texto}</Text>
+        <Animated.View
+          style={[
+            styles.tooltip,
+            {
+              opacity: tooltipAnim,
+              transform: [{ translateY: tooltipAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
+            },
+          ]}
+        >
+          <Text style={styles.textoTooltip} numberOfLines={1} ellipsizeMode="clip">
+            {texto}
+          </Text>
         </Animated.View>
       )}
-
       <TouchableOpacity onPress={animarClick} activeOpacity={0.8}>
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <View style={styles.botonCircular}>
@@ -40,7 +48,6 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
           </View>
         </Animated.View>
       </TouchableOpacity>
-
       <Text style={styles.contador}>{contador}</Text>
     </View>
   );
@@ -73,7 +80,6 @@ const TarjetaNoticia_temp = ({
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
-
     ]).start();
   }, [noticia]);
 
@@ -83,20 +89,13 @@ const TarjetaNoticia_temp = ({
     try {
       await Share.share({
         title: noticia.titulo,
-        message: `${noticia.titulo}\n\n${noticia.descripcionCompleta || noticia.descripcion}\n\nFuente: ${noticia.fuente || ""}`,
+        message: `${noticia.titulo}\n\n${noticia.descripcion}\n\nFuente: ${noticia.fuente}`,
         url: noticia.imagen,
       });
-      setContadorCompartidos(prev => prev + 1);
+      registrarInteraccion("compartir");
     } catch (error) {
       console.log("Error al compartir:", error);
     }
-  };
-
-  const manejarEliminar = () => {
-    Alert.alert("Eliminar noticia", "¿Deseas eliminar esta noticia?", [
-      { text: "Cancelar", style: "cancel" },
-      { text: "Eliminar", style: "destructive", onPress: () => eliminarNoticia(noticia.id) },
-    ]);
   };
 
   return (
@@ -118,11 +117,25 @@ const TarjetaNoticia_temp = ({
 
         <View style={styles.row}>
           <View style={styles.left}>
-            {noticia.categoria && (
-              <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
-                <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
+            <View style={styles.headerRow}>
+              {noticia.categoria && (
+                <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
+                  <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
+                </View>
+              )}
+              <View style={styles.estrellasContainer}>
+                {[1, 2, 3, 4, 5].map((estrella) => (
+                  <TouchableOpacity key={estrella} onPress={() => setCalificacionUsuario(estrella)}>
+                    <Ionicons
+                      name={estrella <= calificacionUsuario ? "star" : "star-outline"}
+                      size={18}
+                      color={estrella <= calificacionUsuario ? "#FFD700" : "#ccc"}
+                      style={{ marginHorizontal: 2 }}
+                    />
+                  </TouchableOpacity>
+                ))}
               </View>
-            )}
+            </View>
             <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
             <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
           </View>
@@ -198,8 +211,10 @@ const styles = StyleSheet.create({
   left: { flex: 1, paddingRight: 10, justifyContent: "flex-start" },
   titulo: { fontSize: 16, fontWeight: "700", color: "#333" },
   descripcion: { fontSize: 14, color: "#666" },
-  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: "#eee", marginTop: 20 },
-  etiquetaCategoria: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginBottom: 8 },
+  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: "#eee", marginTop: 46 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  estrellasContainer: { flexDirection: 'row' },
+  etiquetaCategoria: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
   textoCategoria: { color: "#fff", fontSize: 12, fontWeight: "700" },
   filaAcciones: { flexDirection: "row", justifyContent: "space-around", alignItems: "center", paddingVertical: 10 },
   contenedorAccion: { alignItems: "center", justifyContent: "center", width: 55 },
