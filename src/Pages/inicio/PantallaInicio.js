@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
 import { NOMBRE_APP, PESTANAS, MENSAJES } from "../../configuracion/constantes";
 import BarraPestanas from "../../Componentes/BarraPestanas";
-import TarjetaNoticia from "../../Componentes/TarjetaNoticia";
+import TarjetaNoticia from "../../Componentes/TarjetaNoticia_temp";
 import estilos from "./estilos";
 import useAnimacionBuscar from "../../hooks/useAnimacionBuscar";
 import useNoticias from "../../hooks/useNoticias";
