@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { View, FlatList, StyleSheet, Text } from "react-native";
 import { PanGestureHandler } from "react-native-gesture-handler"; 

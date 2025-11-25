@@ -4,7 +4,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Title, Searchbar, Avatar } from "react-native-paper";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold,} from "@expo-google-fonts/poppins";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
 import { NOMBRE_APP, PESTANAS, MENSAJES } from "../../configuracion/constantes";
 import BarraPestanas from "../../Componentes/BarraPestanas";
 import TarjetaNoticia from "../../Componentes/TarjetaNoticia_temp";
@@ -162,6 +161,11 @@ export default function PantallaInicio({ navigation }) {
             contentContainerStyle={{ paddingHorizontal: itemMargen }}
             renderItem={renderItemCarrusel}
             keyExtractor={(item) => `carrusel-${item.id}`}
+            getItemLayout={(data, index) => ({
+              length: itemAncho + itemMargen * 2, // Item width + horizontal margins
+              offset: (itemAncho + itemMargen * 2) * index,
+              index,
+            })}
             onMomentumScrollEnd={(e) => {
               const index = Math.round(
                 e.nativeEvent.contentOffset.x / itemAncho

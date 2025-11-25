@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity } from "react-native";
+import {View, StyleSheet,Animated, Text, Share, Image, TouchableOpacity,} from "react-native";
 import { Title, Paragraph, IconButton } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons"; 
+import { Ionicons } from "@expo/vector-icons";
 import { coloresCategorias } from "../configuracion/colores";
 import axios from "axios";
 
@@ -30,10 +30,15 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
         <Animated.View
           style={[
             styles.tooltip,
-            { opacity: tooltipAnim, transform: [{ translateY: tooltipAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] },
+            {
+              opacity: tooltipAnim,
+              transform: [{ translateY: tooltipAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
+            },
           ]}
         >
-          <Text style={styles.textoTooltip} numberOfLines={1} ellipsizeMode="clip">{texto}</Text>
+          <Text style={styles.textoTooltip} numberOfLines={1} ellipsizeMode="clip">
+            {texto}
+          </Text>
         </Animated.View>
       )}
       <TouchableOpacity onPress={animarClick} activeOpacity={0.8}>
@@ -48,19 +53,13 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   );
 };
 
-const TarjetaNoticia_temp = ({
-  noticia,
-  alVerDetalle,
-  alCambiarGuardado,
-  estaGuardada,
-}) => {
+const TarjetaNoticia_temp = ({ noticia, alVerDetalle, alCambiarGuardado, estaGuardada }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
   const [contadorLecturas, setContadorLecturas] = useState(0);
   const [contadorLikes, setContadorLikes] = useState(0);
   const [contadorCompartidos, setContadorCompartidos] = useState(0);
-  const [contadorComentarios, setContadorComentarios] = useState(0);
   const [contadorGuardados, setContadorGuardados] = useState(0);
   const [calificacionUsuario, setCalificacionUsuario] = useState(0);
 
@@ -71,11 +70,11 @@ const TarjetaNoticia_temp = ({
     ]).start();
   }, [noticia]);
 
+
   const fetchTotales = async () => {
     try {
-      const response = await axios.get(`http://192.168.0.105:8080/api/interacciones/totales/${noticia.id}`);
+      const response = await axios.get(`http://192.168.137.82:8080/api/interacciones/totales/${noticia.id}`);
       setContadorLecturas(response.data.vistas);
-      setContadorComentarios(response.data.comentarios);
       setContadorLikes(response.data.likes);
       setContadorGuardados(response.data.guardados);
       setContadorCompartidos(response.data.compartidos);
@@ -90,26 +89,13 @@ const TarjetaNoticia_temp = ({
 
   const registrarInteraccion = async (tipo) => {
     try {
-      await axios.post("http://192.168.0.105:8080/api/interacciones", {
+ await axios.post("http://192.168.137.82:8080/api/interacciones", {
         noticiaId: noticia.id,
-        tipo: tipo,
+        tipo,
       });
       fetchTotales();
     } catch (error) {
       console.error("Error al registrar interacción:", error);
-    }
-  };
-
-  
-  const registrarCalificacion = async (valor) => {
-    try {
-      await axios.post("http://192.168.0.105:8080/api/calificaciones", {
-        noticiaId: noticia.id,
-        valor: valor,
-      });
-      setCalificacionUsuario(valor);
-    } catch (error) {
-      console.error("Error al registrar calificación:", error);
     }
   };
 
@@ -124,6 +110,7 @@ const TarjetaNoticia_temp = ({
   };
 
   const manejarLike = () => registrarInteraccion("like");
+
   const manejarFavorito = () => {
     alCambiarGuardado(noticia);
     registrarInteraccion("guardar");
@@ -147,38 +134,34 @@ const TarjetaNoticia_temp = ({
       <Animated.View style={[styles.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
         <View style={styles.row}>
           <View style={styles.left}>
-          <View style={styles.headerRow}>
-            {noticia.categoria && (
-              <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
-                <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
+            <View style={styles.headerRow}>
+              {noticia.categoria && (
+                <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
+                  <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
+                </View>
+              )}
+              <View style={styles.estrellasContainer}>
+                {[1, 2, 3, 4, 5].map((estrella) => (
+                  <TouchableOpacity key={estrella} onPress={() => setCalificacionUsuario(estrella)}>
+                    <Ionicons
+                      name={estrella <= calificacionUsuario ? "star" : "star-outline"}
+                      size={18}
+                      color={estrella <= calificacionUsuario ? "#FFD700" : "#ccc"}
+                      style={{ marginHorizontal: 2 }}
+                    />
+                  </TouchableOpacity>
+                ))}
               </View>
-            )}
-            <View style={styles.estrellasContainer}>
-              {[1, 2, 3, 4, 5].map((estrella) => (
-                <TouchableOpacity key={estrella} onPress={() => registrarCalificacion(estrella)}>
-                  <Ionicons
-                    name={estrella <= calificacionUsuario ? "star" : "star-outline"}
-                    size={18}
-                    color={estrella <= calificacionUsuario ? "#FFD700" : "#ccc"}
-                    style={{ marginHorizontal: 2 }}
-                  />
-                </TouchableOpacity>
-              ))}
             </View>
+            <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
+            <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
           </View>
-
-          <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
-          <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
-          </View>
-
-          {/* Imagen */}
           <Image source={{ uri: noticia.imagen }} style={styles.imagenRight} />
         </View>
 
-        {/* Acciones */}
         <View style={styles.filaAcciones}>
           <Accion icon="eye" iconColor="#660909ff" contador={contadorLecturas} onPress={manejarVer} texto="Ver" />
-          <Accion icon="comment" iconColor="#2196F3" contador={contadorComentarios} onPress={manejarComentarios} texto="Comentarios" />
+          <Accion icon="comment" iconColor="#2196F3" contador={noticia.comentariosCount || 0} onPress={manejarComentarios} texto="Comentarios" />
           <Accion icon="thumb-up" iconColor="#f44336" contador={contadorLikes} onPress={manejarLike} texto="Me gusta" />
           <Accion icon="bookmark" iconColor={estaGuardada ? "#FFC107" : "#0d93e681"} contador={contadorGuardados} onPress={manejarFavorito} texto="Guardar" />
           <Accion icon="share-variant" iconColor="#2196F3" contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
@@ -194,7 +177,7 @@ const styles = StyleSheet.create({
   left: { flex: 1, paddingRight: 10, justifyContent: "flex-start" },
   titulo: { fontSize: 16, fontWeight: "700", color: "#333" },
   descripcion: { fontSize: 14, color: "#666" },
-  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: "#eee", marginTop: 46},
+  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: "#eee", marginTop: 46 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   estrellasContainer: { flexDirection: 'row' },
   etiquetaCategoria: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
