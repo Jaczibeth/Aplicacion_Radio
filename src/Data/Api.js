@@ -1,10 +1,11 @@
+
 import axios from "axios";
 import { Platform } from "react-native";
 
 const BASE_URL = Platform.select({
   ios: "http://localhost:8080/api",
-  android: "http://192.168.137.229:8080/api", 
-  default: "http://192.168.137.229:8080/api",
+  android: "http://192.168.137.237:8080/api",
+  default: "http://192.168.137.237:8080/api",
 });
 
 // Instancia de axios
@@ -21,7 +22,6 @@ http.interceptors.response.use(
   }
 );
 
-// Noticias
 
 export const getNoticias = async () => {
   try {
@@ -53,8 +53,6 @@ export const agregarNoticiaAPI = async (noticia) => {
   }
 };
 
-// Comentarios
-// Obtener comentarios por noticia
 export const getComentariosPorNoticia = async (noticiaId) => {
   try {
     const response = await http.get(`/comentarios/noticia/${noticiaId}`);
@@ -65,7 +63,6 @@ export const getComentariosPorNoticia = async (noticiaId) => {
   }
 };
 
-//  Agregar comentario (ruta corregida)
 export const agregarComentarioAPI = async (noticiaId, comentario) => {
   try {
     const response = await http.post(`/comentarios/noticia/${noticiaId}`, comentario);
@@ -76,7 +73,6 @@ export const agregarComentarioAPI = async (noticiaId, comentario) => {
   }
 };
 
-// Eliminar comentario (ruta directa)
 export const eliminarComentarioAPI = async (comentarioId) => {
   try {
     const response = await http.delete(`/comentarios/${comentarioId}`);
@@ -86,6 +82,7 @@ export const eliminarComentarioAPI = async (comentarioId) => {
     return false;
   }
 };
+
 export const editarComentarioAPI = async (id, texto) => {
   try {
     const response = await http.put(`/comentarios/${id}`, { texto });
@@ -93,6 +90,19 @@ export const editarComentarioAPI = async (id, texto) => {
   } catch (error) {
     console.error("Error al editar comentario:", error?.response?.data || error.message);
     return null;
+  }
+};
+
+export const registrarInteraccion = async (noticiaId, tipo) => {
+  try {
+    const response = await http.post("/interacciones", {
+      noticiaId,
+      tipo, 
+    });
+    return response.status === 200 || response.status === 201;
+  } catch (error) {
+    console.error("Error al registrar interacción:", error?.response?.data || error.message);
+    return false;
   }
 };
 
@@ -105,6 +115,6 @@ export default {
   agregarComentarioAPI,
   eliminarComentarioAPI,
   editarComentarioAPI,
+  registrarInteraccion, 
   BASE_URL,
 };
-

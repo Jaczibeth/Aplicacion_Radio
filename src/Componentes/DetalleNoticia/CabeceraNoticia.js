@@ -66,7 +66,7 @@ const estilos = StyleSheet.create({
     padding: 4,
   },
 
-  /* NUEVO: fila categoría + botón share */
+
   filaCategoriaShare: {
     flexDirection: "row",
     justifyContent: "space-between",

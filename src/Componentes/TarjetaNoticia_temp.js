@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity, Alert } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity } from "react-native";
 import { Title, Paragraph, IconButton } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons";
 import { coloresCategorias } from "../configuracion/colores";
+import axios from "axios";
 
 const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -28,11 +29,20 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   return (
     <View style={styles.contenedorAccion}>
       {visible && (
-        <Animated.View style={[styles.tooltip, { opacity: tooltipAnim, transform: [{ translateY: tooltipAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }] }]}>
-          <Text style={styles.textoTooltip} numberOfLines={1} ellipsizeMode="clip">{texto}</Text>
+        <Animated.View
+          style={[
+            styles.tooltip,
+            {
+              opacity: tooltipAnim,
+              transform: [{ translateY: tooltipAnim.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) }],
+            },
+          ]}
+        >
+          <Text style={styles.textoTooltip} numberOfLines={1} ellipsizeMode="clip">
+            {texto}
+          </Text>
         </Animated.View>
       )}
-
       <TouchableOpacity onPress={animarClick} activeOpacity={0.8}>
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <View style={styles.botonCircular}>
@@ -40,50 +50,48 @@ const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
           </View>
         </Animated.View>
       </TouchableOpacity>
-
       <Text style={styles.contador}>{contador}</Text>
     </View>
   );
 };
 
-const TarjetaNoticia_temp = ({
+const TarjetaNoticia = ({
   noticia,
   eliminarNoticia,
   alVerDetalle,
   alCambiarGuardado,
   estaGuardada,
-  totalComentarios, 
+  totalComentarios,
 }) => {
-
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
   const [contadorLecturas, setContadorLecturas] = useState(0);
   const [contadorLikes, setContadorLikes] = useState(0);
   const [contadorCompartidos, setContadorCompartidos] = useState(0);
- const [contadorComentarios, setContadorComentarios] = useState(noticia?.cantidadComentarios || 0);
+  const [contadorComentarios, setContadorComentarios] = useState(noticia?.cantidadComentarios || 0);
+
+  // NUEVO: estado de calificación del usuario
+  const [calificacionUsuario, setCalificacionUsuario] = useState(noticia?.calificacionUsuario || 0);
 
   useEffect(() => {
-    if (typeof totalComentarios === "number") {
-      setContadorComentarios(totalComentarios);
-    }
+    if (typeof totalComentarios === "number") setContadorComentarios(totalComentarios);
   }, [totalComentarios]);
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, { toValue: 1, duration: 400, useNativeDriver: true }),
       Animated.timing(slideAnim, { toValue: 0, duration: 400, useNativeDriver: true }),
-
     ]).start();
   }, [noticia]);
 
- const manejarLike = () => {setContadorLikes(prev => (prev === 0 ? 1 : 0));};
+  const manejarLike = () => setContadorLikes(prev => (prev === 0 ? 1 : 0));
   const manejarFavorito = () => alCambiarGuardado(noticia);
   const manejarCompartir = async () => {
     try {
       await Share.share({
         title: noticia.titulo,
-        message: `${noticia.titulo}\n\n${noticia.descripcionCompleta || noticia.descripcion}\n\nFuente: ${noticia.fuente || ""}`,
+        message: `${noticia.titulo}\n\n${noticia.descripcion}\n\nFuente: ${noticia.fuente}`,
         url: noticia.imagen,
       });
       setContadorCompartidos(prev => prev + 1);
@@ -93,38 +101,65 @@ const TarjetaNoticia_temp = ({
   };
 
   const manejarEliminar = () => {
-    Alert.alert("Eliminar noticia", "¿Deseas eliminar esta noticia?", [
-      { text: "Cancelar", style: "cancel" },
-      { text: "Eliminar", style: "destructive", onPress: () => eliminarNoticia(noticia.id) },
-    ]);
+    if (eliminarNoticia) eliminarNoticia(noticia.id);
+  };
+
+  const manejarCalificacion = async (estrella) => {
+    setCalificacionUsuario(estrella);
+    try {
+      await axios.post(`http://192.168.1.5:8080/api/calificacion/${noticia.id}`, { valor: estrella });
+    } catch (err) {
+      console.error("Error al guardar calificación:", err);
+    }
   };
 
   return (
     <TouchableOpacity
       activeOpacity={0.9}
       onPress={() => {
-  setContadorLecturas(prev => prev + 1);
-  alVerDetalle({
-    ...noticia,
-    mostrarComentarios: true,
-    alActualizarComentarios: setContadorComentarios,  // ← AÑADIDO
-  });
-}}
->
+        setContadorLecturas(prev => prev + 1);
+        alVerDetalle({
+          ...noticia,
+          mostrarComentarios: true,
+          alActualizarComentarios: setContadorComentarios,
+        });
+      }}
+    >
       <Animated.View
-        style={[
-          styles.tarjeta,
-          { opacity: fadeAnim, transform: [{ translateY: slideAnim }] },]}>
-
+        style={[styles.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}
+      >
         <View style={styles.row}>
           <View style={styles.left}>
-            {noticia.categoria && (
-              <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
-                <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
+            <View style={styles.headerRow}>
+              {noticia.categoria && (
+                <View
+                  style={[
+                    styles.etiquetaCategoria,
+                    { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro },
+                  ]}
+                >
+                  <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
+                </View>
+              )}
+              <View style={styles.estrellasContainer}>
+                {[1, 2, 3, 4, 5].map((estrella) => (
+                  <TouchableOpacity key={estrella} onPress={() => manejarCalificacion(estrella)}>
+                    <Ionicons
+                      name={estrella <= calificacionUsuario ? "star" : "star-outline"}
+                      size={18}
+                      color={estrella <= calificacionUsuario ? "#FFD700" : "#ccc"}
+                      style={{ marginHorizontal: 2 }}
+                    />
+                  </TouchableOpacity>
+                ))}
               </View>
-            )}
-            <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
-            <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
+            </View>
+            <Title style={styles.titulo} numberOfLines={2}>
+              {noticia.titulo}
+            </Title>
+            <Paragraph style={styles.descripcion} numberOfLines={3}>
+              {noticia.descripcion}
+            </Paragraph>
           </View>
           <Image source={{ uri: noticia.imagen }} style={styles.imagenRight} />
         </View>
@@ -134,37 +169,23 @@ const TarjetaNoticia_temp = ({
             icon="eye"
             iconColor="#660909ff"
             contador={contadorLecturas}
-            onPress={() => {
-              setContadorLecturas(prev => prev + 1);
-              alVerDetalle({
-    ...noticia,
-    alActualizarComentarios: setContadorComentarios,
-  });
-}}
+            onPress={() => setContadorLecturas(prev => prev + 1)}
             texto="Ver"
           />
           <Accion
-  icon="comment"
-  iconColor="#2196F3"
-  contador={contadorComentarios}
-  onPress={() =>
-  alVerDetalle({
-    ...noticia,
-    mostrarComentarios: true,
-    alActualizarComentarios: setContadorComentarios,
-  })
-}
-
-  texto="Comentarios"
-/>
-
-          <Accion
-            icon="thumb-up"
-            iconColor="#f44336"
-            contador={contadorLikes}
-            onPress={manejarLike}
-            texto="Me gusta"
+            icon="comment"
+            iconColor="#2196F3"
+            contador={contadorComentarios}
+            onPress={() =>
+              alVerDetalle({
+                ...noticia,
+                mostrarComentarios: true,
+                alActualizarComentarios: setContadorComentarios,
+              })
+            }
+            texto="Comentarios"
           />
+          <Accion icon="thumb-up" iconColor="#f44336" contador={contadorLikes} onPress={manejarLike} texto="Me gusta" />
           <Accion
             icon="bookmark"
             iconColor={estaGuardada ? "#FFC107" : "#0d93e681"}
@@ -179,13 +200,7 @@ const TarjetaNoticia_temp = ({
             onPress={manejarCompartir}
             texto="Compartir"
           />
-          <Accion
-            icon="delete"
-            iconColor="#f44336"
-            contador={0}
-            onPress={manejarEliminar}
-            texto="Eliminar"
-          />
+          <Accion icon="delete" iconColor="#f44336" contador={0} onPress={manejarEliminar} texto="Eliminar" />
         </View>
       </Animated.View>
     </TouchableOpacity>
@@ -193,20 +208,44 @@ const TarjetaNoticia_temp = ({
 };
 
 const styles = StyleSheet.create({
-  tarjeta: { marginBottom: 20, borderRadius: 12, backgroundColor: "#fff", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 3, paddingBottom: 10 },
+  tarjeta: {
+    marginBottom: 20,
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+    paddingBottom: 10,
+  },
   row: { flexDirection: "row", alignItems: "flex-start", padding: 10 },
   left: { flex: 1, paddingRight: 10, justifyContent: "flex-start" },
   titulo: { fontSize: 16, fontWeight: "700", color: "#333" },
   descripcion: { fontSize: 14, color: "#666" },
-  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: "#eee", marginTop: 20 },
-  etiquetaCategoria: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginBottom: 8 },
+  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: "#eee", marginTop: 46 },
+  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 },
+  estrellasContainer: { flexDirection: "row" },
+  etiquetaCategoria: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
   textoCategoria: { color: "#fff", fontSize: 12, fontWeight: "700" },
   filaAcciones: { flexDirection: "row", justifyContent: "space-around", alignItems: "center", paddingVertical: 10 },
   contenedorAccion: { alignItems: "center", justifyContent: "center", width: 55 },
   botonCircular: { backgroundColor: "#f3f3f3", borderRadius: 40, width: 46, height: 46, justifyContent: "center", alignItems: "center" },
   contador: { fontSize: 12, color: "#555", fontWeight: "600", marginTop: 3 },
-  tooltip: { position: "absolute", bottom: 60, backgroundColor: "#144784", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, zIndex: 10, alignItems: "center", justifyContent: "center", minWidth: 70, maxWidth: 90 },
+  tooltip: {
+    position: "absolute",
+    bottom: 60,
+    backgroundColor: "#144784",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    zIndex: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 70,
+    maxWidth: 90,
+  },
   textoTooltip: { color: "#fff", fontSize: 11, fontWeight: "600", textAlign: "center" },
 });
 
-export default TarjetaNoticia_temp;
+export default TarjetaNoticia;
