@@ -1,18 +1,16 @@
-import React, { useState, useEffect, useCallback,useMemo,useRef,} from "react";
-import { View, Text, FlatList, Image, TouchableOpacity,  Dimensions, Animated,} from "react-native";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { View, Text, FlatList, Image, TouchableOpacity, Dimensions, Animated, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Title, Searchbar, Avatar } from "react-native-paper";
-import { useFonts, Poppins_400Regular, Poppins_600SemiBold,} from "@expo-google-fonts/poppins";
+import { Title, Searchbar, Avatar, IconButton } from "react-native-paper";
+import { useFonts, Poppins_400Regular, Poppins_600SemiBold } from "@expo-google-fonts/poppins";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
 import { NOMBRE_APP, PESTANAS, MENSAJES } from "../../configuracion/constantes";
 import BarraPestanas from "../../Componentes/BarraPestanas";
 import TarjetaNoticia from "../../Componentes/TarjetaNoticia_temp";
 import estilos from "./estilos";
-import useAnimacionBuscar from "../../Componentes/AnimacionBuscar";
+import useAnimacionBuscar from "../../hooks/useAnimacionBuscar";
 import useNoticias from "../../hooks/useNoticias";
 import { useUbicacion } from "../../hooks/useUbicacion";
-import NotificacionFondo from "../../Componentes/NotificacionFondo";
 
 export default function PantallaInicio({ navigation }) {
   const [pestanaActiva, setPestanaActiva] = useState(PESTANAS.DESTACADAS);
@@ -20,22 +18,16 @@ export default function PantallaInicio({ navigation }) {
   const [favoritos, setFavoritos] = useState([]);
   const [permisosYaSolicitados, setPermisosYaSolicitados] = useState(false);
 
-  const { noticias, cargando, error, eliminarNoticia, agregarNoticia, recargar } = useNoticias();
-
+  const { noticias, cargando, error, eliminarNoticia, recargar } = useNoticias();
   const textoAnimado = useAnimacionBuscar();
-  const {
-    ubicacion,
-    permisoConcedido,
-    mostrarNotificacion,
-    solicitarPermisos,
-    setMostrarNotificacion,
-  } = useUbicacion();
+  const { ubicacion, permisoConcedido, solicitarPermisos } = useUbicacion();
 
   const [fuentesCargadas] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
   });
 
+  // Cargar favoritos de AsyncStorage
   useEffect(() => {
     const cargarFavoritos = async () => {
       try {
@@ -47,6 +39,8 @@ export default function PantallaInicio({ navigation }) {
     };
     cargarFavoritos();
   }, []);
+
+  // Guardar favoritos en AsyncStorage
   useEffect(() => {
     const guardarFavoritos = async () => {
       try {
@@ -58,34 +52,26 @@ export default function PantallaInicio({ navigation }) {
     guardarFavoritos();
   }, [favoritos]);
 
-  
-  
-  // Solicitar permisos después de que las noticias se carguen
+  // Solicitar permisos después de cargar noticias
   useEffect(() => {
     if (noticias.length > 0 && !permisosYaSolicitados && !cargando) {
       setPermisosYaSolicitados(true);
-      // Pequeño delay para asegurar que la interfaz esté lista
-      setTimeout(() => {
-        solicitarPermisos();
-      }, 500);
+      setTimeout(() => solicitarPermisos(), 500);
     }
   }, [noticias, cargando, permisosYaSolicitados]);
 
-  //  CONFIGURACIÓN DEL CARRUSEL 
+  // Carrusel Destacadas
   const anchoPantalla = Dimensions.get("window").width;
-  const itemAncho = Math.round(anchoPantalla * 0.95); // ancho 
+  const itemAncho = Math.round(anchoPantalla * 0.95);
   const itemMargen = (anchoPantalla - itemAncho) / 10;
-
   const carouselRef = useRef(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [puntosAnim, setPuntosAnim] = useState([]);
 
-  // Crear animaciones de los puntos cuando haya noticias
   useEffect(() => {
     if (noticias.length > 0) {
       const nuevosAnim = noticias.slice(0, 3).map(() => new Animated.Value(0));
       setPuntosAnim(nuevosAnim);
-      // activar el primero
       nuevosAnim[0].setValue(1);
     }
   }, [noticias]);
@@ -100,10 +86,8 @@ export default function PantallaInicio({ navigation }) {
     });
   };
 
-  //  Autoplay del carrusel
   useEffect(() => {
     if (!noticias.length || puntosAnim.length === 0) return;
-
     const interval = setInterval(() => {
       const siguienteIndex = (currentIndex + 1) % Math.min(noticias.length, 3);
       setCurrentIndex(siguienteIndex);
@@ -113,24 +97,27 @@ export default function PantallaInicio({ navigation }) {
       });
       animarPunto(siguienteIndex);
     }, 3000);
-
     return () => clearInterval(interval);
   }, [currentIndex, noticias, puntosAnim]);
 
   const renderItemCarrusel = ({ item }) => (
     <TouchableOpacity
       activeOpacity={0.9}
-      onPress={() => navigation.navigate("DetalleNoticia", { noticia: item })}
+      onPress={() =>
+        navigation.navigate("DetalleNoticia", { noticia: item })
+      }
       style={{
         width: itemAncho,
         marginHorizontal: 10,
         borderRadius: 12,
         overflow: "hidden",
-      }}>
+      }}
+    >
       <Image
         source={{ uri: item.imagen }}
         style={{ width: "100%", height: 220, borderRadius: 12 }}
-        resizeMode="cover"/>
+        resizeMode="cover"
+      />
       <View
         style={{
           position: "absolute",
@@ -139,7 +126,8 @@ export default function PantallaInicio({ navigation }) {
           right: 0,
           backgroundColor: "rgba(0,0,0,0.4)",
           padding: 10,
-        }}>
+        }}
+      >
         <Text style={{ color: "#fff", fontWeight: "600" }} numberOfLines={2}>
           {item.titulo}
         </Text>
@@ -147,7 +135,27 @@ export default function PantallaInicio({ navigation }) {
     </TouchableOpacity>
   );
 
-  // Cabecera con carrusel
+  // Funciones Favoritos 
+  const cambiarFavorito = (noticia) => {
+    const existe = favoritos.find((n) => n.id === noticia.id);
+    if (existe) setFavoritos(favoritos.filter((n) => n.id !== noticia.id));
+    else setFavoritos([...favoritos, noticia]);
+  };
+
+  const estaEnFavoritos = (noticia) =>
+    favoritos.some((n) => n.id === noticia.id);
+
+  //  Filtrado por búsqueda 
+  const noticiasFiltradas = textoBusqueda
+    ? noticias.filter(
+      (n) =>
+        n.titulo.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
+        (n.descripcion &&
+          n.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase()))
+    )
+    : noticias;
+
+  //  Render Header dependiendo de la pestaña 
   const renderizarCabeceraLista = () => {
     if (pestanaActiva === PESTANAS.DESTACADAS) {
       return (
@@ -165,14 +173,16 @@ export default function PantallaInicio({ navigation }) {
             contentContainerStyle={{ paddingHorizontal: itemMargen }}
             renderItem={renderItemCarrusel}
             keyExtractor={(item) => `carrusel-${item.id}`}
+            getItemLayout={(data, index) => ({
+              length: itemAncho + itemMargen * 2,
+              offset: (itemAncho + itemMargen * 2) * index,
+              index,
+            })}
             onMomentumScrollEnd={(e) => {
-              const index = Math.round(
-                e.nativeEvent.contentOffset.x / itemAncho
-              );
+              const index = Math.round(e.nativeEvent.contentOffset.x / itemAncho);
               setCurrentIndex(index);
               animarPunto(index);
-            }}
-          />
+            }} />
           <View
             style={{
               flexDirection: "row",
@@ -182,25 +192,13 @@ export default function PantallaInicio({ navigation }) {
               marginBottom: 16,
             }}>
             {puntosAnim.map((anim, index) => {
-              const scale = anim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [1, 1.6],
-              });
-              const color = anim.interpolate({
-                inputRange: [0, 1],
-                outputRange: ["#ccc", "#144784"],
-              });
+              const scale = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.6] });
+              const color = anim.interpolate({ inputRange: [0, 1], outputRange: ["#ccc", "#144784"] });
               return (
                 <Animated.View
                   key={index}
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 4,
-                    marginHorizontal: 5,
-                    backgroundColor: color,
-                    transform: [{ scale }],
-                  }}/>
+                  style={{ width: 8, height: 8, borderRadius: 4, marginHorizontal: 5, backgroundColor: color, transform: [{ scale }] }}
+                />
               );
             })}
           </View>
@@ -210,11 +208,10 @@ export default function PantallaInicio({ navigation }) {
     }
     if (pestanaActiva === PESTANAS.MARCADORES)
       return <Text style={estilos.tituloSeccion}>Guardados</Text>;
+    if (pestanaActiva === PESTANAS.DESCUBRIR)
+      return <Text style={estilos.tituloSeccion}>Explora más noticias</Text>;
     return null;
   };
-
-
-
 
   const cabeceraMemo = useMemo(
     () => renderizarCabeceraLista(),
@@ -222,37 +219,66 @@ export default function PantallaInicio({ navigation }) {
   );
 
   if (!fuentesCargadas) return null;
-  if (cargando)
-    return (
-      <Text style={{ textAlign: "center", marginTop: 50 }}>
-        Cargando noticias...
-      </Text>
-    );
-  if (error)
-    return (
-      <Text style={{ textAlign: "center", marginTop: 50 }}>Error: {error}</Text>
-    );
+  if (cargando) return <Text style={{ textAlign: "center", marginTop: 50 }}>Cargando noticias...</Text>;
+  if (error) return <Text style={{ textAlign: "center", marginTop: 50 }}>Error: {error}</Text>;
 
-  const cambiarFavorito = (noticia) => {
-    const existe = favoritos.find((n) => n.id === noticia.id);
-    if (existe) {
-      setFavoritos(favoritos.filter((n) => n.id !== noticia.id));
-    } else {
-      setFavoritos([...favoritos, noticia]);
+  //  Render Lista según pestaña 
+  const dataAMostrar = pestanaActiva === PESTANAS.MARCADORES
+    ? favoritos
+    : pestanaActiva === PESTANAS.DESCUBRIR
+      ? noticiasFiltradas
+      : noticiasFiltradas;
+
+  const renderItem = ({ item }) => {
+    // Descubrir usa grid
+    if (pestanaActiva === PESTANAS.DESCUBRIR) {
+      return (
+        <View style={{ width: "48%", marginBottom: 15 }}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("DetalleNoticia", { noticia: item })}
+            style={{ borderRadius: 12, overflow: "hidden", backgroundColor: "#fff", elevation: 4 }}
+          >
+            <Image source={{ uri: item.imagen }} style={{ width: "100%", height: 120 }} />
+            <Text style={{ fontFamily: "Poppins_600SemiBold", fontSize: 14, padding: 6, color: "#333" }} numberOfLines={2}>
+              {item.titulo}
+            </Text>
+            <Text style={{ fontFamily: "Poppins_400Regular", fontSize: 12, paddingHorizontal: 6, paddingBottom: 6, color: "#888" }}>
+              {item.categoria}
+            </Text>
+            <IconButton
+              icon="delete"
+              iconColor="#d33939ff"
+              size={20}
+              onPress={() => eliminarNoticia(item.id)}
+              style={{
+                position: "absolute",
+                bottom: 1,
+                right: 1,
+                backgroundColor: "#d8cfcf33",
+                borderRadius: 25,
+                padding: 10,
+                elevation: 5,
+              }}
+            />
+          </TouchableOpacity>
+        </View>
+      );
     }
+    // Destacadas y Marcadores usan TarjetaNoticia
+    return (
+      <View style={{ paddingHorizontal: 10, marginBottom: 12 }}>
+        <TarjetaNoticia
+          noticia={item}
+          estaGuardada={estaEnFavoritos(item)}
+          alCambiarGuardado={cambiarFavorito}
+          alVerDetalle={({ mostrarComentarios }) => {
+            navigation.navigate("DetalleNoticia", { noticia: item, mostrarComentarios: mostrarComentarios ?? false });
+          }}
+          eliminarNoticia={eliminarNoticia}
+        />
+      </View>
+    );
   };
-
-  const estaEnFavoritos = (noticia) =>
-    favoritos.some((n) => n.id === noticia.id);
-
-  const noticiasFiltradas = textoBusqueda
-    ? noticias.filter(
-        (n) =>
-          n.titulo.toLowerCase().includes(textoBusqueda.toLowerCase()) ||
-          (n.descripcion &&
-            n.descripcion.toLowerCase().includes(textoBusqueda.toLowerCase()))
-      )
-    : noticias;
 
   return (
     <SafeAreaView style={estilos.contenedor}>
@@ -266,6 +292,7 @@ export default function PantallaInicio({ navigation }) {
           <Title style={estilos.tituloApp}>{NOMBRE_APP}</Title>
         </View>
       </View>
+
       <Searchbar
         placeholder={textoAnimado}
         value={textoBusqueda}
@@ -273,50 +300,29 @@ export default function PantallaInicio({ navigation }) {
         style={estilos.buscador}
         elevation={1}
         inputStyle={{ fontFamily: "Poppins_400Regular" }} />
+
       <BarraPestanas
         pestanaActiva={pestanaActiva}
-        alCambiarPestana={(nuevaPestana) => {
-          if (nuevaPestana === PESTANAS.DESCUBRIR)
-            navigation.navigate("Descubrir");
-          else setPestanaActiva(nuevaPestana);
-        }} />
+        alCambiarPestana={(nuevaPestana) => setPestanaActiva(nuevaPestana)} />
+
       <FlatList
-        data={pestanaActiva === PESTANAS.MARCADORES ? favoritos : noticiasFiltradas}
+        data={dataAMostrar}
         keyExtractor={(item) => item.id.toString()}
         extraData={favoritos}
         ListHeaderComponent={cabeceraMemo}
-        renderItem={({ item }) => (
-          <View style={{ paddingHorizontal: 10, marginBottom: 12 }}>
-            <TarjetaNoticia
-              key={item.id}
-              noticia={item}
-              estaGuardada={estaEnFavoritos(item)}
-              alCambiarGuardado={cambiarFavorito}
-              alVerDetalle={({ mostrarComentarios }) => {
-                navigation.navigate("DetalleNoticia", {
-                  noticia: item,
-                  mostrarComentarios: mostrarComentarios ?? false,
-                });
-              }}
-              eliminarNoticia={eliminarNoticia}
-            />
-          </View>
-        )}
+        renderItem={renderItem}
         ListEmptyComponent={
           pestanaActiva === PESTANAS.MARCADORES ? (
             <Text style={estilos.textoVacio}>{MENSAJES.SIN_FAVORITOS}</Text>
           ) : (
-            <Text style={estilos.textoVacio}>
-              No se encontraron resultados para tu búsqueda.
-            </Text>
+            <Text style={estilos.textoVacio}>No se encontraron resultados</Text>
           )
         }
-        contentContainerStyle={{ paddingBottom: 90 }}
-      />
-      <NotificacionFondo
-        visible={mostrarNotificacion}
-        onHide={() => setMostrarNotificacion(false)}
-      />
+        numColumns={pestanaActiva === PESTANAS.DESCUBRIR ? 2 : 1}
+        columnWrapperStyle={pestanaActiva === PESTANAS.DESCUBRIR ? { justifyContent: "space-between", paddingHorizontal: 15 } : null}
+        contentContainerStyle={{ paddingBottom: 90, paddingHorizontal: pestanaActiva === PESTANAS.DESCUBRIR ? 0 : 15 }}
+        showsVerticalScrollIndicator={false}
+        key={pestanaActiva} />
     </SafeAreaView>
   );
 }

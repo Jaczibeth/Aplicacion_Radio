@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet,Share, KeyboardAvoidingView, Platform, Alert, ScrollView,} from "react-native";
+import {View,  StyleSheet,Share,KeyboardAvoidingView,Platform,Alert,ScrollView,} from "react-native";
 import { Text } from "react-native-paper";
 import Dialog from "react-native-dialog";
 import { coloresCategorias } from "../configuracion/colores";
@@ -9,7 +9,7 @@ import SeccionComentarios from "./DetalleNoticia/SeccionComentarios";
 import BarraComentarios from "./DetalleNoticia/BarraComentarios";
 import Api from "../Data/Api";
 
-export default function DetalleNoticia({ noticia, onCerrar }) {
+export default function DetalleNoticia({ noticia, onCerrar, actualizarContador }) {
   if (!noticia) return null;
 
   const [comentarios, setComentarios] = useState([]);
@@ -21,29 +21,25 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
 
   const colorCategoria =
     coloresCategorias[noticia.categoria] || coloresCategorias["Otro"];
-
-  // Fecha formateada
-const obtenerFechaFormateada = () => {
-  const fecha = new Date(); 
-
-  return fecha.toLocaleString("es-ES", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
-};
+  const obtenerFechaFormateada = () => {
+    const fecha = new Date();
+    return fecha.toLocaleString("es-ES", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
 
-  // Cargar comentarios
   const cargarComentarios = async () => {
     try {
       const data = await Api.getComentariosPorNoticia(noticia.id);
+   
       setComentarios(data);
     } catch (error) {
-      console.log("Error al cargar comentarios:", error);
     }
   };
 
@@ -51,22 +47,41 @@ const obtenerFechaFormateada = () => {
     cargarComentarios();
   }, [noticia.id]);
 
-  // Agregar comentario
+  
   const manejarAgregarComentario = async () => {
     if (nuevoComentario.trim() === "") return;
-
     const comentario = { autor: "Anónimo", texto: nuevoComentario.trim() };
     const nuevo = await Api.agregarComentarioAPI(noticia.id, comentario);
-
     if (nuevo) {
-      setComentarios([nuevo, ...comentarios]);
+      const nuevosComentarios = [nuevo, ...comentarios];
+      setComentarios(nuevosComentarios);
       setNuevoComentario("");
+      actualizarContador(noticia.id, nuevosComentarios.length); 
+      await Api.registrarInteraccion(noticia.id, "comentario"); 
     } else {
       Alert.alert("Error", "No se pudo agregar el comentario");
     }
   };
 
-  // Editar comentario
+ 
+  const manejarEliminarComentario = async (comentario) => {
+    try {
+      const respuesta = await Api.eliminarComentarioAPI(comentario.id);
+      if (respuesta) {
+        const nuevosComentarios = comentarios.filter((c) => c.id !== comentario.id);
+        setComentarios(nuevosComentarios);
+        actualizarContador(noticia.id, nuevosComentarios.length); 
+        await Api.registrarInteraccion(noticia.id, "comentario");
+      } else {
+        Alert.alert("Error", "No se pudo eliminar el comentario");
+      }
+    } catch (error) {
+      console.error("DetalleNoticia: Error al eliminar comentario:", error);
+      Alert.alert("Error", "Error al eliminar comentario");
+    }
+  };
+
+
   const manejarEditarComentario = async () => {
     try {
       const actualizado = await Api.editarComentarioAPI(
@@ -86,32 +101,27 @@ const obtenerFechaFormateada = () => {
     }
   };
 
-  // Eliminar comentario
-  const manejarEliminarComentario = async (comentario) => {
-    try {
-      const respuesta = await Api.eliminarComentarioAPI(comentario.id);
-      if (respuesta) {
-        setComentarios(comentarios.filter((c) => c.id !== comentario.id));
-      } else {
-        Alert.alert("Error", "No se pudo eliminar el comentario");
-      }
-    } catch (error) {
-      console.error("Error al eliminar comentario:", error);
-      Alert.alert("Error", "Error al eliminar comentario");
-    }
-  };
-
-  // Compartir noticia
+ 
   const onShare = async () => {
     try {
-      const descripcion = noticia.descripcionCompleta || noticia.descripcion || 'Descripción no disponible';
+      const titulo = noticia.titulo || "Título no disponible";
+      const descripcion =
+        noticia.descripcionCompleta ||
+        noticia.descripcion ||
+        "Descripción no disponible";
+      const fuente = noticia.fuente || "Fuente no disponible";
+      const imagen = noticia.imagen ? `\nImagen: ${noticia.imagen}` : "";
+
+      const mensaje = ` *${titulo}*\n\n${descripcion}\n\n Fuente: ${fuente}${imagen}`;
+
       await Share.share({
-        message: `${noticia.titulo}\n\n${descripcion}\n\nFuente: ${noticia.fuente || 'Fuente no disponible'}`,
-        url: noticia.imagen,
-        title: noticia.titulo,
+        message: mensaje,
+        title: titulo,
       });
+
+      await Api.registrarInteraccion(noticia.id, "compartir"); 
     } catch (error) {
-      alert("Error al compartir: " + error.message);
+      Alert.alert("Error", "No se pudo compartir la noticia: " + error.message);
     }
   };
 
@@ -122,21 +132,23 @@ const obtenerFechaFormateada = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <ScrollView style={estilos.scrollPrincipal}>
-  
+        
         <CabeceraNoticia
           noticia={noticia}
           onCerrar={onCerrar}
           colorCategoria={colorCategoria}
-          
+          onShare={onShare}
         />
-  
 
         <View style={estilos.contenedorFecha}>
           <Text variant="bodySmall" style={estilos.textoFecha}>
             Publicado el {obtenerFechaFormateada()}
           </Text>
         </View>
+
         <CuerpoNoticia noticia={noticia} />
+
+        
         <SeccionComentarios
           mostrarComentarios={mostrarComentarios}
           setMostrarComentarios={setMostrarComentarios}
@@ -155,13 +167,11 @@ const obtenerFechaFormateada = () => {
         onShare={onShare}
       />
 
+   
       <Dialog.Container visible={visibleDialog}>
         <Dialog.Title>Editar comentario</Dialog.Title>
         <Dialog.Input value={textoEditando} onChangeText={setTextoEditando} />
-        <Dialog.Button
-          label="Cancelar"
-          onPress={() => setVisibleDialog(false)}
-        />
+        <Dialog.Button label="Cancelar" onPress={() => setVisibleDialog(false)} />
         <Dialog.Button label="Guardar" onPress={manejarEditarComentario} />
       </Dialog.Container>
     </KeyboardAvoidingView>
@@ -180,4 +190,3 @@ const estilos = StyleSheet.create({
     fontStyle: "italic",
   },
 });
- 

@@ -1,13 +1,12 @@
-
 import React from "react";
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet } from "react-native";
 import { IconButton } from "react-native-paper";
 
 export default function BarraComentarios({
   nuevoComentario,
   setNuevoComentario,
   manejarAgregarComentario,
-  onShare,
+ 
 }) {
   return (
     <View style={estilos.container}>
@@ -18,7 +17,6 @@ export default function BarraComentarios({
         onChangeText={setNuevoComentario}
       />
 
-      {/* BOTÓN CON ÍCONO DE ENVIAR */}
       <IconButton
         icon="send"
         size={28}
@@ -26,6 +24,8 @@ export default function BarraComentarios({
         style={estilos.botonIcono}
         onPress={manejarAgregarComentario}
       />
+
+    
     </View>
   );
 }
@@ -37,6 +37,7 @@ const estilos = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#ccc",
     padding: 8,
+    backgroundColor: "#f9f9f9",
   },
   input: {
     flex: 1,
@@ -44,19 +45,11 @@ const estilos = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 8,
     padding: 8,
+    backgroundColor: "#fff",
   },
   botonIcono: {
-    backgroundColor: "#9ac6f5ff",
+    backgroundColor: "#007AFF",
     borderRadius: 50,
     marginLeft: 5,
-  },
-  botonShare: {
-    backgroundColor: "#28a745",
-    marginLeft: 5,
-    padding: 10,
-    borderRadius: 8,
-  },
-  texto: { 
-    color: "white" 
   },
 });
