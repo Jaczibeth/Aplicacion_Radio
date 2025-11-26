@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Animated, StyleSheet, ScrollView, Linking, TouchableOpacity, TextInput,  Text,  Image,} from "react-native";
+import { View, Animated, StyleSheet, ScrollView, Linking, TouchableOpacity, TextInput, Text, Image, } from "react-native";
 import { IconButton } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import NavegacionInferior from "../Componentes/NavegacionInferior";
+import NavegacionInferior from "../../Componentes/NavegacionInferior";
+import CalificacionModal from "../../Componentes/CalificacionModal";
+import RatingSummary from "../../Componentes/RatingSummary";
 
 export default function PantallaConfiguracion({ navigation }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -12,8 +14,9 @@ export default function PantallaConfiguracion({ navigation }) {
   const [mostrarAlumnos, setMostrarAlumnos] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  // Animación para lista de alumnos
   const [animLista] = useState(new Animated.Value(0));
 
   useEffect(() => {
@@ -39,9 +42,6 @@ export default function PantallaConfiguracion({ navigation }) {
       }).start();
     }
   }, [mostrarAlumnos]);
-
-  const handleCalificacion = (rating) => setCalificacion(rating);
-
   const handleSendComment = () => {
     if (comentario.trim() === "") {
       alert("Por favor, ingresa un comentario antes de enviarlo.");
@@ -78,7 +78,7 @@ export default function PantallaConfiguracion({ navigation }) {
   const itemAncho = 70;
   const itemMargen = 12;
 
-  // Auto-scroll del carrusel
+
   useEffect(() => {
     const interval = setInterval(() => {
       const nextIndex = (currentIndex + 1) % redesSociales.length;
@@ -179,12 +179,16 @@ export default function PantallaConfiguracion({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <IconButton icon="arrow-left" size={24} onPress={() => navigation.goBack()} />
+        <IconButton icon="arrow-left" size={24} onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          }
+        }} />
         <Text style={styles.headerTitle}>Configuración</Text>
         <Image
 
           source={require("../../assets/Logos/nt-el-reloj-circular.gif")}
-         
+
           style={styles.logo}
           resizeMode="contain"
         />
@@ -192,7 +196,7 @@ export default function PantallaConfiguracion({ navigation }) {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Animated.View style={{ opacity: fadeAnim }}>
-        
+
 
           <Text style={styles.sectionTitle}>Comentarios sobre la App</Text>
           <TextInput
@@ -212,6 +216,15 @@ export default function PantallaConfiguracion({ navigation }) {
             <Text style={styles.optionText}>¿Necesitas ayuda?</Text>
             <TouchableOpacity onPress={handleSupport}>
               <Text style={styles.supportText}>Contáctanos</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.sectionTitle}>Calificar App</Text>
+          <RatingSummary key={refreshKey} />
+          <View style={styles.option}>
+            <Text style={styles.optionText}>Danos tu opinión</Text>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <Text style={styles.supportText}>Calificar</Text>
             </TouchableOpacity>
           </View>
 
@@ -292,9 +305,17 @@ export default function PantallaConfiguracion({ navigation }) {
           )}
         </Animated.View>
       </ScrollView>
+      <CalificacionModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onRatingSuccess={() => {
+          setModalVisible(false);
+          setRefreshKey((prevKey) => prevKey + 1);
+        }}
+      />
       <NavegacionInferior navigation={navigation} />
     </SafeAreaView>
-   
+
   );
 }
 const styles = StyleSheet.create({
