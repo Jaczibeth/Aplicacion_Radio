@@ -10,7 +10,11 @@ export default function DetalleNoticiaScreen({ route, navigation }) {
       <DetalleNoticia
         noticia={noticia}
         visible={true}
-        onCerrar={() => navigation.goBack()}
+        onCerrar={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          }
+        }}
         mostrarComentarios={mostrarComentarios} />
     </View>
   );

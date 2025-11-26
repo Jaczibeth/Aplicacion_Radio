@@ -15,6 +15,9 @@
     "ios": {
       "supportsTablet": true,
       "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ],
         "NSLocationWhenInUseUsageDescription": "Necesitamos acceso a tu ubicación para personalizar el contenido",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Necesitamos acceso a tu ubicación para personalizar el contenido"
       }

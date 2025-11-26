@@ -1,15 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Animated, StyleSheet, ScrollView, Linking, TouchableOpacity, TextInput, Text, Image } from "react-native";
+import { View, Animated, StyleSheet, ScrollView, Linking, TouchableOpacity, TextInput, Text, Image, } from "react-native";
 import { IconButton } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import NavegacionInferior from "../../Componentes/NavegacionInferior";
+import CalificacionModal from "../../Componentes/CalificacionModal";
+import RatingSummary from "../../Componentes/RatingSummary";
 
 export default function PantallaConfiguracion({ navigation }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scrollX = useRef(new Animated.Value(0)).current;
   const [comentario, setComentario] = useState("");
-  const [calificacion, setCalificacion] = useState(0);
   const [mostrarAlumnos, setMostrarAlumnos] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const flatListRef = useRef(null);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const [animLista] = useState(new Animated.Value(0));
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -19,8 +27,21 @@ export default function PantallaConfiguracion({ navigation }) {
     }).start();
   }, []);
 
-  const handleCalificacion = (rating) => setCalificacion(rating);
-
+  useEffect(() => {
+    if (mostrarAlumnos) {
+      Animated.timing(animLista, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(animLista, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [mostrarAlumnos]);
   const handleSendComment = () => {
     if (comentario.trim() === "") {
       alert("Por favor, ingresa un comentario antes de enviarlo.");
@@ -46,17 +67,29 @@ export default function PantallaConfiguracion({ navigation }) {
   ];
 
   const alumnos = [
-     "Los desarrolladores de esta aplicacion son alumnos de la carrera en INGENIERIA EN SISTEMAS COMPUTACIONALES del Instituto Tecnológico de Tlaxiaco , cursando el septimo semestre del grupo B:",
+    "Los desarrolladores de esta aplicación son alumnos de la carrera en INGENIERÍA EN SISTEMAS COMPUTACIONALES del Instituto Tecnológico de Tlaxiaco, cursando el séptimo semestre del grupo B:",
     "Jaczibeth Cruz Ramirez",
     "Edgar Mauricio Sarmiento Ruiz",
     "Ameli Reyes Hernández",
     "Ana Kimberly Hernandez Perez",
     "Daniel Velasco López",
-
   ];
 
   const itemAncho = 70;
   const itemMargen = 12;
+
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const nextIndex = (currentIndex + 1) % redesSociales.length;
+      setCurrentIndex(nextIndex);
+      flatListRef.current?.scrollToOffset({
+        offset: nextIndex * (itemAncho + itemMargen * 2),
+        animated: true,
+      });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [currentIndex]);
 
   const renderItemCarrusel = ({ item, index }) => {
     const inputRange = [
@@ -114,19 +147,48 @@ export default function PantallaConfiguracion({ navigation }) {
     );
   };
 
+  const renderDots = () => (
+    <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 10 }}>
+      {redesSociales.map((_, index) => (
+        <View
+          key={index}
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            marginHorizontal: 4,
+            backgroundColor: index === currentIndex ? "#144784" : "#ccc",
+          }}
+        />
+      ))}
+    </View>
+  );
+
+  const animStyle = {
+    opacity: animLista,
+    transform: [
+      {
+        translateY: animLista.interpolate({
+          inputRange: [0, 1],
+          outputRange: [20, 0],
+        }),
+      },
+    ],
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <IconButton
-          icon="arrow-left"
-          size={24}
-          onPress={() => navigation.goBack()}
-        />
-
+        <IconButton icon="arrow-left" size={24} onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          }
+        }} />
         <Text style={styles.headerTitle}>Configuración</Text>
-
         <Image
-          source={require("../assets/Logos/nt-el-reloj-circular.gif")} 
+
+          source={require("../../assets/Logos/nt-el-reloj-circular.gif")}
+
           style={styles.logo}
           resizeMode="contain"
         />
@@ -134,21 +196,7 @@ export default function PantallaConfiguracion({ navigation }) {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Animated.View style={{ opacity: fadeAnim }}>
-          <Text style={styles.sectionTitle}>Califica nuestra App</Text>
 
-          {/* Estrellas centradas */}
-          <View style={{ alignItems: "center", marginVertical: 10 }}>
-            <View style={styles.stars}>
-              {[1, 2, 3, 4, 5].map((rating) => (
-                <IconButton
-                  key={rating}
-                  icon={rating <= calificacion ? "star" : "star-outline"}
-                  size={28}
-                  onPress={() => handleCalificacion(rating)}
-                />
-              ))}
-            </View>
-          </View>
 
           <Text style={styles.sectionTitle}>Comentarios sobre la App</Text>
           <TextInput
@@ -171,8 +219,18 @@ export default function PantallaConfiguracion({ navigation }) {
             </TouchableOpacity>
           </View>
 
+          <Text style={styles.sectionTitle}>Calificar App</Text>
+          <RatingSummary key={refreshKey} />
+          <View style={styles.option}>
+            <Text style={styles.optionText}>Danos tu opinión</Text>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <Text style={styles.supportText}>Calificar</Text>
+            </TouchableOpacity>
+          </View>
+
           <Text style={styles.sectionTitle}>Síguenos en Redes Sociales</Text>
           <Animated.FlatList
+            ref={flatListRef}
             data={redesSociales}
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -185,31 +243,81 @@ export default function PantallaConfiguracion({ navigation }) {
             )}
             scrollEventThrottle={16}
           />
+          {renderDots()}
 
-          {/*"Acerca de" */}
           <Text style={styles.sectionTitle}>Acerca de</Text>
           <TouchableOpacity
             onPress={() => setMostrarAlumnos(!mostrarAlumnos)}
-            style={styles.acercaButton}
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "#144784",
+              paddingVertical: 12,
+              paddingHorizontal: 20,
+              borderRadius: 30,
+              elevation: 4,
+              marginVertical: 8,
+            }}
           >
-            <Text style={styles.acercaButtonText}>
-              {mostrarAlumnos ? "Ocultar" : "Ver"}
+            <FontAwesome
+              name={mostrarAlumnos ? "chevron-up" : "chevron-down"}
+              size={18}
+              color="#fff"
+              style={{ marginRight: 8 }}
+            />
+            <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
+              {mostrarAlumnos ? "Ocultar información" : "Ver más información"}
             </Text>
           </TouchableOpacity>
 
           {mostrarAlumnos && (
-            <View style={styles.listaAlumnos}>
-              {alumnos.map((nombre, index) => (
-                <Text key={index} style={styles.alumnoTexto}>• {nombre}</Text>
+            <Animated.View style={[styles.listaAlumnos, animStyle]}>
+              <Text style={styles.descripcionTexto}>
+                Los desarrolladores de esta aplicación son alumnos de la carrera en
+                <Text style={{ fontWeight: "bold" }}> INGENIERÍA EN SISTEMAS COMPUTACIONALES </Text>
+                del Instituto Tecnológico de Tlaxiaco, cursando el séptimo semestre del grupo B:
+              </Text>
+
+              {alumnos.slice(1).map((nombre, index) => (
+                <Animated.View
+                  key={index}
+                  style={[
+                    styles.alumnoCard,
+                    {
+                      opacity: animLista,
+                      transform: [
+                        {
+                          translateY: animLista.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [10 * (index + 1), 0],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
+                >
+                  <FontAwesome name="user" size={18} color="#144784" style={{ marginRight: 8 }} />
+                  <Text style={styles.alumnoTexto}>{nombre}</Text>
+                </Animated.View>
               ))}
-            </View>
+            </Animated.View>
           )}
         </Animated.View>
       </ScrollView>
+      <CalificacionModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onRatingSuccess={() => {
+          setModalVisible(false);
+          setRefreshKey((prevKey) => prevKey + 1);
+        }}
+      />
+      <NavegacionInferior navigation={navigation} />
     </SafeAreaView>
+
   );
 }
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f4f6f9" },
   header: {
@@ -228,14 +336,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     flex: 1,
   },
-  logo: {
-    width: 50,
-    height: 50,
-  },
-  content: { 
-    flex: 1,
-     paddingHorizontal: 16
-     },
+  logo: { width: 50, height: 50 },
+  content: { flex: 1, paddingHorizontal: 16 },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
@@ -267,31 +369,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 12,
   },
-  sendButtonText: { color: "#fff",
-     fontSize: 16, 
-     fontWeight: "bold"
-     },
-  supportText:
-   { fontSize: 16,
-     color: "#144784" 
-    },
-  stars:
-   { flexDirection: "row",
-     justifyContent: "center" },
-
- 
-  acercaButton: {
-    backgroundColor: "#e3e9f2",
-    padding: 10,
-    borderRadius: 8,
-    alignItems: "center",
-    marginVertical: 8,
-  },
-  acercaButtonText: {
-    fontSize: 16,
-    color: "#144784",
-    fontWeight: "600",
-  },
+  sendButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  supportText: { fontSize: 16, color: "#144784" },
+  stars: { flexDirection: "row", justifyContent: "center" },
   listaAlumnos: {
     backgroundColor: "#fff",
     borderRadius: 8,
@@ -299,9 +379,24 @@ const styles = StyleSheet.create({
     marginTop: 4,
     elevation: 2,
   },
-  alumnoTexto: {
+  descripcionTexto: {
     fontSize: 15,
     color: "#333",
-    paddingVertical: 3,
+    marginBottom: 12,
+    textAlign: "justify",
+  },
+  alumnoCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f4f6f9",
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 4,
+    elevation: 2,
+  },
+  alumnoTexto: {
+    fontSize: 15,
+    color: "#144784",
+    fontWeight: "600",
   },
 });
