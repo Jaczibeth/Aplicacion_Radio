@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
-import { IconButton } from 'react-native-paper';
 
 const { height } = Dimensions.get("window");
 
@@ -13,7 +12,6 @@ const SeccionComentarios = ({
   setVisibleDialog,
   manejarEliminarComentario,
 }) => {
-
   const abrirEditarComentario = (comentario) => {
     setComentarioEditando(comentario.id);
     setTextoEditando(comentario.texto);
@@ -22,9 +20,10 @@ const SeccionComentarios = ({
 
   return (
     <>
+    
       <TouchableOpacity onPress={() => setMostrarComentarios(!mostrarComentarios)}>
         <Text style={estilos.subtitulo}>
-          Comentarios {mostrarComentarios ? "▲" : "▼"}
+          Comentarios ({comentarios.length}) {mostrarComentarios ? "▲" : "▼"}
         </Text>
       </TouchableOpacity>
 
@@ -38,17 +37,27 @@ const SeccionComentarios = ({
             ) : (
               comentarios.map((c) => (
                 <View key={c.id} style={estilos.comentario}>
-                  <Text style={estilos.autorComentario}>{c.autor}</Text>
+                  <Text style={estilos.autorComentario}>{c.autor || "Anónimo"}</Text>
                   <Text style={estilos.textoComentario}>{c.texto}</Text>
-                  <Text style={estilos.fechaComentario}>{c.fecha}</Text>
+
+                  
+         
+
+                  <Text style={estilos.autorComentario}>
+                    {c.autor || "Anónimo"}
+                  </Text>
+
+                  <Text style={estilos.textoComentario}>{c.contenido}</Text>
+
+                  <Text style={estilos.fechaComentario}>
+                    {c.fecha ? new Date(c.fecha).toLocaleString() : ""}
+                  </Text>
                   <View style={estilos.accionesComentario}>
                     <TouchableOpacity onPress={() => abrirEditarComentario(c)}>
                       <Text style={estilos.botonEditar}>Editar</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => manejarEliminarComentario(c)}>
                       <Text style={estilos.botonEliminar}>Eliminar</Text>
-                    
-                      
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -63,8 +72,21 @@ const SeccionComentarios = ({
 
 const estilos = StyleSheet.create({
   subtitulo: { fontSize: 18, fontWeight: "600", marginVertical: 10, color: "#111" },
-  contenedorComentarios: { maxHeight: height * 0.4, borderWidth: 1, borderColor: "#ddd", borderRadius: 10, padding: 10, backgroundColor: "#fafafa" },
-  comentario: { backgroundColor: "#fff", padding: 10, borderRadius: 8, marginVertical: 5, elevation: 2 },
+  contenedorComentarios: {
+    maxHeight: height * 0.4,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#fafafa"
+  },
+  comentario: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 5,
+    elevation: 2
+  },
   autorComentario: { fontWeight: "bold", color: "#333", marginBottom: 3 },
   textoComentario: { fontSize: 15, color: "#333" },
   fechaComentario: { fontSize: 12, color: "#999", marginTop: 4, textAlign: "right" },

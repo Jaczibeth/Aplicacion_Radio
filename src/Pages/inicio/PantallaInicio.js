@@ -1,18 +1,16 @@
-import React, { useState, useEffect, useCallback,useMemo,useRef,} from "react";
+import React, { useState, useEffect,useMemo,useRef,} from "react";
 import { View, Text, FlatList, Image, TouchableOpacity,  Dimensions, Animated,} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Title, Searchbar, Avatar } from "react-native-paper";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold,} from "@expo-google-fonts/poppins";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
 import { NOMBRE_APP, PESTANAS, MENSAJES } from "../../configuracion/constantes";
 import BarraPestanas from "../../Componentes/BarraPestanas";
 import TarjetaNoticia from "../../Componentes/TarjetaNoticia_temp";
 import estilos from "./estilos";
-import useAnimacionBuscar from "../../Componentes/AnimacionBuscar";
+import useAnimacionBuscar from "../../hooks/useAnimacionBuscar";
 import useNoticias from "../../hooks/useNoticias";
 import { useUbicacion } from "../../hooks/useUbicacion";
-import NotificacionFondo from "../../Componentes/NotificacionFondo";
 
 export default function PantallaInicio({ navigation }) {
   const [pestanaActiva, setPestanaActiva] = useState(PESTANAS.DESTACADAS);
@@ -20,14 +18,13 @@ export default function PantallaInicio({ navigation }) {
   const [favoritos, setFavoritos] = useState([]);
   const [permisosYaSolicitados, setPermisosYaSolicitados] = useState(false);
 
-  const { noticias, cargando, error, eliminarNoticia, recargar } = useNoticias();
+  const { noticias, cargando, error, eliminarNoticia, agregarNoticia, recargar } = useNoticias();
+
   const textoAnimado = useAnimacionBuscar();
   const {
     ubicacion,
     permisoConcedido,
-    mostrarNotificacion,
     solicitarPermisos,
-    setMostrarNotificacion,
   } = useUbicacion();
 
   const [fuentesCargadas] = useFonts({
@@ -57,12 +54,8 @@ export default function PantallaInicio({ navigation }) {
     guardarFavoritos();
   }, [favoritos]);
 
-  useFocusEffect(
-    useCallback(() => {
-      recargar();
-    }, [])
-  );
-
+  
+  
   // Solicitar permisos después de que las noticias se carguen
   useEffect(() => {
     if (noticias.length > 0 && !permisosYaSolicitados && !cargando) {
@@ -168,6 +161,11 @@ export default function PantallaInicio({ navigation }) {
             contentContainerStyle={{ paddingHorizontal: itemMargen }}
             renderItem={renderItemCarrusel}
             keyExtractor={(item) => `carrusel-${item.id}`}
+            getItemLayout={(data, index) => ({
+              length: itemAncho + itemMargen * 2, // Item width + horizontal margins
+              offset: (itemAncho + itemMargen * 2) * index,
+              index,
+            })}
             onMomentumScrollEnd={(e) => {
               const index = Math.round(
                 e.nativeEvent.contentOffset.x / itemAncho
@@ -315,10 +313,6 @@ export default function PantallaInicio({ navigation }) {
           )
         }
         contentContainerStyle={{ paddingBottom: 90 }}
-      />
-      <NotificacionFondo
-        visible={mostrarNotificacion}
-        onHide={() => setMostrarNotificacion(false)}
       />
     </SafeAreaView>
   );

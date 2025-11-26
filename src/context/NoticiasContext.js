@@ -1,10 +1,7 @@
-
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 
-
-
-const BASE_URL = "http://192.168.10.248:8080/api/noticias";
+const BASE_URL = "http://192.168.137.237:8080/api/noticias";
 
 export const NoticiasContext = createContext();
 
@@ -13,7 +10,7 @@ export const NoticiasProvider = ({ children }) => {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
-  //  Cargar noticias desde el backend
+
   const cargarNoticias = async () => {
     try {
       setCargando(true);
@@ -29,7 +26,6 @@ export const NoticiasProvider = ({ children }) => {
     }
   };
 
-  //  Eliminar noticia por ID
   const eliminarNoticia = async (id) => {
     try {
       await axios.delete(`${BASE_URL}/${id}`);
@@ -40,7 +36,7 @@ export const NoticiasProvider = ({ children }) => {
     }
   };
 
-  // Cargar noticias al iniciar
+  
   useEffect(() => {
 
     cargarNoticias();

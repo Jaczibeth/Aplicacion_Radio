@@ -1,86 +1,89 @@
-import React, { useRef, useState } from "react";
-import { View, FlatList, StyleSheet, Text, Dimensions, Animated } from "react-native";
-import TarjetaNoticia from "./TarjetaNoticia";
-import { colores, espaciado, tamanosTexto } from "../configuracion/colores";
-const { width } = Dimensions.get("window");
-export default function ListaNoticias({ noticias, alVerDetalle }) {
-  const scrollX = useRef(new Animated.Value(0)).current;
+import React, { useState, useEffect, useCallback } from "react";
+import { View, FlatList, Modal, StyleSheet } from "react-native";
+import TarjetaNoticia from "./TarjetaNoticia_temp"; 
+import DetalleNoticia from "./DetalleNoticia"; 
+import Api from "../Data/Api";
 
-  if (!noticias || noticias.length === 0) {
-    return (
-      <View style={estilos.contenedorVacio}>
-        <Text style={estilos.textoVacio}>No hay noticias disponibles</Text>
-      </View>
+export default function ListaNoticias() {
+  const [noticias, setNoticias] = useState([]);
+  const [noticiaSeleccionada, setNoticiaSeleccionada] = useState(null);
+
+  const cargarNoticias = async () => {
+    try {
+      const data = await Api.getNoticias();
+      console.log("ListaNoticias: Datos iniciales de noticias de la API:", data);
+
+      const noticiasConConteoComentarios = await Promise.all(
+        data.map(async (noticia) => {
+          const comentarios = await Api.getComentariosPorNoticia(noticia.id);
+          console.log(`ListaNoticias: Noticia ID ${noticia.id}, comentarios.length: ${comentarios.length}`);
+          return {
+            ...noticia,
+            comentariosCount: comentarios.length,
+          };
+        })
+      );
+      console.log("ListaNoticias: Noticias con conteo de comentarios:", noticiasConConteoComentarios);
+      setNoticias(noticiasConConteoComentarios);
+    } catch (error) {
+      console.error("ListaNoticias: Error al cargar noticias con conteo de comentarios:", error);
+      const data = await Api.getNoticias();
+      setNoticias(data.map(n => ({ ...n, comentariosCount: n.comentariosCount || 0 })));
+    }
+  };
+
+  useEffect(() => {
+    cargarNoticias();
+  }, []);
+
+
+  const actualizarContador = useCallback((idNoticia, nuevoTotalComentarios) => {
+    console.log(`ListaNoticias: Actualizando contador para Noticia ID ${idNoticia} a ${nuevoTotalComentarios}`);
+    setNoticias((prevNoticias) =>
+      prevNoticias.map((n) =>
+        n.id === idNoticia ? { ...n, comentariosCount: nuevoTotalComentarios } : n
+      )
     );
-  }
+  }, []);
+
+ 
+  const renderItem = ({ item }) => (
+    <TarjetaNoticia
+      noticia={item}
+      alVerDetalle={() => setNoticiaSeleccionada(item)}
+      alCambiarGuardado={(noticia) => {
+    
+      }}
+      estaGuardada={false} 
+    />
+  );
 
   return (
-    <View>
-      <Animated.FlatList
+    <View style={styles.container}>
+      <FlatList
         data={noticias}
         keyExtractor={(item) => item.id.toString()}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={width * 0.8 + espaciado.normal} // Para que "encaje" la tarjeta
-        decelerationRate="fast"
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: false }
-        )}
-        contentContainerStyle={estilos.lista}
-        renderItem={({ item }) => (
-          <View style={{ width: width * 0.8, marginRight: espaciado.normal }}>
-            <TarjetaNoticia noticia={item} alVerDetalle={() => alVerDetalle(item)} />
-          </View>
-        )}
+        renderItem={renderItem}
+        contentContainerStyle={{ padding: 10 }}
       />
 
-      {/* Puntitos animados */}
-      <View style={estilos.puntitos}>
-        {noticias.map((_, i) => {
-          const inputRange = [(i - 1) * width * 0.8, i * width * 0.8, (i + 1) * width * 0.8];
-          const dotWidth = scrollX.interpolate({
-            inputRange,
-            outputRange: [8, 16, 8],
-            extrapolate: "clamp",
-          });
-          const opacity = scrollX.interpolate({
-            inputRange,
-            outputRange: [0.3, 1, 0.3],
-            extrapolate: "clamp",
-          });
-          return <Animated.View key={i.toString()} style={[estilos.dot, { width: dotWidth, opacity }]} />;
-        })}
-      </View>
+    
+      <Modal visible={!!noticiaSeleccionada} animationType="slide">
+        {noticiaSeleccionada && (
+          <DetalleNoticia
+            noticia={noticiaSeleccionada}
+            onCerrar={() => setNoticiaSeleccionada(null)}
+            actualizarContador={actualizarContador} 
+          />
+        )}
+      </Modal>
     </View>
   );
 }
 
-const estilos = StyleSheet.create({
-  lista: {
-    paddingHorizontal: espaciado.normal,
-    paddingVertical: espaciado.pequeno,
-  },
-  puntitos: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: espaciado.pequeno,
-  },
-  dot: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#333",
-    marginHorizontal: 4,
-  },
-  contenedorVacio: {
+const styles = StyleSheet.create({
+  container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: espaciado.enorme,
-  },
-  textoVacio: {
-    fontSize: tamanosTexto.mediano,
-    color: colores.textoGris,
-    textAlign: "center",
+    backgroundColor: "#f9f9f9",
   },
 });
