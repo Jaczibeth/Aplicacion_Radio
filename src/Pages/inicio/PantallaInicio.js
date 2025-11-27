@@ -272,7 +272,10 @@ export default function PantallaInicio({ navigation }) {
           estaGuardada={estaEnFavoritos(item)}
           alCambiarGuardado={cambiarFavorito}
           alVerDetalle={({ mostrarComentarios }) => {
-            navigation.navigate("DetalleNoticia", { noticia: item, mostrarComentarios: mostrarComentarios ?? false });
+            navigation.navigate("DetalleNoticia", {
+              noticia: item,
+              mostrarComentarios: mostrarComentarios ?? false,
+            });
           }}
           eliminarNoticia={eliminarNoticia}
         />
