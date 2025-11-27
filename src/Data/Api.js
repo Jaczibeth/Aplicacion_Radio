@@ -1,11 +1,9 @@
-
 import axios from "axios";
 import { Platform } from "react-native";
-
 const BASE_URL = Platform.select({
   ios: "http://localhost:8080/api",
-  android: "http://10.148.130.30:8080/api",
-  default: "http://10.148.130.30:8080/api",
+  android: "http://192.168.137.234:8080/api",
+  default: "http://192.168.137.234:8080/api",
 });
 
 // Instancia de axios
