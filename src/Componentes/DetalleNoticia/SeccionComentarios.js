@@ -44,12 +44,6 @@ const SeccionComentarios = ({
                     {c.fecha ? new Date(c.fecha).toLocaleString() : ""}
                   </Text>
                   <View style={estilos.accionesComentario}>
-                    <TouchableOpacity onPress={() => abrirEditarComentario(c)}>
-                      <Text style={estilos.botonEditar}>Editar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => manejarEliminarComentario(c)}>
-                      <Text style={estilos.botonEliminar}>Eliminar</Text>
-                    </TouchableOpacity>
                   </View>
                 </View>
               ))

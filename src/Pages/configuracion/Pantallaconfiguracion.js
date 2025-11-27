@@ -1,16 +1,5 @@
-
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Animated,
-  StyleSheet,
-  ScrollView,
-  Linking,
-  TouchableOpacity,
-  TextInput,
-  Text,
-  Image,
-} from "react-native";
+import {View,Animated, StyleSheet, ScrollView, Linking,TouchableOpacity,TextInput,Text,Image,} from "react-native";
 import { IconButton } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
