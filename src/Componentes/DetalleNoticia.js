@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {View,  StyleSheet,Share,KeyboardAvoidingView,Platform,Alert,ScrollView,} from "react-native";
+import { View, StyleSheet, Share, KeyboardAvoidingView, Platform, Alert, ScrollView, } from "react-native";
 import { Text } from "react-native-paper";
 import Dialog from "react-native-dialog";
 import { coloresCategorias } from "../configuracion/colores";
@@ -8,9 +8,12 @@ import CuerpoNoticia from "./DetalleNoticia/CuerpoNoticia";
 import SeccionComentarios from "./DetalleNoticia/SeccionComentarios";
 import BarraComentarios from "./DetalleNoticia/BarraComentarios";
 import Api from "../Data/Api";
+import useNoticias from "../hooks/useNoticias";
 
-export default function DetalleNoticia({ noticia, onCerrar, actualizarContador }) {
+export default function DetalleNoticia({ noticia, onCerrar }) {
   if (!noticia) return null;
+
+  const { actualizarComentariosNoticia } = useNoticias();
 
   const [comentarios, setComentarios] = useState([]);
   const [nuevoComentario, setNuevoComentario] = useState("");
@@ -37,7 +40,7 @@ export default function DetalleNoticia({ noticia, onCerrar, actualizarContador }
   const cargarComentarios = async () => {
     try {
       const data = await Api.getComentariosPorNoticia(noticia.id);
-   
+
       setComentarios(data);
     } catch (error) {
     }
@@ -47,7 +50,7 @@ export default function DetalleNoticia({ noticia, onCerrar, actualizarContador }
     cargarComentarios();
   }, [noticia.id]);
 
-  
+
   const manejarAgregarComentario = async () => {
     if (nuevoComentario.trim() === "") return;
     const comentario = { autor: "Anónimo", texto: nuevoComentario.trim() };
@@ -56,21 +59,21 @@ export default function DetalleNoticia({ noticia, onCerrar, actualizarContador }
       const nuevosComentarios = [nuevo, ...comentarios];
       setComentarios(nuevosComentarios);
       setNuevoComentario("");
-      actualizarContador(noticia.id, nuevosComentarios.length); 
-      await Api.registrarInteraccion(noticia.id, "comentario"); 
+      actualizarComentariosNoticia && actualizarComentariosNoticia(noticia.id, nuevosComentarios.length);
+      await Api.registrarInteraccion(noticia.id, "comentario");
     } else {
       Alert.alert("Error", "No se pudo agregar el comentario");
     }
   };
 
- 
+
   const manejarEliminarComentario = async (comentario) => {
     try {
       const respuesta = await Api.eliminarComentarioAPI(comentario.id);
       if (respuesta) {
         const nuevosComentarios = comentarios.filter((c) => c.id !== comentario.id);
         setComentarios(nuevosComentarios);
-        actualizarContador(noticia.id, nuevosComentarios.length); 
+        actualizarComentariosNoticia && actualizarComentariosNoticia(noticia.id, nuevosComentarios.length);
         await Api.registrarInteraccion(noticia.id, "comentario");
       } else {
         Alert.alert("Error", "No se pudo eliminar el comentario");
@@ -101,7 +104,7 @@ export default function DetalleNoticia({ noticia, onCerrar, actualizarContador }
     }
   };
 
- 
+
   const onShare = async () => {
     try {
       const titulo = noticia.titulo || "Título no disponible";
@@ -119,7 +122,7 @@ export default function DetalleNoticia({ noticia, onCerrar, actualizarContador }
         title: titulo,
       });
 
-      await Api.registrarInteraccion(noticia.id, "compartir"); 
+      await Api.registrarInteraccion(noticia.id, "compartir");
     } catch (error) {
       Alert.alert("Error", "No se pudo compartir la noticia: " + error.message);
     }
@@ -132,7 +135,7 @@ export default function DetalleNoticia({ noticia, onCerrar, actualizarContador }
       keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       <ScrollView style={estilos.scrollPrincipal}>
-        
+
         <CabeceraNoticia
           noticia={noticia}
           onCerrar={onCerrar}
@@ -148,7 +151,7 @@ export default function DetalleNoticia({ noticia, onCerrar, actualizarContador }
 
         <CuerpoNoticia noticia={noticia} />
 
-        
+
         <SeccionComentarios
           mostrarComentarios={mostrarComentarios}
           setMostrarComentarios={setMostrarComentarios}
@@ -167,7 +170,7 @@ export default function DetalleNoticia({ noticia, onCerrar, actualizarContador }
         onShare={onShare}
       />
 
-   
+
       <Dialog.Container visible={visibleDialog}>
         <Dialog.Title>Editar comentario</Dialog.Title>
         <Dialog.Input value={textoEditando} onChangeText={setTextoEditando} />

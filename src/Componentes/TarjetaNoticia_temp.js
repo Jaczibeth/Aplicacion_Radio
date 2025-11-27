@@ -75,8 +75,12 @@ const TarjetaNoticia = ({
   const [calificacionUsuario, setCalificacionUsuario] = useState(noticia?.calificacionUsuario || 0);
 
   useEffect(() => {
-    if (typeof totalComentarios === "number") setContadorComentarios(totalComentarios);
-  }, [totalComentarios]);
+    if (typeof totalComentarios === "number") {
+      setContadorComentarios(totalComentarios);
+    } else if (noticia?.cantidadComentarios !== undefined) {
+      setContadorComentarios(noticia.cantidadComentarios);
+    }
+  }, [totalComentarios, noticia?.cantidadComentarios]);
 
   useEffect(() => {
     Animated.parallel([
@@ -121,7 +125,6 @@ const TarjetaNoticia = ({
         alVerDetalle({
           ...noticia,
           mostrarComentarios: true,
-          alActualizarComentarios: setContadorComentarios,
         });
       }}
     >
@@ -180,7 +183,6 @@ const TarjetaNoticia = ({
               alVerDetalle({
                 ...noticia,
                 mostrarComentarios: true,
-                alActualizarComentarios: setContadorComentarios,
               })
             }
             texto="Comentarios"
