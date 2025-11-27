@@ -20,7 +20,7 @@ const SeccionComentarios = ({
 
   return (
     <>
-    
+
       <TouchableOpacity onPress={() => setMostrarComentarios(!mostrarComentarios)}>
         <Text style={estilos.subtitulo}>
           Comentarios ({comentarios.length}) {mostrarComentarios ? "▲" : "▼"}
@@ -40,25 +40,10 @@ const SeccionComentarios = ({
                   <Text style={estilos.autorComentario}>{c.autor || "Anónimo"}</Text>
                   <Text style={estilos.textoComentario}>{c.texto}</Text>
 
-                  
-         
-
-                  <Text style={estilos.autorComentario}>
-                    {c.autor || "Anónimo"}
-                  </Text>
-
-                  <Text style={estilos.textoComentario}>{c.contenido}</Text>
-
                   <Text style={estilos.fechaComentario}>
                     {c.fecha ? new Date(c.fecha).toLocaleString() : ""}
                   </Text>
                   <View style={estilos.accionesComentario}>
-                    <TouchableOpacity onPress={() => abrirEditarComentario(c)}>
-                      <Text style={estilos.botonEditar}>Editar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => manejarEliminarComentario(c)}>
-                      <Text style={estilos.botonEliminar}>Eliminar</Text>
-                    </TouchableOpacity>
                   </View>
                 </View>
               ))
