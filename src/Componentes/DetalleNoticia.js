@@ -182,8 +182,8 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
 }
 
 const estilos = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  scrollPrincipal: { flex: 1, paddingBottom: 10 },
+  container: { flex: 1, backgroundColor: "#fff" , padding:15},
+  scrollPrincipal: { flex: 1, paddingBottom: 11},
   contenedorFecha: {
     marginHorizontal: 16,
     marginVertical: 8,
