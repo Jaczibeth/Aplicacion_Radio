@@ -14,30 +14,38 @@ const CalificacionModal = ({ visible, onClose }) => {
     if (visible) checkLastRating();
   }, [visible]);
 
+
+  const checkLastRating = async () => {
+    const lastDate = await AsyncStorage.getItem("lastRatingDate");
+    if (lastDate) {
+      const diffDays = Math.floor((Date.now() - parseInt(lastDate)) / (1000 * 60 * 60 * 24));
+      if (diffDays < 30) {
+        setIsBlocked(true);
+        setDaysLeft(30 - diffDays);
+      } else {
+        setIsBlocked(false);
+      }
+
   const fetchResumen = async () => {
     try {
-      const response = await axios.get("http://192.168.137.234:8080/api/calificacion/resumen");
+      const response = await axios.get("http://192.168.1.66:8080/api/calificacion/resumen");
       setPromedio(response.data.promedio);
       setTotal(response.data.total);
     } catch (error) {
       console.error("Error al obtener resumen:", error);
-    }
-  };
 
-  const handleStarPress = (star) => {
-    setRating(star);
-    ratingRef.current = star;
+    }
   };
 
   const handleSubmit = async () => {
     if (rating > 0 && !isSubmitting && !isBlocked) {
       setIsSubmitting(true);
       try {
-        await axios.post("http://192.168.137.234:8080/api/calificacion", {
-          valor: currentRating, 
-        });
-        onRatingSuccess();
-        fetchResumen();
+        await axios.post("http://192.168.243.125:8080/api/calificacion", { valor: rating });
+        await AsyncStorage.setItem("lastRatingDate", Date.now().toString());
+        setIsBlocked(true);
+        setDaysLeft(30);
+        onClose();
       } catch (error) {
         alert("Error al enviar la calificación");
       } finally {
