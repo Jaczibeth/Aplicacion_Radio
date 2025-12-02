@@ -31,7 +31,7 @@ const CalificacionModal = ({ visible, onClose }) => {
     if (rating > 0 && !isSubmitting && !isBlocked) {
       setIsSubmitting(true);
       try {
-        await axios.post("http://192.168.243.125:8080/api/calificacion", { valor: rating });
+        await axios.post("http://192.168.1.5:8080/api/calificacion", { valor: rating });
         await AsyncStorage.setItem("lastRatingDate", Date.now().toString());
         setIsBlocked(true);
         setDaysLeft(30);
