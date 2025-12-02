@@ -82,7 +82,7 @@ const TarjetaNoticia_temp = ({
   
   const fetchTotales = async () => {
     try {
-      const response = await axios.get(`http://192.168.137.234:8080/api/interacciones/totales/${noticia.id}`);
+      const response = await axios.get(`http://192.168.10.248:8080/api/interacciones/totales/${noticia.id}`);
       setContadorLecturas(response.data.vistas);
       setContadorComentarios(response.data.comentarios);
       setContadorLikes(response.data.likes);
