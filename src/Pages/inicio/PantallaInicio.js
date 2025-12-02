@@ -170,7 +170,7 @@ export default function PantallaInicio({ navigation }) {
         <View style={estilos.contenedorTitulo}>
           <Avatar.Image
             size={45}
-            source={require("../../assets/Logos/nt-el-reloj.gif")}
+            source={require("../../assets/Logos/logo gif.gif")}
             style={{ backgroundColor: "transparent" }}
           />
           <Title style={estilos.tituloApp}>{NOMBRE_APP}</Title>
