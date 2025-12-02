@@ -2,10 +2,7 @@ import React, { createContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const BASE_URL = "http://192.168.243.125:8080/api/noticias";
-
-const BASE_URL = "http://192.168.1.66:8080/api/noticias";
-
+const BASE_URL = "http://192.168.10.248:8080/api/noticias";
 
 export const NoticiasContext = createContext();
 
@@ -13,7 +10,6 @@ export const NoticiasProvider = ({ children }) => {
   const [noticias, setNoticias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
-
 
   const cargarNoticias = async () => {
     try {
@@ -68,9 +64,7 @@ export const NoticiasProvider = ({ children }) => {
     }
   };
 
-
   useEffect(() => {
-
     cargarNoticias();
   }, []);
 
