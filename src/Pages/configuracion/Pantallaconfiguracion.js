@@ -1,15 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import {
-  View,
-  Animated,
-  StyleSheet,
-  ScrollView,
-  Linking,
-  TouchableOpacity,
-  TextInput,
-  Text,
-  Image,
-} from "react-native";
+import {View,Animated, StyleSheet, ScrollView, Linking,TouchableOpacity,TextInput,Text,Image,} from "react-native";
 import { IconButton } from "react-native-paper";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -28,10 +18,11 @@ export default function PantallaConfiguracion({ navigation }) {
   const flatListRef = useRef(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [modoModificar, setModoModificar] = useState(false);
+
   const [diasRestantes, setDiasRestantes] = useState(null);
   const [bloqueado, setBloqueado] = useState(false);
-  const [calificado, setCalificado] = useState(false);
+
+  const [animLista] = useState(new Animated.Value(0));
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -41,25 +32,40 @@ export default function PantallaConfiguracion({ navigation }) {
     }).start();
   }, []);
 
+  useEffect(() => {
+    if (mostrarAlumnos) {
+      Animated.timing(animLista, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    } else {
+      Animated.timing(animLista, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [mostrarAlumnos]);
+
   const verificarBloqueo = async () => {
     try {
       const fechaGuardada = await AsyncStorage.getItem("fechaProximaCalificacion");
-      if (!fechaGuardada) {
-        setBloqueado(false);
-        setCalificado(false);
-        setDiasRestantes(null);
-        return;
-      }
+
+      if (!fechaGuardada) return;
+
       const fechaActual = new Date();
       const fechaProxima = new Date(fechaGuardada);
-      const diferencia = Math.ceil((fechaProxima - fechaActual) / (1000 * 60 * 60 * 24));
+
+      const diferencia = Math.ceil(
+        (fechaProxima - fechaActual) / (1000 * 60 * 60 * 24)
+      );
+
       if (diferencia > 0) {
         setBloqueado(true);
-        setCalificado(true);
         setDiasRestantes(diferencia);
       } else {
         setBloqueado(false);
-        setCalificado(false);
         setDiasRestantes(null);
         await AsyncStorage.removeItem("fechaProximaCalificacion");
       }
@@ -76,7 +82,9 @@ export default function PantallaConfiguracion({ navigation }) {
     if (comentario.trim() === "") {
       alert("Por favor, ingresa un comentario antes de enviarlo.");
     } else {
-      Linking.openURL(`mailto:jaczicruz@gmail.com?subject=Comentario&body=${comentario}`);
+      Linking.openURL(
+        `mailto:jaczicruz@gmail.com?subject=Comentario%20sobre%20la%20App&body=${comentario}`
+      );
       setComentario("");
     }
   };
@@ -93,7 +101,7 @@ export default function PantallaConfiguracion({ navigation }) {
   ];
 
   const alumnos = [
-    "Los desarrolladores de esta aplicación son alumnos de la carrera en INGENIERÍA EN SISTEMAS COMPUTACIONALES del Instituto Tecnológico de Tlaxiaco:",
+    "Los desarrolladores de esta aplicación son alumnos de la carrera en INGENIERÍA EN SISTEMAS COMPUTACIONALES del Instituto Tecnológico de Tlaxiaco, cursando el séptimo semestre del grupo B:",
     "Jaczibeth Cruz Ramirez",
     "Edgar Mauricio Sarmiento Ruiz",
     "Ameli Reyes Hernández",
@@ -116,156 +124,215 @@ export default function PantallaConfiguracion({ navigation }) {
     return () => clearInterval(interval);
   }, [currentIndex]);
 
-  const handleDesbloquear = async () => {
-    try {
-      await AsyncStorage.removeItem("fechaProximaCalificacion");
-      setBloqueado(false);
-      setCalificado(false);
-      setDiasRestantes(null);
-      setModoModificar(false);
-      setRefreshKey((p) => p + 1);
-    } catch (e) {
-      console.log("Error desbloqueando:", e);
-    }
+  const renderItemCarrusel = ({ item, index }) => {
+    const inputRange = [
+      (index - 1) * (itemAncho + itemMargen * 2),
+      index * (itemAncho + itemMargen * 2),
+      (index + 1) * (itemAncho + itemMargen * 2),
+    ];
+
+    const scaleScroll = scrollX.interpolate({
+      inputRange,
+      outputRange: [0.85, 1, 0.85],
+      extrapolate: "clamp",
+    });
+
+    const pressAnim = new Animated.Value(1);
+
+    return (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => Linking.openURL(item.url)}
+        style={{
+          width: itemAncho,
+          marginHorizontal: itemMargen,
+          alignItems: "center",
+        }}
+      >
+        <Animated.View
+          style={{
+            transform: [{ scale: Animated.multiply(scaleScroll, pressAnim) }],
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <FontAwesome name={item.icon} size={40} color={item.color} />
+        </Animated.View>
+        <Text
+          style={{
+            marginTop: 6,
+            fontSize: 14,
+            fontWeight: "600",
+            color: "#144784",
+          }}
+        >
+          {item.nombre}
+        </Text>
+      </TouchableOpacity>
+    );
   };
 
+  const renderDots = () => (
+    <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 10 }}>
+      {redesSociales.map((_, index) => (
+        <View
+          key={index}
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            marginHorizontal: 4,
+            backgroundColor: index === currentIndex ? "#144784" : "#ccc",
+          }}
+        />
+      ))}
+    </View>
+  );
+
+ 
   return (
     <SafeAreaView style={styles.container}>
-      
-      {/* ★★★ AQUI ESTÁ TU SCROLL LIMITADO ★★★ */}
       <ScrollView
-        contentContainerStyle={{
-          paddingBottom: 40,
-          paddingTop: 10,
-        }}
-        nestedScrollEnabled={true}
-        showsVerticalScrollIndicator={false}
-        style={{ flexGrow: 0, maxHeight: "86%" }}
+        style={styles.scrollContainer}
+        contentContainerStyle={{ paddingBottom: 50}}
+        showsVerticalScrollIndicator={true}
       >
-
+        {/* Header */}
         <View style={styles.header}>
           <IconButton icon="arrow-left" size={24} onPress={() => navigation.goBack()} />
           <Text style={styles.headerTitle}>Configuración</Text>
-          <Image source={require("../../assets/Logos/nt-el-reloj-circular.gif")} style={styles.logo} />
+          <Image
+            source={require("../../assets/Logos/nt-el-reloj-circular.gif")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Comentarios sobre la App</Text>
-          <TextInput
-            style={styles.commentInput}
-            placeholder="Escribe tu comentario aquí..."
-            value={comentario}
-            onChangeText={setComentario}
-            multiline
-          />
-          <TouchableOpacity onPress={handleSendComment} style={styles.sendButton}>
-            <Text style={styles.sendButtonText}>Enviar comentario</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.sectionTitle}>Soporte y Mantenimiento</Text>
-          <View style={styles.option}>
-            <Text style={styles.optionText}>¿Necesitas ayuda?</Text>
-            <TouchableOpacity onPress={handleSupport}>
-              <Text style={styles.supportText}>Contáctanos</Text>
+          <Animated.View style={{ opacity: fadeAnim }}>
+         
+            <Text style={styles.sectionTitle}>Comentarios sobre la App</Text>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Escribe tu comentario aquí..."
+              value={comentario}
+              onChangeText={setComentario}
+              multiline
+            />
+            <TouchableOpacity onPress={handleSendComment} style={styles.sendButton}>
+              <Text style={styles.sendButtonText}>Enviar comentario</Text>
             </TouchableOpacity>
-          </View>
 
-          <TouchableOpacity
-            style={styles.modificarBtn}
-            onPress={() => setModoModificar((prev) => !prev)}
-          >
-            <Text style={styles.modificarTxt}>{modoModificar ? "Modo Normal" : "Modificar"}</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.sectionTitle}>Calificar App</Text>
-
-          <RatingSummary key={refreshKey} />
-
-          <View style={styles.option}>
-            <Text style={styles.optionText}>Danos tu opinión</Text>
-
-            {bloqueado && !modoModificar ? (
-              <View>
-                <Text style={{ color: "gray", fontWeight: "bold" }}>⛔ Bloqueado</Text>
-                <Text style={{ fontSize: 12, color: "#e63946" }}>
-                  Podrás calificar en {diasRestantes} {diasRestantes === 1 ? "día" : "días"}
-                </Text>
-              </View>
-            ) : bloqueado && modoModificar ? (
-              <TouchableOpacity style={styles.desbloquearBtn} onPress={handleDesbloquear}>
-                <Text style={styles.desbloquearTxt}>Desbloquear calificación</Text>
+           
+            <Text style={styles.sectionTitle}>Soporte y Mantenimiento</Text>
+            <View style={styles.option}>
+              <Text style={styles.optionText}>¿Necesitas ayuda?</Text>
+              <TouchableOpacity onPress={handleSupport}>
+                <Text style={styles.supportText}>Contáctanos</Text>
               </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.botonCalificar}
-                onPress={() => setModalVisible(true)}
-              >
-                <Text style={styles.botonCalificarTexto}>Calificar ⭐</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <Text style={styles.sectionTitle}>Síguenos en Redes Sociales</Text>
-
-          <Animated.FlatList
-            ref={flatListRef}
-            data={redesSociales}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.nombre}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={{ width: itemAncho, marginHorizontal: itemMargen }}
-                onPress={() => Linking.openURL(item.url)}
-              >
-                <FontAwesome name={item.icon} size={40} color={item.color} />
-                <Text style={{ textAlign: "center", marginTop: 6 }}>{item.nombre}</Text>
-              </TouchableOpacity>
-            )}
-          />
-
-          <Text style={styles.sectionTitle}>Acerca de</Text>
-
-          <TouchableOpacity onPress={() => setMostrarAlumnos((p) => !p)} style={styles.verMasBtn}>
-            <FontAwesome name={mostrarAlumnos ? "chevron-up" : "chevron-down"} size={18} color="#fff" />
-            <Text style={styles.verMasTexto}>{mostrarAlumnos ? "Ocultar información" : "Ver más información"}</Text>
-          </TouchableOpacity>
-
-          {mostrarAlumnos && (
-            <View style={styles.listaAlumnos}>
-              <ScrollView
-                style={{ maxHeight: 220 }}
-                nestedScrollEnabled={true}
-                showsVerticalScrollIndicator={true}
-              >
-                {alumnos.map((nombre, index) => (
-                  <View key={index} style={styles.alumnoCard}>
-                    <FontAwesome name="user" size={18} color="#144784" style={{ marginRight: 8 }} />
-                    <Text style={styles.alumnoTexto}>{nombre}</Text>
-                  </View>
-                ))}
-              </ScrollView>
             </View>
-          )}
 
+        
+            <Text style={styles.sectionTitle}>Calificar App</Text>
+            <RatingSummary key={refreshKey} />
+
+            <View style={styles.option}>
+              <Text style={styles.optionText}>Danos tu opinión</Text>
+
+              {bloqueado ? (
+                <View>
+                  
+                  <Text style={{ fontSize: 12, color: "#e63946" }}>
+                    Podrás calificar en {diasRestantes} días
+                  </Text>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={styles.botonCalificar}
+                  onPress={() => setModalVisible(true)}
+                >
+                  <Text style={styles.botonCalificarTexto}>Calificar </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+         
+            <Text style={styles.sectionTitle}>Síguenos en Redes Sociales</Text>
+
+            <Animated.FlatList
+              ref={flatListRef}
+              data={redesSociales}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.nombre}
+              renderItem={renderItemCarrusel}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                { useNativeDriver: false }
+              )}
+              scrollEventThrottle={16}
+            />
+
+            {renderDots()}
+
+      
+            <Text style={styles.sectionTitle}>Acerca de</Text>
+
+            <TouchableOpacity
+              onPress={() => setMostrarAlumnos(!mostrarAlumnos)}
+              style={styles.verMasBtn}
+            >
+              <FontAwesome
+                name={mostrarAlumnos ? "chevron-up" : "chevron-down"}
+                size={18}
+                color="#fff"
+              />
+              <Text style={styles.verMasTexto}>
+                {mostrarAlumnos ? "Ocultar información" : "Ver más información"}
+              </Text>
+            </TouchableOpacity>
+
+            {mostrarAlumnos && (
+              <Animated.View style={[styles.listaAlumnos, { opacity: animLista }]}>
+                <ScrollView
+                  style={{ maxHeight: 250 }}
+                  nestedScrollEnabled={true}   
+                >
+                  {alumnos.map((nombre, index) => (
+                    <View key={index} style={styles.alumnoCard}>
+                      <FontAwesome
+                        name="user"
+                        size={18}
+                        color="#144784"
+                        style={{ marginRight: 8 }}
+                      />
+                      <Text style={styles.alumnoTexto}>{nombre}</Text>
+                    </View>
+                  ))}
+                </ScrollView>
+              </Animated.View>
+            )}
+          </Animated.View>
         </View>
       </ScrollView>
 
+      {/* Modal */}
       <CalificacionModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onRatingSuccess={async () => {
           setModalVisible(false);
+
           const fechaActual = new Date();
           const fechaProxima = new Date();
           fechaProxima.setDate(fechaActual.getDate() + 30);
-          await AsyncStorage.setItem("fechaProximaCalificacion", fechaProxima.toISOString());
-          setBloqueado(true);
-          setCalificado(true);
-          const diferencia = Math.ceil((fechaProxima - fechaActual) / (1000 * 60 * 60 * 24));
-          setDiasRestantes(diferencia);
-          alert("Has calificado exitosamente. Podrás volver a calificar en 30 días.");
-          setRefreshKey((prev) => prev + 1);
+
+          await AsyncStorage.setItem(
+            "fechaProximaCalificacion",
+            fechaProxima.toISOString()
+          );
+
+          setRefreshKey((prevKey) => prevKey + 1);
         }}
       />
 
@@ -276,51 +343,48 @@ export default function PantallaConfiguracion({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f4f6f9" },
-  scrollContainer: { flexGrow: 0 },
+  scrollContainer: { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: "#e3e9f2",
+    backgroundColor: "#e3e9f2ff",
+    elevation: 4,
   },
   headerTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#161515",
-    flex: 1,
+    color: "#161515ff",
     textAlign: "center",
+    flex: 1,
   },
   logo: { width: 50, height: 50 },
   content: { paddingHorizontal: 16 },
-
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: "#144784",
     marginTop: 24,
+    marginBottom: 8,
   },
-
   option: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
   },
-
   optionText: { fontSize: 16, color: "#333" },
-
   commentInput: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    padding: 12,
+    padding: 10,
     backgroundColor: "#fff",
     minHeight: 80,
   },
-
   sendButton: {
     backgroundColor: "#144784",
     padding: 14,
@@ -328,66 +392,56 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 12,
   },
-  sendButtonText: { color: "#fff", fontWeight: "bold" },
-
-  supportText: { color: "#144784", fontWeight: "bold" },
-
-  modificarBtn: {
-    marginTop: 12,
-    alignSelf: "flex-start",
-    backgroundColor: "#d62828",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+  sendButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  supportText: { fontSize: 16, color: "#144784" },
+  listaAlumnos: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 4,
+    marginBottom: 8,
   },
-  modificarTxt: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 15,
+  alumnoCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f4f6f9",
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 4,
   },
-
-  botonCalificar: {
+alumnoTexto: {
+  fontSize: 15,
+  color: "#144784",
+  fontWeight: "600",
+  textAlign: "justify",
+  padding:20,
+},
+botonCalificar: {
     backgroundColor: "#144784",
     paddingVertical: 8,
     paddingHorizontal: 20,
     borderRadius: 20,
+    elevation: 3,
   },
-  botonCalificarTexto: { color: "#fff", fontWeight: "bold" },
-
-  desbloquearBtn: {
-    backgroundColor: "#f4a261",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 18,
+  botonCalificarTexto: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
-  desbloquearTxt: { color: "#fff", fontWeight: "bold" },
-
-  listaAlumnos: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 12,
-    marginTop: 6,
-    maxHeight: 220,
-  },
-
-  alumnoCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f1f3f5",
-    padding: 12,
-    borderRadius: 8,
-    marginVertical: 4,
-  },
-  alumnoTexto: { color: "#144784", fontWeight: "600" },
-
   verMasBtn: {
     flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#144784",
     paddingVertical: 12,
     borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 8,
+    elevation: 4,
+    marginVertical: 8,
   },
-  verMasTexto: { color: "#fff", marginLeft: 8, fontWeight: "bold" },
+  verMasTexto: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginLeft: 8,
+  },
 });
