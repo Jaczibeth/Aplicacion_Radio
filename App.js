@@ -1,28 +1,26 @@
-
-import React from "react";
+                                                                                                                                                                                                                                                   import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { Provider as PaperProvider } from "react-native-paper";
 import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { NoticiasProvider } from "./src/context/NoticiasContext";
-import { AudioProvider } from "./src/context/AudioContext"; // <-- Importa el contexto global de audio
-
-// Navegación
+import { AudioProvider } from "./src/context/AudioContext";
 import NavegadorPrincipal from "./src/navegacion/NavegadorPrincipal";
-
-// Configuración
 import { temaPrincipal } from "./src/configuracion/colores";
 
 export default function App() {
   return (
-    <PaperProvider theme={temaPrincipal}>
-      <NoticiasProvider>
-        <AudioProvider> 
-          <NavigationContainer>
-            <StatusBar style="dark" />
-            <NavegadorPrincipal />
-          </NavigationContainer>
-        </AudioProvider>
-      </NoticiasProvider>
-    </PaperProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <PaperProvider theme={temaPrincipal}>
+        <NoticiasProvider>
+          <AudioProvider> 
+            <NavigationContainer>
+              <StatusBar style="dark" />
+              <NavegadorPrincipal />
+            </NavigationContainer>
+          </AudioProvider>
+        </NoticiasProvider>
+      </PaperProvider>
+    </GestureHandlerRootView>
   );
 }
