@@ -82,7 +82,7 @@ const TarjetaNoticia_temp = ({
   
   const fetchTotales = async () => {
     try {
-      const response = await axios.get(`http://192.168.108.46:8080/api/interacciones/totales/${noticia.id}`);
+      const response = await axios.get(`http://192.168.1.5:8080/api/interacciones/totales/${noticia.id}`);
       setContadorLecturas(response.data.vistas);
       setContadorComentarios(response.data.comentarios);
       setContadorLikes(response.data.likes);
@@ -106,7 +106,7 @@ const TarjetaNoticia_temp = ({
 
   const registrarInteraccion = async (tipo) => {
     try {
-      await axios.post("http://192.168.108.46:8080/api/interacciones", {
+      await axios.post("http://192.168.1.5:8080/api/interacciones", {
         noticiaId: noticia.id,
         tipo: tipo,
       });
