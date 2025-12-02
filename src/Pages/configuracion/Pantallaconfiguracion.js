@@ -194,7 +194,7 @@ export default function PantallaConfiguracion({ navigation }) {
     <SafeAreaView style={styles.container}>
       <ScrollView
         style={styles.scrollContainer}
-        contentContainerStyle={{ paddingBottom: 140 }}
+        contentContainerStyle={{ paddingBottom: 50}}
         showsVerticalScrollIndicator={true}
       >
         {/* Header */}
@@ -210,7 +210,7 @@ export default function PantallaConfiguracion({ navigation }) {
 
         <View style={styles.content}>
           <Animated.View style={{ opacity: fadeAnim }}>
-            {/* Comentarios */}
+         
             <Text style={styles.sectionTitle}>Comentarios sobre la App</Text>
             <TextInput
               style={styles.commentInput}
@@ -223,7 +223,7 @@ export default function PantallaConfiguracion({ navigation }) {
               <Text style={styles.sendButtonText}>Enviar comentario</Text>
             </TouchableOpacity>
 
-            {/* Soporte */}
+           
             <Text style={styles.sectionTitle}>Soporte y Mantenimiento</Text>
             <View style={styles.option}>
               <Text style={styles.optionText}>¿Necesitas ayuda?</Text>
@@ -232,7 +232,7 @@ export default function PantallaConfiguracion({ navigation }) {
               </TouchableOpacity>
             </View>
 
-            {/* Calificación */}
+        
             <Text style={styles.sectionTitle}>Calificar App</Text>
             <RatingSummary key={refreshKey} />
 
@@ -241,7 +241,7 @@ export default function PantallaConfiguracion({ navigation }) {
 
               {bloqueado ? (
                 <View>
-                  <Text style={{ color: "gray", fontWeight: "bold" }}>⛔ Bloqueado</Text>
+                  
                   <Text style={{ fontSize: 12, color: "#e63946" }}>
                     Podrás calificar en {diasRestantes} días
                   </Text>
@@ -251,12 +251,12 @@ export default function PantallaConfiguracion({ navigation }) {
                   style={styles.botonCalificar}
                   onPress={() => setModalVisible(true)}
                 >
-                  <Text style={styles.botonCalificarTexto}>Calificar ⭐</Text>
+                  <Text style={styles.botonCalificarTexto}>Calificar </Text>
                 </TouchableOpacity>
               )}
             </View>
 
-            {/* Redes */}
+         
             <Text style={styles.sectionTitle}>Síguenos en Redes Sociales</Text>
 
             <Animated.FlatList
@@ -275,7 +275,7 @@ export default function PantallaConfiguracion({ navigation }) {
 
             {renderDots()}
 
-            {/* Información alumnos */}
+      
             <Text style={styles.sectionTitle}>Acerca de</Text>
 
             <TouchableOpacity
@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 8,
   },
   alumnoCard: {
     flexDirection: "row",
@@ -409,8 +409,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 4,
   },
-  alumnoTexto: { fontSize: 15, color: "#144784", fontWeight: "600" },
-  botonCalificar: {
+alumnoTexto: {
+  fontSize: 15,
+  color: "#144784",
+  fontWeight: "600",
+  textAlign: "justify",
+  padding:20,
+},
+botonCalificar: {
     backgroundColor: "#144784",
     paddingVertical: 8,
     paddingHorizontal: 20,
