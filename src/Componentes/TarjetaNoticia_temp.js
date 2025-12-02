@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
-import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity } from "react-native";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity, Alert } from "react-native";
 import { Title, Paragraph, IconButton } from "react-native-paper";
 import { coloresCategorias } from "../configuracion/colores";
 import axios from "axios";
+import { NoticiasContext } from "../context/NoticiasContext"; // Ajusta la ruta según tu estructura
 
 const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -52,8 +53,10 @@ const TarjetaNoticia_temp = ({
   alVerDetalle,
   alCambiarGuardado,
   estaGuardada,
-   totalComentarios,
+  totalComentarios,
 }) => {
+  const { moverNoticiaAlFinal } = useContext(NoticiasContext);
+  
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
@@ -79,12 +82,9 @@ const TarjetaNoticia_temp = ({
     ]).start();
   }, [noticia]);
 
-  
   const fetchTotales = async () => {
     try {
-
       const response = await axios.get(`http://192.168.10.248:8080/api/interacciones/totales/${noticia.id}`);
-
       setContadorLecturas(response.data.vistas);
       setContadorComentarios(response.data.comentarios);
       setContadorLikes(response.data.likes);
@@ -94,13 +94,6 @@ const TarjetaNoticia_temp = ({
       console.error("Error al obtener totales:", error);
     }
   };
-  useEffect(() => {
-    if (typeof totalComentarios === "number") {
-      setContadorComentarios(totalComentarios);
-    } else if (noticia?.cantidadComentarios !== undefined) {
-      setContadorComentarios(noticia.cantidadComentarios);
-    }
-  }, [totalComentarios, noticia?.cantidadComentarios]);
 
   useEffect(() => {
     fetchTotales();
@@ -108,14 +101,11 @@ const TarjetaNoticia_temp = ({
 
   const registrarInteraccion = async (tipo) => {
     try {
-
       await axios.post("http://192.168.10.248:8080/api/interacciones", {
-        
-
         noticiaId: noticia.id,
         tipo: tipo,
       });
-      fetchTotales(); 
+      fetchTotales();
     } catch (error) {
       console.error("Error al registrar interacción:", error);
     }
@@ -150,20 +140,44 @@ const TarjetaNoticia_temp = ({
       console.log("Error al compartir:", error);
     }
   };
+
   const manejarCalificacion = async (estrella) => {
     setCalificacionUsuario(estrella);
     try {
-
       await axios.post(`http://192.168.10.248:8080/api/calificacion/${noticia.id}`, { valor: estrella });
-      
     } catch (err) {
       console.error("Error al guardar calificación:", err);
     }
   };
 
+  // Función para manejar el rechazo (mover al final)
+  const manejarRechazo = () => {
+    Alert.alert(
+      'No quiero ver esta noticia',
+      '¿Deseas mover esta noticia al final de la lista?',
+      [
+        {
+          text: 'Cancelar',
+          onPress: () => console.log('Cancelado'),
+          style: 'cancel',
+        },
+        {
+          text: 'Mover al final',
+          onPress: () => moverNoticiaAlFinal(noticia.id),
+          style: 'destructive',
+        },
+      ]
+    );
+  };
 
+  // Agrega un botón de rechazo en el componente
   return (
-    <TouchableOpacity activeOpacity={0.9} onPress={manejarVer}>
+    <TouchableOpacity 
+      activeOpacity={0.9} 
+      onPress={manejarVer}
+      onLongPress={manejarRechazo} // Long press para mover al final
+      delayLongPress={500}
+    >
       <Animated.View style={[styles.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
         <View style={styles.row}>
           <View style={styles.left}>
@@ -181,7 +195,7 @@ const TarjetaNoticia_temp = ({
         {/* Acciones */}
         <View style={styles.filaAcciones}>
           <Accion icon="eye" iconColor="#660909ff" contador={contadorLecturas} onPress={manejarVer} texto="Ver" />
-      <Accion
+          <Accion
             icon="comment"
             iconColor="#2196F3"
             contador={contadorComentarios}
@@ -196,6 +210,15 @@ const TarjetaNoticia_temp = ({
           <Accion icon="thumb-up" iconColor="#f44336" contador={contadorLikes} onPress={manejarLike} texto="Me gusta" />
           <Accion icon="bookmark" iconColor={estaGuardada ? "#FFC107" : "#0d93e681"} contador={contadorGuardados} onPress={manejarFavorito} texto="Guardar" />
           <Accion icon="share-variant" iconColor="#2196F3" contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
+          
+          {/* Botón para mover al final */}
+          <Accion 
+            icon="arrow-down" 
+            iconColor="#888" 
+            contador=""
+            onPress={manejarRechazo}
+            texto="Mover al final"
+          />
         </View>
       </Animated.View>
     </TouchableOpacity>
@@ -220,8 +243,3 @@ const styles = StyleSheet.create({
 });
 
 export default TarjetaNoticia_temp;
-
-
-
-
- 
