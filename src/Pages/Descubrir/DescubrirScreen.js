@@ -33,7 +33,7 @@ export default function DescubrirScreen({ navigation }) {
         <View style={styles.headerContent}>
           <Avatar.Image
             size={45}
-            source={require("../../assets/Logos/nt-el-reloj.gif")}
+            source={require("../../assets/Logos/logo gif.gif")}
             style={{ backgroundColor: "transparent" }}
           />
           <Title style={styles.title}>{NOMBRE_APP}</Title>
