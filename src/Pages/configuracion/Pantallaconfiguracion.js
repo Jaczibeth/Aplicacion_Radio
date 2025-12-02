@@ -134,15 +134,11 @@ export default function PantallaConfiguracion({ navigation }) {
       
       {/* ★★★ AQUI ESTÁ TU SCROLL LIMITADO ★★★ */}
       <ScrollView
-        contentContainerStyle={{
-          paddingBottom: 40,
-          paddingTop: 10,
-        }}
-        nestedScrollEnabled={true}
-        showsVerticalScrollIndicator={false}
-        style={{ flexGrow: 0, maxHeight: "86%" }}
+        style={styles.scrollContainer}
+        contentContainerStyle={{ paddingBottom: 140 }}
+        showsVerticalScrollIndicator={true}
       >
-
+        {/* Header */}
         <View style={styles.header}>
           <IconButton icon="arrow-left" size={24} onPress={() => navigation.goBack()} />
           <Text style={styles.headerTitle}>Configuración</Text>
@@ -150,81 +146,74 @@ export default function PantallaConfiguracion({ navigation }) {
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Comentarios sobre la App</Text>
-          <TextInput
-            style={styles.commentInput}
-            placeholder="Escribe tu comentario aquí..."
-            value={comentario}
-            onChangeText={setComentario}
-            multiline
-          />
-          <TouchableOpacity onPress={handleSendComment} style={styles.sendButton}>
-            <Text style={styles.sendButtonText}>Enviar comentario</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.sectionTitle}>Soporte y Mantenimiento</Text>
-          <View style={styles.option}>
-            <Text style={styles.optionText}>¿Necesitas ayuda?</Text>
-            <TouchableOpacity onPress={handleSupport}>
-              <Text style={styles.supportText}>Contáctanos</Text>
+          <Animated.View style={{ opacity: fadeAnim }}>
+            {/* Comentarios */}
+            <Text style={styles.sectionTitle}>Comentarios sobre la App</Text>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Escribe tu comentario aquí..."
+              value={comentario}
+              onChangeText={setComentario}
+              multiline
+            />
+            <TouchableOpacity onPress={handleSendComment} style={styles.sendButton}>
+              <Text style={styles.sendButtonText}>Enviar comentario</Text>
             </TouchableOpacity>
-          </View>
 
-          <TouchableOpacity
-            style={styles.modificarBtn}
-            onPress={() => setModoModificar((prev) => !prev)}
-          >
-            <Text style={styles.modificarTxt}>{modoModificar ? "Modo Normal" : "Modificar"}</Text>
-          </TouchableOpacity>
+            {/* Soporte */}
+            <Text style={styles.sectionTitle}>Soporte y Mantenimiento</Text>
+            <View style={styles.option}>
+              <Text style={styles.optionText}>¿Necesitas ayuda?</Text>
+              <TouchableOpacity onPress={handleSupport}>
+                <Text style={styles.supportText}>Contáctanos</Text>
+              </TouchableOpacity>
+            </View>
 
-          <Text style={styles.sectionTitle}>Calificar App</Text>
-
-          <RatingSummary key={refreshKey} />
+            {/* Calificación */}
+            <Text style={styles.sectionTitle}>Calificar App</Text>
+            <RatingSummary key={refreshKey} />
 
           <View style={styles.option}>
             <Text style={styles.optionText}>Danos tu opinión</Text>
 
-            {bloqueado && !modoModificar ? (
-              <View>
-                <Text style={{ color: "gray", fontWeight: "bold" }}>⛔ Bloqueado</Text>
-                <Text style={{ fontSize: 12, color: "#e63946" }}>
-                  Podrás calificar en {diasRestantes} {diasRestantes === 1 ? "día" : "días"}
-                </Text>
-              </View>
-            ) : bloqueado && modoModificar ? (
-              <TouchableOpacity style={styles.desbloquearBtn} onPress={handleDesbloquear}>
-                <Text style={styles.desbloquearTxt}>Desbloquear calificación</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.botonCalificar}
-                onPress={() => setModalVisible(true)}
-              >
-                <Text style={styles.botonCalificarTexto}>Calificar ⭐</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+              {bloqueado ? (
+                <View>
+                  <Text style={{ color: "gray", fontWeight: "bold" }}>⛔ Bloqueado</Text>
+                  <Text style={{ fontSize: 12, color: "#e63946" }}>
+                    Podrás calificar en {diasRestantes} días
+                  </Text>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={styles.botonCalificar}
+                  onPress={() => setModalVisible(true)}
+                >
+                  <Text style={styles.botonCalificarTexto}>Calificar ⭐</Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
-          <Text style={styles.sectionTitle}>Síguenos en Redes Sociales</Text>
+            {/* Redes */}
+            <Text style={styles.sectionTitle}>Síguenos en Redes Sociales</Text>
 
-          <Animated.FlatList
-            ref={flatListRef}
-            data={redesSociales}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.nombre}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={{ width: itemAncho, marginHorizontal: itemMargen }}
-                onPress={() => Linking.openURL(item.url)}
-              >
-                <FontAwesome name={item.icon} size={40} color={item.color} />
-                <Text style={{ textAlign: "center", marginTop: 6 }}>{item.nombre}</Text>
-              </TouchableOpacity>
-            )}
-          />
+            <Animated.FlatList
+              ref={flatListRef}
+              data={redesSociales}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.nombre}
+              renderItem={renderItemCarrusel}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                { useNativeDriver: false }
+              )}
+              scrollEventThrottle={16}
+            />
 
-          <Text style={styles.sectionTitle}>Acerca de</Text>
+            {renderDots()}
+
+            {/* Información alumnos */}
+            <Text style={styles.sectionTitle}>Acerca de</Text>
 
           <TouchableOpacity onPress={() => setMostrarAlumnos((p) => !p)} style={styles.verMasBtn}>
             <FontAwesome name={mostrarAlumnos ? "chevron-up" : "chevron-down"} size={18} color="#fff" />
@@ -328,24 +317,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 12,
   },
-  sendButtonText: { color: "#fff", fontWeight: "bold" },
-
-  supportText: { color: "#144784", fontWeight: "bold" },
-
-  modificarBtn: {
-    marginTop: 12,
-    alignSelf: "flex-start",
-    backgroundColor: "#d62828",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+  sendButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  supportText: { fontSize: 16, color: "#144784" },
+  listaAlumnos: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 4,
+    marginBottom: 20,
   },
-  modificarTxt: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 15,
+  alumnoCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f4f6f9",
+    padding: 10,
+    borderRadius: 8,
+    marginVertical: 4,
   },
-
+  alumnoTexto: { fontSize: 15, color: "#144784", fontWeight: "600" },
   botonCalificar: {
     backgroundColor: "#144784",
     paddingVertical: 8,

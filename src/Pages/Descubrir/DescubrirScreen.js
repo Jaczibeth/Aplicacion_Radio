@@ -1,12 +1,12 @@
 import React from "react";
 import { View, FlatList, StyleSheet, Text, TouchableOpacity, Image } from "react-native";
-import { Avatar, Title, IconButton } from "react-native-paper";
+import { Avatar, Title, } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { NOMBRE_APP } from "../../configuracion/constantes";
 import useNoticias from "../../hooks/useNoticias"; 
 
 export default function DescubrirScreen({ navigation }) {
-  const { noticias, cargando, error, eliminarNoticia } = useNoticias();
+  const { noticias, cargando, error } = useNoticias();
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
@@ -16,7 +16,6 @@ export default function DescubrirScreen({ navigation }) {
       <Text style={styles.cardCategory}>{item.categoria}</Text>
 
      
-  <IconButton icon="delete"iconColor="#d33939ff" size={20} onPress={() => eliminarNoticia(item.id)}  style={styles.deleteButton} />
 
     </TouchableOpacity>
   );
@@ -45,7 +44,7 @@ export default function DescubrirScreen({ navigation }) {
         data={noticias}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
-        renderItem={renderItem}
+        renderItem={renderItem} 
         columnWrapperStyle={styles.grid}
         contentContainerStyle={{ paddingBottom: 70 }}
         ListHeaderComponent={renderHeader}
@@ -93,18 +92,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10, 
     marginBottom: 10 
   },
-  deleteButton: { 
-    position: "absolute", 
-    bottom: 1, 
-    right: 1, 
-    backgroundColor: "#d8cfcf33", 
-    borderRadius: 25, 
-    padding: 10,
-    elevation: 5
-  },
-  deleteButtonText: { 
-    color: "#fff", 
-    fontSize: 12, 
-    textAlign: "center" 
-  }
+ 
 });
