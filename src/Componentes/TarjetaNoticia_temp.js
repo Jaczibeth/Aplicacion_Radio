@@ -106,7 +106,7 @@ const TarjetaNoticia_temp = ({
 
   const registrarInteraccion = async (tipo) => {
     try {
-      await axios.post("http://192.168.137.234:8080/api/interacciones", {
+      await axios.post("http://192.168.10.248:8080/api/interacciones", {
         noticiaId: noticia.id,
         tipo: tipo,
       });
