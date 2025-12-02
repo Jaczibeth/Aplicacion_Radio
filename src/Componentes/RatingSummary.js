@@ -11,7 +11,7 @@ const RatingSummary = () => {
     const fetchResumen = async () => {
       try {
 
-        const response = await axios.get("http://192.168.10.248:8080/api/calificacion/resumen");
+        const response = await axios.get("http://10.61.197.171:8080/api/calificacion/resumen");
 
 
         setPromedio(response.data.promedio);
