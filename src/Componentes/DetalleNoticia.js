@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+ import React, { useState, useEffect } from "react";
 import { View, StyleSheet, Share, KeyboardAvoidingView, Platform, Alert, ScrollView, } from "react-native";
 import { Text } from "react-native-paper";
 import Dialog from "react-native-dialog";
@@ -182,7 +183,7 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
 }
 
 const estilos = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" , padding:15},
+  container: { flex: 1, backgroundColor: "#fff" , paddingTop: Platform.OS === "android" ? 30 : 0,},
   scrollPrincipal: { flex: 1, paddingBottom: 11},
   contenedorFecha: {
     marginHorizontal: 16,
