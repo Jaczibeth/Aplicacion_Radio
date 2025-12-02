@@ -63,7 +63,7 @@ const CarruselNoticias = React.memo(({ noticias, navigation }) => {
         overflow: "hidden",
       }}
     >
-      <Image source={{ uri: item.imagen }} style={{ width: "100%", height: 220 }} resizeMode="cover" />
+      <Image source={{ uri: item.imagen }} style={{ width: "100%", height: 220}} resizeMode="cover" />
       <View style={{ position: "absolute", bottom: 0, left: 0, right: 0, backgroundColor: "rgba(0,0,0,0.4)", padding: 10 }}>
         <Text style={{ color: "#fff", fontWeight: "600" }} numberOfLines={2}>{item.titulo}</Text>
       </View>

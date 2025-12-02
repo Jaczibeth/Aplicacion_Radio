@@ -182,7 +182,7 @@ export default function DetalleNoticia({ noticia, onCerrar }) {
 }
 
 const estilos = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" , padding:15},
+  container: { flex: 1, backgroundColor: "#fff" , paddingTop: Platform.OS === "android" ? 30 : 0,},
   scrollPrincipal: { flex: 1, paddingBottom: 11},
   contenedorFecha: {
     marginHorizontal: 16,
