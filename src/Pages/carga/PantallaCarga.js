@@ -54,7 +54,7 @@ export default function PantallaCarga({ navigation }) {
       
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Animated.Image
-          source={require("../../assets/Logos/NTRELOJ.gif")}
+          source={require("../../assets/Logos/Logo_noticias1.png")}
           style={{
             width: tamañoLogo,
             height: tamañoLogo,
