@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
+
 const BASE_URL = "http://192.168.10.248:8080/api/noticias";
 
 export const NoticiasContext = createContext();

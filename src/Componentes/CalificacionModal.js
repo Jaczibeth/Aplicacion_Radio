@@ -49,11 +49,12 @@ const CalificacionModal = ({ visible, onClose, onRatingSuccess }) => {
     if (currentRating > 0 && !isSubmitting) {
       setIsSubmitting(true);
       try {
-        await axios.post("http://192.168.10.248:8080/api/calificacion", {
-          valor: currentRating, 
-        });
-        onRatingSuccess();
-        fetchResumen();
+
+        await axios.post("http://192.168.10.248:8080/api/calificacion", { valor: rating });
+        await AsyncStorage.setItem("lastRatingDate", Date.now().toString());
+        setIsBlocked(true);
+        setDaysLeft(30);
+        onClose();
       } catch (error) {
         console.error("Error al enviar la calificación:", error);
         alert("Hubo un error al enviar tu calificación. Inténtalo de nuevo.");

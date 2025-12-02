@@ -12,7 +12,7 @@ export default function BarraComentarios({
     <View style={estilos.container}>
       <TextInput
         style={estilos.input}
-        placeholder="Escribe un comentario aqui porfavor..."
+        placeholder="Escribe un comentario..."
         value={nuevoComentario}
         onChangeText={setNuevoComentario}
       />
