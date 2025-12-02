@@ -93,11 +93,11 @@ export default function PantallaConfiguracion({ navigation }) {
     Linking.openURL("mailto:jaczicruz@gmail.com?subject=Soporte%20y%20Mantenimiento");
 
   const redesSociales = [
-    { nombre: "Facebook", url: "https://www.facebook.com/share/1gNuX9RpDQ/", icon: "facebook", color: "#1877F2" },
-    { nombre: "Instagram", url: "https://www.instagram.com/ntelreloj?igsh=MXZhcmQ1czZsdTVkeQ==", icon: "instagram", color: "#E1306C" },
-    { nombre: "X", url: "https://x.com/LaTlaxiaquenaOn?t=jGFVMeHrWWSEZTei-chq1w&s=09", icon: "twitter", color: "#000" },
-    { nombre: "YouTube", url: "https://youtube.com/@noticieroselrelojdetlaxiaco?si=8e8oi5BFxuZTvMjA", icon: "youtube-play", color: "#FF0000" },
-    { nombre: "Ubicación", url: "https://maps.app.goo.gl/7pduto4TCMH5xGbF9", icon: "map-marker", color: "#34A853" },
+    { nombre: "Facebook", url: "https://www.facebook.com/profile.php?id=100094324200093&locale=es_LA", icon: "facebook", color: "#1877F2" },
+    { nombre: "Instagram", url: "https://www.instagram.com/tectlaxiaco?igsh=MTA3Y3g3c3hraG94dg==", icon: "instagram", color: "#E1306C" },
+    { nombre: "X", url: "https://x.com/TecNMTlaxiaco?t=aug3fNBjLjPvn96suAhmPg&s=09", icon: "twitter", color: "#000" },
+    { nombre: "YouTube", url: "https://youtube.com/@tectlaxiaco?si=Y8GSwZlL_5q9fr8o", icon: "youtube-play", color: "#FF0000" },
+    { nombre: "Ubicación", url: "https://maps.app.goo.gl/GPn9dK1uzuf5wAxh9", icon: "map-marker", color: "#34A853" },
   ];
 
   const alumnos = [
@@ -202,7 +202,7 @@ export default function PantallaConfiguracion({ navigation }) {
           <IconButton icon="arrow-left" size={24} onPress={() => navigation.goBack()} />
           <Text style={styles.headerTitle}>Configuración</Text>
           <Image
-            source={require("../../assets/Logos/nt-el-reloj-circular.gif")}
+            source={require("../../assets/Logos/Logo_Noticias_redondo.png")}
             style={styles.logo}
             resizeMode="contain"
           />
