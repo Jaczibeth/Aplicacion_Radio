@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { View, StyleSheet, Animated, Text, Share, Image, TouchableOpacity } from "react-native";
 import { Title, Paragraph, IconButton } from "react-native-paper";
+import { Swipeable } from "react-native-gesture-handler";
 import { coloresCategorias } from "../configuracion/colores";
 import axios from "axios";
+import { NoticiasContext } from "../context/NoticiasContext";
 
 const Accion = ({ icon, iconColor, contador, onPress, texto }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -52,8 +54,11 @@ const TarjetaNoticia_temp = ({
   alVerDetalle,
   alCambiarGuardado,
   estaGuardada,
-   totalComentarios,
+  totalComentarios,
 }) => {
+  const { moverNoticiaAlFinal } = useContext(NoticiasContext);
+  const swipeableRef = useRef(null);
+  
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(20)).current;
 
@@ -62,7 +67,6 @@ const TarjetaNoticia_temp = ({
   const [contadorCompartidos, setContadorCompartidos] = useState(0);
   const [contadorComentarios, setContadorComentarios] = useState(0);
   const [contadorGuardados, setContadorGuardados] = useState(0);
-  const [calificacionUsuario, setCalificacionUsuario] = useState(noticia?.calificacionUsuario || 0);
 
   useEffect(() => {
     if (typeof totalComentarios === "number") {
@@ -79,10 +83,9 @@ const TarjetaNoticia_temp = ({
     ]).start();
   }, [noticia]);
 
-  
   const fetchTotales = async () => {
     try {
-      const response = await axios.get(`http://192.168.1.5:8080/api/interacciones/totales/${noticia.id}`);
+      const response = await axios.get(`http://10.135.187.86:8080/api/interacciones/totales/${noticia.id}`);
       setContadorLecturas(response.data.vistas);
       setContadorComentarios(response.data.comentarios);
       setContadorLikes(response.data.likes);
@@ -92,13 +95,6 @@ const TarjetaNoticia_temp = ({
       console.error("Error al obtener totales:", error);
     }
   };
-  useEffect(() => {
-    if (typeof totalComentarios === "number") {
-      setContadorComentarios(totalComentarios);
-    } else if (noticia?.cantidadComentarios !== undefined) {
-      setContadorComentarios(noticia.cantidadComentarios);
-    }
-  }, [totalComentarios, noticia?.cantidadComentarios]);
 
   useEffect(() => {
     fetchTotales();
@@ -106,11 +102,11 @@ const TarjetaNoticia_temp = ({
 
   const registrarInteraccion = async (tipo) => {
     try {
-      await axios.post("http://192.168.1.5:8080/api/interacciones", {
+      await axios.post("http://10.135.187.86:8080/api/interacciones", {
         noticiaId: noticia.id,
         tipo: tipo,
       });
-      fetchTotales(); 
+      fetchTotales();
     } catch (error) {
       console.error("Error al registrar interacción:", error);
     }
@@ -145,76 +141,227 @@ const TarjetaNoticia_temp = ({
       console.log("Error al compartir:", error);
     }
   };
-  const manejarCalificacion = async (estrella) => {
-    setCalificacionUsuario(estrella);
-    try {
-      await axios.post(`http://192.168.108.46:8080/api/calificacion/${noticia.id}`, { valor: estrella });
-    } catch (err) {
-      console.error("Error al guardar calificación:", err);
+
+  // Función para mover al final (automático, sin preguntar)
+  const moverAlFinalAutomatico = () => {
+    if (swipeableRef.current) {
+      swipeableRef.current.close();
     }
+    
+    // Mover la noticia al final automáticamente
+    moverNoticiaAlFinal(noticia.id);
   };
 
+  // Render de acciones al deslizar hacia la izquierda
+  const renderRightActions = () => {
+    return (
+      <TouchableOpacity 
+        style={styles.botonDeslizarDerecha} 
+        onPress={moverAlFinalAutomatico}
+      >
+        <View style={styles.contenidoBotonDeslizar}>
+          <IconButton icon="arrow-down" iconColor="#fff" size={24} />
+          <Text style={styles.textoBotonDeslizar}>Mover{"\n"}al final</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  // Render de acciones al deslizar hacia la derecha
+  const renderLeftActions = () => {
+    return (
+      <TouchableOpacity 
+        style={styles.botonDeslizarIzquierda} 
+        onPress={moverAlFinalAutomatico}
+      >
+        <View style={styles.contenidoBotonDeslizar}>
+          <IconButton icon="arrow-down" iconColor="#fff" size={24} />
+          <Text style={styles.textoBotonDeslizar}>Mover{"\n"}al final</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <TouchableOpacity activeOpacity={0.9} onPress={manejarVer}>
-      <Animated.View style={[styles.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-        <View style={styles.row}>
-          <View style={styles.left}>
-            {noticia.categoria && (
-              <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
-                <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
-              </View>
-            )}
-            <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
-            <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
+    <Swipeable
+      ref={swipeableRef}
+      renderRightActions={renderRightActions}
+      renderLeftActions={renderLeftActions}
+      rightThreshold={40}
+      leftThreshold={40}
+      onSwipeableRightOpen={moverAlFinalAutomatico}
+      onSwipeableLeftOpen={moverAlFinalAutomatico}
+    >
+      <TouchableOpacity 
+        activeOpacity={0.9} 
+        onPress={manejarVer}
+      >
+        <Animated.View style={[styles.tarjeta, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+          <View style={styles.row}>
+            <View style={styles.left}>
+              {noticia.categoria && (
+                <View style={[styles.etiquetaCategoria, { backgroundColor: coloresCategorias[noticia.categoria] || coloresCategorias.Otro }]}>
+                  <Text style={styles.textoCategoria}>{noticia.categoria}</Text>
+                </View>
+              )}
+              <Title style={styles.titulo} numberOfLines={2}>{noticia.titulo}</Title>
+              <Paragraph style={styles.descripcion} numberOfLines={3}>{noticia.descripcion}</Paragraph>
+            </View>
+            <Image source={{ uri: noticia.imagen }} style={styles.imagenRight} />
           </View>
-          <Image source={{ uri: noticia.imagen }} style={styles.imagenRight} />
-        </View>
 
-        {/* Acciones */}
-        <View style={styles.filaAcciones}>
-          <Accion icon="eye" iconColor="#660909ff" contador={contadorLecturas} onPress={manejarVer} texto="Ver" />
-      <Accion
-            icon="comment"
-            iconColor="#2196F3"
-            contador={contadorComentarios}
-            onPress={() =>
-              alVerDetalle({
-                ...noticia,
-                mostrarComentarios: true,
-              })
-            }
-            texto="Comentarios"
-          />
-          <Accion icon="thumb-up" iconColor="#f44336" contador={contadorLikes} onPress={manejarLike} texto="Me gusta" />
-          <Accion icon="bookmark" iconColor={estaGuardada ? "#FFC107" : "#0d93e681"} contador={contadorGuardados} onPress={manejarFavorito} texto="Guardar" />
-          <Accion icon="share-variant" iconColor="#2196F3" contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
-        </View>
-      </Animated.View>
-    </TouchableOpacity>
+          {/* Acciones */}
+          <View style={styles.filaAcciones}>
+            <Accion icon="eye" iconColor="#660909ff" contador={contadorLecturas} onPress={manejarVer} texto="Ver" />
+            <Accion
+              icon="comment"
+              iconColor="#2196F3"
+              contador={contadorComentarios}
+              onPress={() =>
+                alVerDetalle({
+                  ...noticia,
+                  mostrarComentarios: true,
+                })
+              }
+              texto="Comentarios"
+            />
+            <Accion icon="thumb-up" iconColor="#f44336" contador={contadorLikes} onPress={manejarLike} texto="Me gusta" />
+            <Accion icon="bookmark" iconColor={estaGuardada ? "#FFC107" : "#0d93e681"} contador={contadorGuardados} onPress={manejarFavorito} texto="Guardar" />
+            <Accion icon="share-variant" iconColor="#2196F3" contador={contadorCompartidos} onPress={manejarCompartir} texto="Compartir" />
+          </View>
+        </Animated.View>
+      </TouchableOpacity>
+    </Swipeable>
   );
 };
 
 const styles = StyleSheet.create({
-  tarjeta: { marginBottom: 20, borderRadius: 12, backgroundColor: "#fff", shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 3, paddingBottom: 10 },
-  row: { flexDirection: "row", alignItems: "flex-start", padding: 10 },
-  left: { flex: 1, paddingRight: 10, justifyContent: "flex-start" },
-  titulo: { fontSize: 16, fontWeight: "700", color: "#333" },
-  descripcion: { fontSize: 14, color: "#666" },
-  imagenRight: { width: 110, height: 110, borderRadius: 8, backgroundColor: "#eee", marginTop: 20 },
-  etiquetaCategoria: { alignSelf: "flex-start", paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, marginBottom: 8 },
-  textoCategoria: { color: "#fff", fontSize: 12, fontWeight: "700" },
-  filaAcciones: { flexDirection: "row", justifyContent: "space-around", alignItems: "center", paddingVertical: 10 },
-  contenedorAccion: { alignItems: "center", justifyContent: "center", width: 55 },
-  botonCircular: { backgroundColor: "#f3f3f3", borderRadius: 40, width: 46, height: 46, justifyContent: "center", alignItems: "center" },
-  contador: { fontSize: 12, color: "#555", fontWeight: "600", marginTop: 3 },
-  tooltip: { position: "absolute", bottom: 60, backgroundColor: "#144784", paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6, zIndex: 10, alignItems: "center", justifyContent: "center", minWidth: 70, maxWidth: 90 },
-  textoTooltip: { color: "#fff", fontSize: 11, fontWeight: "600", textAlign: "center" },
+  tarjeta: { 
+    marginBottom: 20, 
+    borderRadius: 12, 
+    backgroundColor: "#fff", 
+    shadowColor: "#000", 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.2, 
+    shadowRadius: 4, 
+    elevation: 3, 
+    paddingBottom: 10 
+  },
+  row: { 
+    flexDirection: "row", 
+    alignItems: "flex-start", 
+    padding: 10 
+  },
+  left: { 
+    flex: 1, 
+    paddingRight: 10, 
+    justifyContent: "flex-start" 
+  },
+  titulo: { 
+    fontSize: 16, 
+    fontWeight: "700", 
+    color: "#333" 
+  },
+  descripcion: { 
+    fontSize: 14, 
+    color: "#666" 
+  },
+  imagenRight: { 
+    width: 110, 
+    height: 110, 
+    borderRadius: 8, 
+    backgroundColor: "#eee", 
+    marginTop: 20 
+  },
+  etiquetaCategoria: { 
+    alignSelf: "flex-start", 
+    paddingHorizontal: 12, 
+    paddingVertical: 6, 
+    borderRadius: 20, 
+    marginBottom: 8 
+  },
+  textoCategoria: { 
+    color: "#fff", 
+    fontSize: 12, 
+    fontWeight: "700" 
+  },
+  filaAcciones: { 
+    flexDirection: "row", 
+    justifyContent: "space-around", 
+    alignItems: "center", 
+    paddingVertical: 10 
+  },
+  contenedorAccion: { 
+    alignItems: "center", 
+    justifyContent: "center", 
+    width: 55 
+  },
+  botonCircular: { 
+    backgroundColor: "#f3f3f3", 
+    borderRadius: 40, 
+    width: 46, 
+    height: 46, 
+    justifyContent: "center", 
+    alignItems: "center" 
+  },
+  contador: { 
+    fontSize: 12, 
+    color: "#555", 
+    fontWeight: "600", 
+    marginTop: 3 
+  },
+  tooltip: { 
+    position: "absolute", 
+    bottom: 60, 
+    backgroundColor: "#144784", 
+    paddingHorizontal: 8, 
+    paddingVertical: 4, 
+    borderRadius: 6, 
+    zIndex: 10, 
+    alignItems: "center", 
+    justifyContent: "center", 
+    minWidth: 70, 
+    maxWidth: 90 
+  },
+  textoTooltip: { 
+    color: "#fff", 
+    fontSize: 11, 
+    fontWeight: "600", 
+    textAlign: "center" 
+  },
+  // Estilos para botones de deslizamiento
+  botonDeslizarDerecha: {
+    backgroundColor: '#144784',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 100,
+    height: '93%',
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+    marginLeft: 10,
+  },
+  botonDeslizarIzquierda: {
+    backgroundColor: '#144784',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 100,
+    height: '93%',
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+    marginRight: 10,
+  },
+  contenidoBotonDeslizar: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  textoBotonDeslizar: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 5,
+  },
 });
 
 export default TarjetaNoticia_temp;
-
-
-
-
- 
