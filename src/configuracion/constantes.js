@@ -1,6 +1,6 @@
 // Nombre de la aplicación
-export const NOMBRE_APP = "World News";
-export const NOMBRE_APP_CORTO = "World News  ";
+export const NOMBRE_APP = "Noticias Mundiales";
+export const NOMBRE_APP_CORTO = "Noticias   ";
 // Definición de pestañas
 export const PESTANAS = {
   DESTACADAS: 'Destacadas',
